@@ -41,7 +41,11 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (theme: Theme) => {
+      window.dispatchEvent(new CustomEvent("theme-change-start"));
       setTheme(theme);
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("theme-change-end"));
+      }, 1000);
     },
   };
 

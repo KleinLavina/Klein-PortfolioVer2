@@ -24,7 +24,18 @@ function App() {
   useEffect(() => {
     // Simulate initial asset loading
     const timer = setTimeout(() => setIsLoaded(true), 2000);
-    return () => clearTimeout(timer);
+
+    const handleThemeStart = () => setIsLoaded(false);
+    const handleThemeEnd = () => setIsLoaded(true);
+
+    window.addEventListener("theme-change-start", handleThemeStart);
+    window.addEventListener("theme-change-end", handleThemeEnd);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("theme-change-start", handleThemeStart);
+      window.removeEventListener("theme-change-end", handleThemeEnd);
+    };
   }, []);
 
   return (
