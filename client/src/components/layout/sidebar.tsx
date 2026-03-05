@@ -102,7 +102,17 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-6 pb-8">
+      <SidebarFooter className="p-6 pb-8 space-y-4">
+        <Button 
+          variant="outline" 
+          className="w-full rounded-xl border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-all font-bold gap-2"
+          asChild
+        >
+          <a href="/portfolio.tar.gz" download>
+            <FolderGit2 className="h-4 w-4" />
+            Download Source
+          </a>
+        </Button>
         <div className="flex items-center justify-between bg-muted rounded-2xl p-2 border border-border/50">
           <Button 
             variant="ghost" 
