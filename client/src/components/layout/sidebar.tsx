@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/components/theme-provider";
 
 const navItems = [
   { title: "Home", url: "#home", icon: Home },
@@ -36,16 +37,10 @@ const navItems = [
 
 export function AppSidebar() {
   const [activeSection, setActiveSection] = useState("home");
-  const [isDark, setIsDark] = useState(true); // Default dark
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
 
   useEffect(() => {
-    // Set initial theme
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
     // Intersection observer for active nav state
     const observer = new IntersectionObserver(
       (entries) => {
@@ -63,9 +58,9 @@ export function AppSidebar() {
     });
 
     return () => observer.disconnect();
-  }, [isDark]);
+  }, []);
 
-  const toggleTheme = () => setIsDark(!isDark);
+  const toggleTheme = () => setTheme(isDark ? "light" : "dark");
 
   return (
     <Sidebar variant="inset" className="border-r border-border/50">
