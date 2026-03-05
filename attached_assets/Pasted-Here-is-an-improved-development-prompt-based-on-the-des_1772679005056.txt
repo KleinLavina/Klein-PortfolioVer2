@@ -1,0 +1,315 @@
+Here is an **improved development prompt based on the design shown in your screenshots**. This prompt tells an AI or developer to **replicate that exact layout style** while using your **Klein F. Lavina portfolio branding**.
+
+---
+
+# Development Prompt (Portfolio Based on Reference UI)
+
+Create a **modern developer portfolio website** for **Klein F. Lavina — Full Stack Developer** inspired by the layout and UI shown in the reference images.
+
+The design should replicate the **sidebar developer portfolio layout** similar to the screenshots while using the provided **color palette, fonts, and animations**.
+
+---
+
+# Tech Stack
+
+Use:
+
+* **Next.js or React (preferred)**
+* TailwindCSS or modern CSS
+* Framer Motion for animations
+* Lucide / Heroicons for icons
+* Fully responsive
+
+---
+
+# Color Palette
+
+Use CSS variables:
+
+```css
+:root{
+--text: #030e06;
+--background: #f4fdf6;
+--primary: #35d361;
+--secondary: #84cde4;
+--accent: #5a8ddb;
+}
+```
+
+Dark mode version should automatically invert with a darker background.
+
+---
+
+# Typography
+
+Use **Google Font: Urbanist**
+
+Hierarchy:
+
+* Hero title: 56px – 64px
+* Section titles: 28px – 36px
+* Body text: 16px – 18px
+
+---
+
+# Gradient Highlight
+
+Highlighted words should use this gradient:
+
+```
+linear-gradient(90deg,#35d361,#84cde4,#5a8ddb)
+```
+
+Apply gradient to:
+
+* Important keywords
+* Buttons
+* Hover links
+* Section highlights
+
+---
+
+# Layout Structure
+
+The site should follow a **two-column developer dashboard layout** like the reference images.
+
+### Left Sidebar (Fixed)
+
+Contains:
+
+Profile section:
+
+* Profile picture
+* Name: **Klein F. Lavina**
+* Title: **Full Stack Developer**
+* Username style subtitle
+
+Controls:
+
+* Language toggle
+* Light/Dark mode toggle
+
+Navigation menu:
+
+* Home
+* About
+* Skills
+* Achievements
+* Projects
+* Dashboard
+* Chat Room
+* Contact
+
+Features:
+
+* Active page highlight
+* Icon + label navigation
+* Smooth hover animation
+* Mobile collapsible drawer
+
+---
+
+# Main Content Area
+
+Right side scrollable content.
+
+---
+
+# Home Section
+
+Hero layout similar to screenshot.
+
+Content example:
+
+```
+Hi, I'm Klein F. Lavina
+
+• Full Stack Developer
+• Available for Remote Work
+```
+
+Paragraph describing skills and focus.
+
+Example idea:
+
+"I specialize in building scalable web applications using modern technologies such as React, Node.js, and cloud-based architectures."
+
+Add smooth **fade + slide animations** on load.
+
+---
+
+# Skills Section
+
+Display **skill icons in rounded gradient bubbles** like the reference UI.
+
+Skills grid example:
+
+Frontend:
+
+* HTML
+* CSS
+* Tailwind
+* JavaScript
+* TypeScript
+* React
+
+Backend:
+
+* Node.js
+* Express
+* REST APIs
+
+Database:
+
+* MongoDB
+* PostgreSQL
+
+Tools:
+
+* Git
+* Docker
+* Figma
+* VSCode
+
+Each skill bubble should:
+
+* Glow on hover
+* Slight scale animation
+* Soft shadow
+
+---
+
+# Projects Section
+
+Card grid layout.
+
+Each project card:
+
+* Thumbnail image
+* Title
+* Short description
+* Tech stack tags
+* Buttons:
+
+  * Live Demo
+  * GitHub
+
+Hover animation:
+
+* Card lift
+* Gradient border glow
+
+---
+
+# Achievements Section
+
+Timeline style layout:
+
+Example:
+
+* Certifications
+* Hackathon awards
+* Open source contributions
+* Milestones
+
+---
+
+# Dashboard Section
+
+Optional developer dashboard area showing:
+
+* GitHub stats
+* Contribution chart
+* Tech usage
+* Personal metrics
+
+---
+
+# Chat Room Section
+
+Interactive section where visitors can send a message or leave feedback.
+
+Include:
+
+* Chat style message bubbles
+* Send message input
+* Simple animation
+
+---
+
+# Contact Section
+
+Contact form:
+
+Fields:
+
+* Name
+* Email
+* Message
+
+Animated gradient submit button.
+
+Add social icons:
+
+* GitHub
+* LinkedIn
+* Twitter
+* Email
+
+---
+
+# Animations
+
+Include modern UI animations:
+
+### Page Loader
+
+Fullscreen loading screen with animated logo before page loads.
+
+### Scroll Animations
+
+* Fade in
+* Slide up
+* Scale in
+
+### UI Microinteractions
+
+* Button hover glow
+* Icon bounce
+* Menu hover slide
+
+---
+
+# Mobile Behavior
+
+On mobile:
+
+* Sidebar becomes **slide-out drawer**
+* Hamburger menu
+* Profile section stays at top
+
+---
+
+# Footer
+
+```
+© 2026 Klein F. Lavina
+Designed by Corey Hu
+```
+
+---
+
+# Extra UI Details
+
+Add:
+
+* Floating WhatsApp button
+* Scroll progress indicator
+* Smooth page transitions
+* Glassmorphism sidebar
+* Soft shadows
+* Rounded UI components
+
+---
+
+✅ If you want, I can also generate a **FULL working portfolio template (React + Tailwind + animations) that looks exactly like the reference UI**, which will save you **hours of development**.
