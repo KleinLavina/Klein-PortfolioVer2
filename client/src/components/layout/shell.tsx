@@ -1,11 +1,14 @@
-import { ReactNode } from "react";
+import { ReactNode, useRef } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./sidebar";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 
 export function Shell({ children }: { children: ReactNode }) {
-  const { scrollYProgress } = useScroll();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    container: scrollRef
+  });
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
@@ -30,7 +33,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <span className="ml-4 font-bold text-lg text-gradient">Klein F. Lavina</span>
           </header>
           
-          <main className="flex-1 overflow-y-auto scroll-smooth w-full">
+          <main ref={scrollRef} className="flex-1 overflow-y-auto scroll-smooth w-full">
             <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative">
               {children}
             </div>

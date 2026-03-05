@@ -4,8 +4,7 @@ import {
   User, 
   Code2, 
   Trophy, 
-  FolderGit2, 
-  MessageSquare, 
+  FolderGit2,
   Mail,
   Moon,
   Sun
@@ -31,7 +30,6 @@ const navItems = [
   { title: "Skills", url: "#skills", icon: Code2 },
   { title: "Achievements", url: "#achievements", icon: Trophy },
   { title: "Projects", url: "#projects", icon: FolderGit2 },
-  { title: "Chat Room", url: "#chat", icon: MessageSquare },
   { title: "Contact", url: "#contact", icon: Mail },
 ];
 
@@ -64,25 +62,25 @@ export function AppSidebar() {
 
   return (
     <Sidebar variant="inset" className="border-r border-border/50">
-      <SidebarHeader className="p-6 flex flex-col items-center justify-center space-y-4 pt-10">
+      <SidebarHeader className="p-4 flex flex-col items-center justify-center space-y-3 pt-6">
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-brand rounded-full blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
           {/* using unspalsh image as avatar placeholder */}
-          <Avatar className="h-24 w-24 border-2 border-background relative">
+          <Avatar className="h-20 w-20 border-2 border-background relative">
             <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop" alt="Klein F. Lavina" />
-            <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">KL</AvatarFallback>
+            <AvatarFallback className="bg-primary text-primary-foreground text-xl font-bold">KL</AvatarFallback>
           </Avatar>
         </div>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-foreground">Klein F. Lavina</h2>
-          <p className="text-sm font-medium text-gradient">Full Stack Developer</p>
+          <h2 className="text-lg font-bold text-foreground">Klein F. Lavina</h2>
+          <p className="text-xs font-medium text-gradient">Full Stack Developer</p>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-4 py-6">
+      <SidebarContent className="px-4 py-4">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
+            <SidebarMenu className="space-y-1">
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
@@ -90,9 +88,9 @@ export function AppSidebar() {
                     isActive={activeSection === item.url.replace("#", "")}
                     className="rounded-xl transition-all duration-300 hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-lg data-[active=true]:shadow-primary/25"
                   >
-                    <a href={item.url} className="flex items-center gap-3 px-4 py-3">
-                      <item.icon className="h-5 w-5" />
-                      <span className="font-semibold">{item.title}</span>
+                    <a href={item.url} className="flex items-center gap-3 px-4 py-2.5">
+                      <item.icon className="h-4 w-4" />
+                      <span className="font-semibold text-sm">{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -102,17 +100,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-6 pb-8 space-y-4">
-        <Button 
-          variant="outline" 
-          className="w-full rounded-xl border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-all font-bold gap-2"
-          asChild
-        >
-          <a href="/portfolio.tar.gz" download>
-            <FolderGit2 className="h-4 w-4" />
-            Download Source
-          </a>
-        </Button>
+      <SidebarFooter className="p-4 pb-6">
         <div className="flex items-center justify-between bg-muted rounded-2xl p-2 border border-border/50">
           <Button 
             variant="ghost" 
