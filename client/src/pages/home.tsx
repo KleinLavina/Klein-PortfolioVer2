@@ -14,20 +14,36 @@ import { useForm } from "react-form";
 import { useState } from "react";
 import { format } from "date-fns";
 
-const SKILLS = [
-  { name: "HTML5", icon: Code, color: "text-orange-500" },
-  { name: "CSS3", icon: Layers, color: "text-blue-500" },
-  { name: "Tailwind", icon: Layers, color: "text-cyan-400" },
-  { name: "JavaScript", icon: TerminalSquare, color: "text-yellow-400" },
-  { name: "TypeScript", icon: TerminalSquare, color: "text-blue-600" },
-  { name: "React", icon: MonitorSmartphone, color: "text-cyan-500" },
-  { name: "Node.js", icon: Server, color: "text-green-500" },
-  { name: "Express", icon: Server, color: "text-gray-400" },
-  { name: "MongoDB", icon: Database, color: "text-green-600" },
-  { name: "PostgreSQL", icon: Database, color: "text-blue-400" },
-  { name: "Git", icon: Code, color: "text-orange-600" },
-  { name: "Docker", icon: Layers, color: "text-blue-500" },
-];
+const SKILLS = {
+  "Frontend": [
+    { name: "HTML", icon: Code, color: "text-orange-500" },
+    { name: "CSS", icon: Layers, color: "text-blue-500" },
+    { name: "JavaScript", icon: TerminalSquare, color: "text-yellow-400" },
+    { name: "TypeScript", icon: TerminalSquare, color: "text-blue-600" },
+    { name: "React", icon: MonitorSmartphone, color: "text-cyan-500" },
+    { name: "Next.js", icon: MonitorSmartphone, color: "text-foreground" },
+  ],
+  "Backend": [
+    { name: "Django", icon: Server, color: "text-green-600" },
+    { name: "PHP", icon: Server, color: "text-indigo-400" },
+  ],
+  "Databases": [
+    { name: "MySQL", icon: Database, color: "text-blue-500" },
+    { name: "PostgreSQL", icon: Database, color: "text-blue-400" },
+  ],
+  "Programming Languages": [
+    { name: "Java", icon: Code, color: "text-red-500" },
+    { name: "Python", icon: Code, color: "text-blue-400" },
+    { name: "R", icon: Code, color: "text-blue-600" },
+  ],
+  "Tools & Platforms": [
+    { name: "VS Code", icon: Code, color: "text-blue-500" },
+    { name: "Git", icon: FolderGit2, color: "text-orange-600" },
+    { name: "GitHub", icon: FolderGit2, color: "text-foreground" },
+    { name: "Postman", icon: Layers, color: "text-orange-500" },
+    { name: "Discord", icon: MessageSquare, color: "text-indigo-500" },
+  ],
+};
 
 export default function Home() {
   const { data: projects, isLoading: projectsLoading } = useProjects();
@@ -47,7 +63,7 @@ export default function Home() {
   return (
     <Shell>
       {/* HERO SECTION */}
-      <Section id="home" className="justify-center min-h-[90vh]">
+      <Section id="home" className="justify-center min-h-screen py-4 pt-0">
         <div className="relative">
           <div className="absolute top-0 left-20 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
           <div className="absolute top-0 right-20 w-72 h-72 bg-secondary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -58,26 +74,26 @@ export default function Home() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative z-10"
           >
-            <Badge variant="outline" className="mb-6 px-4 py-2 border-primary/30 bg-primary/5 text-primary text-sm font-semibold rounded-full">
+            <Badge variant="outline" className="mb-4 px-4 py-2 border-primary/30 bg-primary/5 text-primary text-sm font-semibold rounded-full">
               👋 Welcome to my portfolio
             </Badge>
-            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black tracking-tight text-foreground leading-[1.1]">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-[1.1]">
               Hi, I'm <br />
               <span className="text-gradient">Klein F. Lavina</span>
             </h1>
-            <h2 className="mt-6 text-2xl sm:text-3xl font-bold text-muted-foreground">
+            <h2 className="mt-4 text-xl sm:text-2xl font-bold text-muted-foreground">
               Crafting digital experiences as a <span className="text-foreground">Full Stack Developer</span>.
             </h2>
-            <p className="mt-6 text-lg text-muted-foreground max-w-2xl leading-relaxed">
+            <p className="mt-4 text-base text-muted-foreground max-w-2xl leading-relaxed">
               I build scalable, modern, and beautiful web applications. 
               Passionate about turning complex problems into elegant, intuitive interfaces.
             </p>
             
-            <div className="mt-10 flex flex-wrap gap-4">
-              <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-1 transition-all h-14 text-lg font-bold">
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-1 transition-all h-12 text-base font-bold">
                 <a href="#projects">View My Work</a>
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full px-8 border-2 hover:bg-primary/5 hover:text-primary transition-all h-14 text-lg font-bold glass-card">
+              <Button size="lg" variant="outline" className="rounded-full px-8 border-2 hover:bg-primary/5 hover:text-primary transition-all h-12 text-base font-bold glass-card">
                 <a href="#contact">Contact Me</a>
               </Button>
             </div>
@@ -133,23 +149,33 @@ export default function Home() {
           title="Technical Arsenal" 
           subtitle="Technologies and tools I use to bring ideas to life." 
         />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {SKILLS.map((skill, index) => (
-            <motion.div
-              key={skill.name}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
-              className="group"
-            >
-              <div className="p-6 rounded-3xl glass-card flex flex-col items-center justify-center gap-4 hover-glow cursor-default">
-                <div className={`p-4 rounded-full bg-background border border-border shadow-inner group-hover:scale-110 transition-transform duration-300 ${skill.color}`}>
-                  <skill.icon size={32} strokeWidth={1.5} />
-                </div>
-                <span className="font-bold text-foreground">{skill.name}</span>
+        <div className="space-y-12">
+          {Object.entries(SKILLS).map(([category, skills]) => (
+            <div key={category}>
+              <h3 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
+                <span className="h-1 w-12 bg-gradient-brand rounded-full"></span>
+                {category}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {skills.map((skill, index) => (
+                  <motion.div
+                    key={skill.name}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.05 }}
+                    className="group"
+                  >
+                    <div className="p-6 rounded-3xl glass-card flex flex-col items-center justify-center gap-4 hover-glow cursor-default">
+                      <div className={`p-4 rounded-full bg-background border border-border shadow-inner group-hover:scale-110 transition-transform duration-300 ${skill.color}`}>
+                        <skill.icon size={32} strokeWidth={1.5} />
+                      </div>
+                      <span className="font-bold text-foreground text-center">{skill.name}</span>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </Section>

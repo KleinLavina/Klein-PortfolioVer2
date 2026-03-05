@@ -35,8 +35,16 @@ const navItems = [
 
 export function AppSidebar() {
   const [activeSection, setActiveSection] = useState("home");
+  const [isClicked, setIsClicked] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
+
+  const getAvatarSrc = () => {
+    if (isClicked) return "/ThreePfp.png";
+    if (isHovered) return "/TwoPfp.png";
+    return "/OnePfp.jpg";
+  };
 
   useEffect(() => {
     // Intersection observer for active nav state
@@ -63,11 +71,18 @@ export function AppSidebar() {
   return (
     <Sidebar variant="inset" className="border-r border-border/50">
       <SidebarHeader className="p-4 flex flex-col items-center justify-center space-y-3 pt-6">
-        <div className="relative group">
+        <div 
+          className="relative group cursor-pointer"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => {
+            setIsHovered(false);
+            setIsClicked(false);
+          }}
+          onClick={() => setIsClicked(true)}
+        >
           <div className="absolute -inset-1 bg-gradient-brand rounded-full blur opacity-25 group-hover:opacity-75 transition duration-500"></div>
-          {/* using unspalsh image as avatar placeholder */}
           <Avatar className="h-20 w-20 border-2 border-background relative">
-            <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop" alt="Klein F. Lavina" />
+            <AvatarImage src={getAvatarSrc()} alt="Klein F. Lavina" className="object-cover" />
             <AvatarFallback className="bg-primary text-primary-foreground text-xl font-bold">KL</AvatarFallback>
           </Avatar>
         </div>
