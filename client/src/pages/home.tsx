@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Send, ExternalLink, Github, Code, Database, MonitorSmartphone, Layers, Server, TerminalSquare, Mail, MessageSquare, FolderGit2, Trophy } from "lucide-react";
-import { useForm } from "react-form";
 import { useState } from "react";
 import { format } from "date-fns";
 
@@ -62,8 +61,9 @@ export default function Home() {
 
   return (
     <Shell>
-      {/* HERO SECTION */}
-      <Section id="home" className="justify-center min-h-screen py-4 pt-0">
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative">
+        {/* HERO SECTION */}
+        <Section id="home" className="justify-center min-h-screen py-4 pt-0">
         <div className="relative">
           <div className="absolute top-0 left-20 w-72 h-72 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
           <div className="absolute top-0 right-20 w-72 h-72 bg-secondary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -300,119 +300,113 @@ export default function Home() {
           </div>
         )}
       </Section>
+      </div>
 
-      {/* CHAT / CONTACT SECTION */}
-      <Section id="chat">
-        <SectionHeader 
-          title="Let's Connect" 
-          subtitle="Drop a message in the chat room or send me a direct inquiry." 
-        />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[600px]">
-          {/* Form Side */}
-          <Card className="h-full flex flex-col glass-card rounded-3xl overflow-hidden border-t-4 border-t-primary">
-            <CardHeader className="bg-muted/30 pb-6">
-              <CardTitle className="flex items-center gap-2 text-2xl">
-                <Mail className="text-primary" /> Send a Message
-              </CardTitle>
-              <CardDescription>Fill out the form below and I'll get back to you.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto p-6">
-              <form onSubmit={handleMessageSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground ml-1">Name</label>
-                  <Input 
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="John Doe" 
-                    className="rounded-xl h-12 bg-background/50 border-border focus-visible:ring-primary"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground ml-1">Email</label>
-                  <Input 
-                    required
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    placeholder="john@example.com" 
-                    className="rounded-xl h-12 bg-background/50 border-border focus-visible:ring-primary"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground ml-1">Message</label>
-                  <Textarea 
-                    required
-                    value={formData.message}
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
-                    placeholder="Hi Klein, I'd like to collaborate..." 
-                    className="rounded-xl min-h-[120px] resize-none bg-background/50 border-border focus-visible:ring-primary"
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  disabled={createMessage.isPending}
-                  className="w-full h-12 rounded-xl bg-gradient-brand text-white font-bold hover:shadow-lg hover:shadow-primary/30 transition-all"
-                >
-                  {createMessage.isPending ? (
-                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...</>
-                  ) : (
-                    <><Send className="mr-2 h-5 w-5" /> Send Message</>
-                  )}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+      {/* CONTACT SECTION - Full Width */}
+      <Section id="contact" className="!min-h-fit !py-0 relative overflow-hidden">
+        {/* Curved Top Section */}
+        <div className="relative h-32 bg-background">
+          <svg 
+            className="absolute bottom-0 left-0 w-full h-32" 
+            viewBox="0 0 1440 120" 
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              d="M0,64 C240,20 480,0 720,20 C960,40 1200,80 1440,64 L1440,120 L0,120 Z" 
+              className="fill-primary"
+            />
+          </svg>
+          
+          {/* Repeating "Collaborate" Text */}
+          <div className="absolute inset-0 overflow-hidden opacity-10">
+            <div className="text-8xl font-black text-foreground whitespace-nowrap animate-marquee">
+              Collaborate with me Collaborate with me Collaborate with me Collaborate with me Collaborate with me
+            </div>
+          </div>
+        </div>
 
-          {/* Chat Room Side */}
-          <Card className="h-full flex flex-col glass-card rounded-3xl overflow-hidden border-t-4 border-t-accent">
-            <CardHeader className="bg-muted/30 pb-4 border-b border-border/50">
-              <CardTitle className="flex items-center justify-between text-2xl">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="text-accent" /> Public Chat Room
-                </div>
-                <div className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                  </span>
-                  Live
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col-reverse bg-gradient-to-b from-transparent to-muted/10">
-              {messagesLoading ? (
-                <div className="flex-1 flex items-center justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-accent" />
-                </div>
-              ) : !messages || messages.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground opacity-50">
-                  <MessageSquare className="h-12 w-12 mb-2" />
-                  <p>No messages yet. Be the first!</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {messages.map((msg) => (
-                    <motion.div 
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      key={msg.id} 
-                      className="bg-background rounded-2xl rounded-tl-none p-4 shadow-sm border border-border"
-                    >
-                      <div className="flex justify-between items-baseline mb-2">
-                        <span className="font-bold text-foreground">{msg.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(msg.createdAt), "MMM d, h:mm a")}
-                        </span>
-                      </div>
-                      <p className="text-muted-foreground">{msg.message}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Curved Background Pattern */}
+        <div className="absolute inset-0 top-32 bg-gradient-to-br from-primary via-primary/90 to-secondary overflow-hidden">
+          {/* Animated Blobs */}
+          <div className="absolute top-20 left-20 w-96 h-96 bg-secondary/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+          <div className="absolute top-40 right-20 w-96 h-96 bg-accent/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute -bottom-20 left-1/2 w-96 h-96 bg-primary/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 py-20 text-center bg-gradient-to-br from-primary via-primary/90 to-secondary">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="space-y-8"
+          >
+            <h2 className="text-4xl md:text-5xl font-black text-white">
+              Connect with me on social media.
+            </h2>
+            
+            {/* Social Icons */}
+            <div className="flex justify-center gap-6">
+              <a 
+                href="https://github.com/yourusername" 
+                target="_blank" 
+                rel="noreferrer"
+                className="p-4 bg-white rounded-full hover:scale-110 transition-transform duration-300 shadow-lg"
+              >
+                <Github className="h-8 w-8 text-foreground" />
+              </a>
+              <a 
+                href="https://instagram.com/yourusername" 
+                target="_blank" 
+                rel="noreferrer"
+                className="p-4 bg-white rounded-full hover:scale-110 transition-transform duration-300 shadow-lg"
+              >
+                <svg className="h-8 w-8" viewBox="0 0 24 24" fill="url(#instagram-gradient)">
+                  <defs>
+                    <linearGradient id="instagram-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#f09433" />
+                      <stop offset="25%" stopColor="#e6683c" />
+                      <stop offset="50%" stopColor="#dc2743" />
+                      <stop offset="75%" stopColor="#cc2366" />
+                      <stop offset="100%" stopColor="#bc1888" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </a>
+            </div>
+
+            {/* Contact Email */}
+            <p className="text-xl text-white/90 font-medium">
+              Contact me: <a href="mailto:your.email@example.com" className="underline hover:text-white transition-colors">your.email@example.com</a>
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-4 pt-4">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="rounded-full px-8 bg-transparent border-2 border-white text-white hover:bg-white hover:text-foreground transition-all h-12 text-base font-bold"
+              >
+                Resume
+              </Button>
+              <Button 
+                size="lg" 
+                className="rounded-full px-8 bg-white text-foreground hover:bg-white/90 transition-all h-12 text-base font-bold"
+                asChild
+              >
+                <a href="mailto:your.email@example.com">Let's Talk</a>
+              </Button>
+            </div>
+
+            {/* Footer Text */}
+            <div className="pt-12">
+              <p className="text-white/80 font-medium">
+                © 2026 Klein F. Lavina <span className="mx-2">•</span> Designed by Corey Hu
+              </p>
+            </div>
+          </motion.div>
         </div>
       </Section>
     </Shell>

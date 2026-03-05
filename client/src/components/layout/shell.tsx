@@ -34,16 +34,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </header>
           
           <main ref={scrollRef} className="flex-1 overflow-y-auto scroll-smooth w-full">
-            <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative">
-              {children}
-            </div>
-            
-            {/* Footer */}
-            <footer className="w-full py-8 text-center border-t border-border/50 mt-20">
-              <p className="text-muted-foreground font-medium">
-                © 2026 Klein F. Lavina <span className="mx-2 text-primary">•</span> Designed by Corey Hu
-              </p>
-            </footer>
+            {children}
           </main>
         </div>
 
