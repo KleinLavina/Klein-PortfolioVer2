@@ -92,7 +92,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-4 py-4">
+      <SidebarContent className="px-4 py-4 custom-scrollbar">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">

@@ -1,5 +1,6 @@
 import { Shell } from "@/components/layout/shell";
 import { Section, SectionHeader } from "@/components/ui/section";
+import { SkillIndicator, SkillLegend } from "@/components/ui/skill-indicator";
 import { useProjects } from "@/hooks/use-projects";
 import { useAchievements } from "@/hooks/use-achievements";
 import { useMessages, useCreateMessage } from "@/hooks/use-messages";
@@ -15,32 +16,40 @@ import { format } from "date-fns";
 
 const SKILLS = {
   "Frontend": [
-    { name: "HTML", icon: Code, color: "text-orange-500" },
-    { name: "CSS", icon: Layers, color: "text-blue-500" },
-    { name: "JavaScript", icon: TerminalSquare, color: "text-yellow-400" },
-    { name: "TypeScript", icon: TerminalSquare, color: "text-blue-600" },
-    { name: "React", icon: MonitorSmartphone, color: "text-cyan-500" },
-    { name: "Next.js", icon: MonitorSmartphone, color: "text-foreground" },
+    { name: "HTML", icon: Code, color: "text-orange-500", level: 4 as const },
+    { name: "CSS", icon: Layers, color: "text-blue-500", level: 4 as const },
+    { name: "JavaScript", icon: TerminalSquare, color: "text-yellow-400", level: 3 as const },
+    { name: "TypeScript", icon: TerminalSquare, color: "text-blue-600", level: 2 as const },
+    { name: "React", icon: MonitorSmartphone, color: "text-cyan-500", level: 2 as const },
+    { name: "Next.js", icon: MonitorSmartphone, color: "text-foreground", level: 2 as const },
+    { name: "Tailwind", icon: Layers, color: "text-cyan-400", level: 2 as const },
+    { name: "Bootstrap", icon: Layers, color: "text-purple-500", level: 2 as const },
   ],
   "Backend": [
-    { name: "Django", icon: Server, color: "text-green-600" },
-    { name: "PHP", icon: Server, color: "text-indigo-400" },
+    { name: "Django", icon: Server, color: "text-green-600", level: 3 as const },
+    { name: "PHP", icon: Server, color: "text-indigo-400", level: 3 as const },
   ],
   "Databases": [
-    { name: "MySQL", icon: Database, color: "text-blue-500" },
-    { name: "PostgreSQL", icon: Database, color: "text-blue-400" },
+    { name: "MySQL", icon: Database, color: "text-blue-500", level: 3 as const },
+    { name: "PostgreSQL", icon: Database, color: "text-blue-400", level: 3 as const },
   ],
   "Programming Languages": [
-    { name: "Java", icon: Code, color: "text-red-500" },
-    { name: "Python", icon: Code, color: "text-blue-400" },
-    { name: "R", icon: Code, color: "text-blue-600" },
+    { name: "Java", icon: Code, color: "text-red-500", level: 1 as const },
+    { name: "Python", icon: Code, color: "text-blue-400", level: 3 as const },
+    { name: "R", icon: Code, color: "text-blue-600", level: 1 as const },
   ],
   "Tools & Platforms": [
-    { name: "VS Code", icon: Code, color: "text-blue-500" },
-    { name: "Git", icon: FolderGit2, color: "text-orange-600" },
-    { name: "GitHub", icon: FolderGit2, color: "text-foreground" },
-    { name: "Postman", icon: Layers, color: "text-orange-500" },
-    { name: "Discord", icon: MessageSquare, color: "text-indigo-500" },
+    { name: "VS Code", icon: Code, color: "text-blue-500", level: 3 as const },
+    { name: "Git", icon: FolderGit2, color: "text-orange-600", level: 3 as const },
+    { name: "GitHub", icon: FolderGit2, color: "text-foreground", level: 3 as const },
+    { name: "Postman", icon: Layers, color: "text-orange-500", level: 1 as const },
+    { name: "Discord", icon: MessageSquare, color: "text-indigo-500", level: 3 as const },
+    { name: "XAMPP", icon: Server, color: "text-orange-600", level: 3 as const },
+    { name: "Cloudinary", icon: Layers, color: "text-blue-600", level: 1 as const },
+    { name: "Replit", icon: Code, color: "text-orange-500", level: 2 as const },
+    { name: "Render", icon: Server, color: "text-purple-600", level: 2 as const },
+    { name: "Figma", icon: Layers, color: "text-pink-500", level: 2 as const },
+    { name: "Canva", icon: Layers, color: "text-cyan-500", level: 2 as const },
   ],
 };
 
@@ -165,6 +174,10 @@ export default function Home() {
           title="Technical Arsenal" 
           subtitle="Technologies and tools I use to bring ideas to life." 
         />
+        
+        {/* Skill Legend */}
+        <SkillLegend />
+        
         <div className="space-y-12">
           {Object.entries(SKILLS).map(([category, skills]) => (
             <div key={category}>
@@ -188,6 +201,7 @@ export default function Home() {
                         <skill.icon size={32} strokeWidth={1.5} />
                       </div>
                       <span className="font-bold text-foreground text-center">{skill.name}</span>
+                      <SkillIndicator level={skill.level} className="w-full" />
                     </div>
                   </motion.div>
                 ))}
