@@ -69,8 +69,10 @@ export default function Home() {
           <div className="absolute top-0 right-20 w-72 h-72 bg-secondary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
           
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
+            viewport={{ once: false, amount: 0.25 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="relative z-10"
           >
@@ -108,7 +110,14 @@ export default function Home() {
           subtitle="A brief introduction to who I am and what drives my passion for development." 
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="relative">
+          <motion.div 
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="relative"
+          >
             {/* placeholder tech workspace image */}
             <div className="absolute inset-0 bg-gradient-brand rounded-3xl transform rotate-3 opacity-20"></div>
             <img 
@@ -116,8 +125,15 @@ export default function Home() {
               alt="Workspace" 
               className="rounded-3xl relative z-10 shadow-2xl border border-border/50 object-cover w-full h-[400px]"
             />
-          </div>
-          <div className="space-y-6">
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+            className="space-y-6"
+          >
             <h3 className="text-3xl font-bold text-foreground">Innovating through Code</h3>
             <p className="text-lg text-muted-foreground leading-relaxed">
               Based in the digital realm, I specialize in the MERN stack and modern React frameworks. My journey in tech started with a curiosity about how things work on the internet, which quickly evolved into a passion for building them.
@@ -139,7 +155,7 @@ export default function Home() {
                 <div className="text-sm font-semibold text-muted-foreground mt-1">Commitment</div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </Section>
 
@@ -160,10 +176,11 @@ export default function Home() {
                 {skills.map((skill, index) => (
                   <motion.div
                     key={skill.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.05 }}
+                    initial={{ opacity: 0, y: 40, scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
+                    viewport={{ once: false, amount: 0.25 }}
+                    transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.08 }}
                     className="group"
                   >
                     <div className="p-6 rounded-3xl glass-card flex flex-col items-center justify-center gap-4 hover-glow cursor-default">
@@ -199,10 +216,11 @@ export default function Home() {
             {projects.map((project, i) => (
               <motion.div
                 key={project.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                initial={{ opacity: 0, y: 40, scale: 0.98 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
+                viewport={{ once: false, amount: 0.25 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.08 }}
               >
                 <Card className="h-full flex flex-col overflow-hidden rounded-3xl border-border/50 hover:border-primary/50 transition-colors duration-300 group shadow-lg hover:shadow-xl hover:shadow-primary/10">
                   <div className="relative h-48 overflow-hidden bg-muted">
@@ -274,10 +292,11 @@ export default function Home() {
               {achievements.map((achievement, i) => (
                 <motion.div 
                   key={achievement.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  initial={{ opacity: 0, y: 40, scale: 0.98 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
+                  viewport={{ once: false, amount: 0.25 }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.08 }}
                   className={`flex flex-col sm:flex-row items-start sm:items-center gap-8 ${i % 2 === 0 ? 'sm:flex-row-reverse' : ''}`}
                 >
                   <div className="hidden sm:block sm:w-1/2"></div>
@@ -337,9 +356,11 @@ export default function Home() {
         {/* Content */}
         <div className="relative z-10 py-20 text-center bg-gradient-to-br from-primary via-primary/90 to-secondary">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="space-y-8"
           >
             <h2 className="text-4xl md:text-5xl font-black text-white">

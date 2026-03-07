@@ -1,0 +1,208 @@
+Your prompt is already good, but for an **AI coding agent** you want to remove ambiguity and force it to **inspect the codebase first**, **avoid assumptions**, and **define exactly how scroll detection should work**. Below is a **stronger, production-grade prompt** that reduces hallucination and produces results closer to **Lando Norris’s portfolio site style (smooth, subtle, premium scroll motion).**
+
+---
+
+# Improved AI Agent Prompt (Non-Hallucinating)
+
+**Task:**
+Implement **scroll-triggered entry and exit animations** across existing page sections. The animation style should feel **smooth, minimal, and premium**, similar to the interaction style used on the **Lando Norris Official Website**.
+
+---
+
+# Strict Operating Rules (Prevent Hallucination)
+
+1. **Inspect the codebase first**
+
+   * Identify the **existing framework** (React / Vue / Next / etc.).
+   * Identify **existing animation libraries** already installed (e.g., Framer Motion, GSAP).
+   * Identify the **current section structure and class names**.
+
+2. **Do NOT assume**
+
+   * Do not invent components.
+   * Do not create elements that do not exist.
+   * Do not rename existing classes or components.
+
+3. **Only modify**
+
+   * UI components
+   * animation-related logic
+   * styling related to animation
+
+4. **Do NOT**
+
+   * change backend code
+   * add dependencies unless they already exist in the project
+   * restructure layout or routing
+
+---
+
+# Scroll Animation Requirements
+
+Implement **viewport-based animations** triggered by scrolling.
+
+## Entry Animation
+
+Trigger when the element **enters the viewport**.
+
+Suggested animation style:
+
+```
+opacity: 0 → 1
+translateY: 40px → 0
+scale: 0.98 → 1
+duration: ~0.6s
+easing: ease-out
+```
+
+---
+
+## Exit Animation
+
+Trigger when the element **leaves the viewport**.
+
+Suggested animation style:
+
+```
+opacity: 1 → 0
+translateY: 0 → -20px
+duration: ~0.4s
+```
+
+Exit animations should be **subtle and fast**.
+
+---
+
+# Elements That Must Animate
+
+Apply animations to **existing elements inside each section**:
+
+* Section containers
+* Section titles / headers
+* Sub-headers
+* Paragraph text
+* Cards
+* Lists
+* Buttons
+* Icons
+* Supporting UI elements
+
+---
+
+# Staggered Animations
+
+When multiple items appear together (cards, lists, grids):
+
+Use staggered delays.
+
+Example pattern:
+
+```
+item 1 → delay 0ms
+item 2 → delay 80ms
+item 3 → delay 160ms
+item 4 → delay 240ms
+```
+
+This creates a **cascade reveal effect**.
+
+---
+
+# Scroll Detection Behavior
+
+Use a **viewport intersection method**.
+
+Examples:
+
+* `IntersectionObserver`
+* Framer Motion `whileInView`
+* GSAP `ScrollTrigger`
+
+Requirements:
+
+* Trigger when **20–30% of element is visible**
+* Trigger exit when **element leaves viewport**
+
+---
+
+# Animation Design Principles
+
+Follow these design constraints:
+
+* Motion must be **subtle and modern**
+* Avoid exaggerated effects
+* Avoid large rotations
+* Avoid bouncing animations
+* Avoid heavy parallax
+
+Goal: **smooth premium feel**.
+
+---
+
+# Performance Requirements
+
+Animations must be **GPU-accelerated**.
+
+Allowed properties:
+
+```
+transform
+opacity
+```
+
+Avoid animating:
+
+```
+top
+left
+width
+height
+margin
+padding
+```
+
+Additional rules:
+
+* Avoid layout shifts
+* Use `will-change` only if necessary
+* Do not degrade scroll performance
+
+---
+
+# Code Implementation Rules
+
+Before implementing:
+
+1. Detect existing animation library.
+2. Use it if available.
+3. If none exists, implement using **IntersectionObserver + CSS transforms**.
+
+Do not introduce new libraries.
+
+---
+
+# Deliverables
+
+The agent must:
+
+1. Implement scroll animations for all existing sections.
+2. Ensure animations work for:
+
+   * desktop
+   * tablet
+   * mobile
+3. Keep animations consistent across the site.
+
+---
+
+✅ This version is **much stronger for AI agents** because it:
+
+* Forces **codebase inspection**
+* Prevents **hallucinated components**
+* Specifies **exact animation parameters**
+* Defines **performance rules**
+* Defines **scroll thresholds**
+
+---
+
+If you want, I can also give you a **“SUPER PROMPT” used for Cursor / Windsurf / Devin-style AI agents** that produces **the exact smooth cinematic scroll style used by high-end portfolio sites (Lando Norris, Apple, Stripe)**.
