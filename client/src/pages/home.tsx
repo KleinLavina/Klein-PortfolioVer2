@@ -92,10 +92,10 @@ export default function Home() {
             </p>
             
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-1 transition-all h-12 text-base font-bold">
+              <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white hover:shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all h-14 text-lg font-bold">
                 <a href="#projects">View My Work</a>
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full px-8 border-2 hover:bg-primary/5 hover:text-primary transition-all h-12 text-base font-bold glass-card">
+              <Button size="lg" variant="outline" className="rounded-full px-8 border-2 hover:bg-primary/5 hover:text-primary transition-all h-14 text-lg font-bold glass-card border-white/10">
                 <a href="#contact">Contact Me</a>
               </Button>
             </div>
@@ -142,17 +142,17 @@ export default function Home() {
               When I'm not coding, I'm exploring new technologies, contributing to open-source, or optimizing workflows to create seamless user experiences.
             </p>
             <div className="flex gap-4 pt-4">
-              <div className="p-4 rounded-2xl glass-card flex-1">
-                <div className="text-3xl font-black text-primary">3+</div>
-                <div className="text-sm font-semibold text-muted-foreground mt-1">Years Exp.</div>
+              <div className="p-6 rounded-3xl glass-card flex-1 text-center border-white/5">
+                <div className="text-4xl font-black text-primary">3+</div>
+                <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground mt-2">Years Exp.</div>
               </div>
-              <div className="p-4 rounded-2xl glass-card flex-1">
-                <div className="text-3xl font-black text-secondary">50+</div>
-                <div className="text-sm font-semibold text-muted-foreground mt-1">Projects</div>
+              <div className="p-6 rounded-3xl glass-card flex-1 text-center border-white/5">
+                <div className="text-4xl font-black text-secondary">50+</div>
+                <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground mt-2">Projects</div>
               </div>
-              <div className="p-4 rounded-2xl glass-card flex-1">
-                <div className="text-3xl font-black text-accent">100%</div>
-                <div className="text-sm font-semibold text-muted-foreground mt-1">Commitment</div>
+              <div className="p-6 rounded-3xl glass-card flex-1 text-center border-white/5">
+                <div className="text-4xl font-black text-accent">100%</div>
+                <div className="text-sm font-bold uppercase tracking-wider text-muted-foreground mt-2">Commitment</div>
               </div>
             </div>
           </motion.div>
@@ -222,16 +222,16 @@ export default function Home() {
                 viewport={{ once: false, amount: 0.25 }}
                 transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.08 }}
               >
-                <Card className="h-full flex flex-col overflow-hidden rounded-3xl border-border/50 hover:border-primary/50 transition-colors duration-300 group shadow-lg hover:shadow-xl hover:shadow-primary/10">
-                  <div className="relative h-48 overflow-hidden bg-muted">
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent z-10"></div>
+                <Card className="h-full flex flex-col overflow-hidden rounded-[2rem] border-white/5 dark:border-white/10 hover:border-primary/50 transition-all duration-500 group shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 bg-card/30 backdrop-blur-xl">
+                  <div className="relative h-64 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 opacity-60"></div>
                     <img 
                       src={project.thumbnail || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80"} 
                       alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                     />
                   </div>
-                  <CardHeader className="relative z-20 -mt-6">
+                  <CardHeader className="relative z-20 -mt-12 bg-background/80 backdrop-blur-lg mx-4 rounded-2xl border border-white/5 shadow-xl">
                     <CardTitle className="text-2xl font-bold">{project.title}</CardTitle>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {project.techStack.map(tech => (
@@ -304,10 +304,10 @@ export default function Home() {
                   {/* Timeline Dot */}
                   <div className="absolute left-[8px] sm:left-1/2 w-6 h-6 rounded-full bg-background border-4 border-primary transform sm:-translate-x-1/2 shadow-[0_0_15px_rgba(53,211,97,0.5)] z-20"></div>
                   
-                  <Card className={`w-full sm:w-1/2 ml-12 sm:ml-0 glass-card rounded-3xl ${i % 2 === 0 ? 'sm:mr-12' : 'sm:ml-12'}`}>
+                  <Card className={`w-full sm:w-1/2 ml-12 sm:ml-0 glass-card rounded-[2rem] border-white/5 ${i % 2 === 0 ? 'sm:mr-12' : 'sm:ml-12'}`}>
                     <CardHeader className="pb-2">
-                      <div className="text-sm font-bold text-primary mb-2">{achievement.date}</div>
-                      <CardTitle className="text-xl">{achievement.title}</CardTitle>
+                      <div className="text-xs font-black uppercase tracking-widest text-primary mb-2 bg-primary/10 w-fit px-3 py-1 rounded-full">{achievement.date}</div>
+                      <CardTitle className="text-2xl font-black leading-tight">{achievement.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-muted-foreground">{achievement.description}</p>
@@ -368,20 +368,20 @@ export default function Home() {
             </h2>
             
             {/* Social Icons */}
-            <div className="flex justify-center gap-6">
+            <div className="flex justify-center gap-8">
               <a 
                 href="https://github.com/yourusername" 
                 target="_blank" 
                 rel="noreferrer"
-                className="p-4 bg-white rounded-full hover:scale-110 transition-transform duration-300 shadow-lg"
+                className="p-5 bg-white rounded-2xl hover:scale-110 hover:-rotate-6 transition-all duration-300 shadow-2xl"
               >
-                <Github className="h-8 w-8 text-foreground" />
+                <Github className="h-10 w-10 text-foreground" />
               </a>
               <a 
                 href="https://instagram.com/yourusername" 
                 target="_blank" 
                 rel="noreferrer"
-                className="p-4 bg-white rounded-full hover:scale-110 transition-transform duration-300 shadow-lg"
+                className="p-5 bg-white rounded-2xl hover:scale-110 hover:rotate-6 transition-all duration-300 shadow-2xl"
               >
                 <svg className="h-8 w-8" viewBox="0 0 24 24" fill="url(#instagram-gradient)">
                   <defs>

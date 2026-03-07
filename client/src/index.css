@@ -48,37 +48,37 @@
     --sidebar-accent-foreground: 131 65% 3%;
     --sidebar-ring: 137 66% 52%;
 
-    --radius: 1rem;
+    --radius: 1.5rem;
   }
 
   .dark {
     /* Dark Theme - Professional Inverted */
-    --background: 131 65% 3%;  /* #030e06 */
-    --foreground: 132 50% 97%; /* #f4fdf6 */
+    --background: 131 65% 2%;  /* Slightly deeper black */
+    --foreground: 132 50% 98%; 
     
-    --primary: 137 66% 52%;    /* #35d361 */
-    --primary-foreground: 131 65% 3%;
+    --primary: 137 66% 52%;    
+    --primary-foreground: 131 65% 2%;
     
-    --secondary: 194 63% 71%;  /* #84cde4 */
-    --secondary-foreground: 131 65% 3%;
+    --secondary: 194 63% 71%;  
+    --secondary-foreground: 131 65% 2%;
     
-    --accent: 216 64% 61%;     /* #5a8ddb */
-    --accent-foreground: 132 50% 97%;
+    --accent: 216 64% 61%;     
+    --accent-foreground: 132 50% 98%;
 
-    --card: 131 50% 5%;
-    --card-foreground: 132 50% 97%;
-    --card-border: 131 40% 15%;
+    --card: 131 40% 4%;
+    --card-foreground: 132 50% 98%;
+    --card-border: 131 30% 10%;
     
-    --popover: 131 50% 5%;
-    --popover-foreground: 132 50% 97%;
-    --popover-border: 131 40% 15%;
+    --popover: 131 40% 4%;
+    --popover-foreground: 132 50% 98%;
+    --popover-border: 131 30% 10%;
 
-    --border: 131 40% 15%;
-    --input: 131 40% 15%;
+    --border: 131 30% 8%;
+    --input: 131 30% 8%;
     --ring: 137 66% 52%;
 
-    --muted: 131 40% 12%;
-    --muted-foreground: 132 20% 70%;
+    --muted: 131 30% 6%;
+    --muted-foreground: 132 15% 65%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -117,16 +117,35 @@
   }
 
   .glass-card {
-    @apply bg-card/80 backdrop-blur-md border border-border shadow-xl;
+    @apply bg-card/40 backdrop-blur-xl border border-white/5 dark:border-white/10 shadow-2xl;
   }
   
   .hover-glow {
-    @apply transition-all duration-300;
+    @apply transition-all duration-500 ease-out;
   }
   
   .hover-glow:hover {
-    box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.5);
-    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -20px hsl(var(--primary) / 0.3);
+    transform: translateY(-8px) scale(1.02);
+  }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
   }
 
   @keyframes marquee {
