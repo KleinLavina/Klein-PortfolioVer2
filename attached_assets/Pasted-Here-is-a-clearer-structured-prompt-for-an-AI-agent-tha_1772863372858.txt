@@ -1,0 +1,60 @@
+Here is a **clearer, structured prompt for an AI agent** that minimizes hallucination and gives precise instructions for frontend animation:
+
+---
+
+**AI Agent Instruction (Frontend Animation Task)**
+
+Implement **entry and exit animations for each section when scrolling**.
+
+Requirements:
+
+1. **Scroll-Based Animation**
+
+   * Apply animations that trigger when a section **enters the viewport** and when it **leaves the viewport**.
+   * Animations must be smooth and performance-optimized.
+
+2. **Elements to Animate**
+   Apply animations to the following elements inside each section:
+
+   * Section containers
+   * Cards
+   * Headers / Titles
+   * Sub-headers
+   * Paragraph text
+   * Supporting UI elements (buttons, icons, lists)
+
+3. **Animation Behavior**
+
+   * **Entry animation:** when the element becomes visible on scroll.
+   * **Exit animation:** when the element leaves the viewport.
+   * Use subtle effects such as:
+
+     * fade in/out
+     * slide up/down
+     * slight scale
+   * Avoid excessive or distracting motion.
+
+4. **Consistency**
+
+   * Maintain consistent animation timing, easing, and spacing across all sections.
+   * Stagger animations for cards or list items when appropriate.
+
+5. **Code Safety**
+
+   * Only modify **frontend files related to UI and animation**.
+   * Do **not create fake components or non-existent elements**.
+   * Use **existing classes, components, and section structure from the current codebase**.
+
+6. **Performance**
+
+   * Ensure animations do not cause layout shifts or performance issues.
+   * Prefer **GPU-accelerated properties** (opacity, transform).
+
+7. **Implementation Constraint**
+
+   * Use the **existing framework/library already installed in the project**.
+   * Do **not add new dependencies unless they already exist in the project**.
+
+---
+
+If you want, I can also give you a **much stronger AI agent prompt specifically for React + Vite portfolios using Framer Motion or GSAP**, which produces **much better scroll animations**.
