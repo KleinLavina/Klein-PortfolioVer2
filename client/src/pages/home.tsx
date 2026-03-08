@@ -1,6 +1,7 @@
 import { Shell } from "@/components/layout/shell";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { SkillIndicator, SkillLegend } from "@/components/ui/skill-indicator";
+import { GithubContributions } from "@/components/github-contributions";
 import { useProjects } from "@/hooks/use-projects";
 import { useAchievements } from "@/hooks/use-achievements";
 import { useMessages, useCreateMessage } from "@/hooks/use-messages";
@@ -209,6 +210,11 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </Section>
+
+      {/* GITHUB CONTRIBUTIONS SECTION */}
+      <Section id="github" className="!py-16">
+        <GithubContributions />
       </Section>
 
       {/* PROJECTS SECTION */}

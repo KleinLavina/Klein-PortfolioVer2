@@ -9,6 +9,71 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   
+  // GitHub API routes
+  app.get("/api/github/contributions/:username", async (req, res) => {
+    try {
+      const { username } = req.params;
+      const { year } = req.query;
+
+      const selectedYear = year ? parseInt(year as string) : new Date().getFullYear();
+      
+      // Use GitHub's contribution graph SVG as fallback
+      // This provides visual data without requiring authentication
+      const svgUrl = `https://ghchart.rshah.org/${username}`;
+      
+      // For now, return a simplified response that the frontend can handle
+      // The actual contribution data requires GraphQL API with token
+      res.json({
+        username,
+        year: selectedYear,
+        totalContributions: 0,
+        weeks: [],
+        useFallback: true,
+        svgUrl
+      });
+
+    } catch (error) {
+      console.error("Error fetching GitHub contributions:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch contributions",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  app.get("/api/github/stats/:username", async (req, res) => {
+    try {
+      const { username } = req.params;
+
+      const response = await fetch(`https://api.github.com/users/${username}`);
+      
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      res.json({
+        username: data.login,
+        name: data.name,
+        avatarUrl: data.avatar_url,
+        publicRepos: data.public_repos,
+        followers: data.followers,
+        following: data.following,
+        bio: data.bio,
+        location: data.location,
+        company: data.company,
+      });
+
+    } catch (error) {
+      console.error("Error fetching GitHub stats:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch user stats",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+  
   // Messages API
   app.get(api.messages.list.path, async (req, res) => {
     const allMessages = await storage.getMessages();
