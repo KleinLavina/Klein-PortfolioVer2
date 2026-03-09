@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Send, ExternalLink, Github, Code, Database, MonitorSmartphone, Layers, Server, TerminalSquare, Mail, MessageSquare, FolderGit2, Trophy, Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle } from "lucide-react";
+import { Loader2, Send, ExternalLink, Github, Code, Database, MonitorSmartphone, Layers, Server, TerminalSquare, Mail, MessageSquare, FolderGit2, Trophy, Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
 
@@ -200,7 +200,7 @@ export default function Home() {
                 <span className="h-1 w-12 bg-gradient-brand rounded-full"></span>
                 {category}
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-3">
                 {skills.map((skill, index) => (
                   <motion.div
                     key={skill.name}
@@ -208,17 +208,17 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.05 }}
-                    className="group"
+                    className="group flex justify-center items-center"
                   >
-                    <div className="p-3 rounded-xl glass-card flex flex-col items-center justify-center gap-2 hover-glow cursor-default">
-                      <div className={`p-2 rounded-full bg-background border border-border shadow-inner group-hover:scale-110 transition-transform duration-300 ${skill.color}`}>
-                        <skill.icon size={20} strokeWidth={1.5} />
+                    <div className={`${category === "Specializations" ? "p-3 rounded-xl h-[100px] w-[120px]" : "p-2 rounded-lg h-[70px] w-[80px]"} glass-card flex flex-col items-center justify-center gap-1.5 hover-glow cursor-default`}>
+                      <div className={`${category === "Specializations" ? "p-2" : "p-1.5"} rounded-full bg-background border border-border shadow-inner group-hover:scale-110 transition-transform duration-300 ${skill.color}`}>
+                        <skill.icon size={category === "Specializations" ? 20 : 16} strokeWidth={1.5} />
                       </div>
-                      <span className="font-medium text-xs text-foreground text-center leading-tight">{skill.name}</span>
+                      <span className={`font-medium ${category === "Specializations" ? "text-xs" : "text-[10px]"} text-foreground text-center leading-tight`}>{skill.name}</span>
                       {category === "Specializations" && 'description' in skill ? (
-                        <p className="text-[10px] text-muted-foreground text-center leading-tight">{skill.description}</p>
+                        <p className="text-[9px] text-muted-foreground text-center leading-tight">{skill.description}</p>
                       ) : (
-                        <SkillIndicator level={skill.level} className="w-full" />
+                        <SkillIndicator level={skill.level} className={`w-full ${category === "Specializations" ? "" : "scale-75"}`} />
                       )}
                     </div>
                   </motion.div>
@@ -279,7 +279,7 @@ export default function Home() {
             <h3 className="text-2xl font-bold text-muted-foreground">No projects listed yet.</h3>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-8 max-w-4xl mx-auto">
             {projects.map((project, i) => (
               <motion.div
                 key={project.id}
@@ -287,6 +287,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.05 }}
+                className={i % 2 === 0 ? "ml-auto w-full md:w-3/4" : "mr-auto w-full md:w-3/4"}
               >
                 <Card className="h-full flex flex-col overflow-hidden rounded-[2rem] border-white/5 dark:border-white/10 hover:border-primary/50 transition-all duration-500 group shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 bg-card/30 backdrop-blur-xl">
                   <div className="relative h-64 overflow-hidden">
@@ -399,7 +400,27 @@ export default function Home() {
                 rel="noreferrer"
                 className="p-5 bg-white rounded-2xl hover:scale-110 hover:-rotate-6 transition-all duration-300 shadow-2xl"
               >
-                <Github className="h-10 w-10 text-foreground" />
+                <Github className="h-10 w-10 text-black" />
+              </a>
+              <a 
+                href="https://linkedin.com/in/yourusername" 
+                target="_blank" 
+                rel="noreferrer"
+                className="p-5 bg-white rounded-2xl hover:scale-110 hover:rotate-6 transition-all duration-300 shadow-2xl"
+              >
+                <svg className="h-10 w-10" viewBox="0 0 24 24" fill="#0A66C2">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+              <a 
+                href="https://facebook.com/yourusername" 
+                target="_blank" 
+                rel="noreferrer"
+                className="p-5 bg-white rounded-2xl hover:scale-110 hover:-rotate-6 transition-all duration-300 shadow-2xl"
+              >
+                <svg className="h-10 w-10" viewBox="0 0 24 24" fill="#1877F2">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
               </a>
               <a 
                 href="https://instagram.com/yourusername" 
@@ -424,7 +445,7 @@ export default function Home() {
 
             {/* Contact Email */}
             <p className="text-xl text-white/90 font-medium">
-              Contact me: <a href="mailto:your.email@example.com" className="underline hover:text-white transition-colors">your.email@example.com</a>
+              Contact me: <a href="mailto:kleinlav7@gmail.com" className="underline hover:text-white transition-colors">kleinlav7@gmail.com</a>
             </p>
 
             {/* Action Buttons */}
@@ -434,21 +455,14 @@ export default function Home() {
                 variant="outline" 
                 className="rounded-full px-8 bg-transparent border-2 border-white text-white hover:bg-white hover:text-foreground transition-all h-12 text-base font-bold"
               >
-                Resume
-              </Button>
-              <Button 
-                size="lg" 
-                className="rounded-full px-8 bg-white text-foreground hover:bg-white/90 transition-all h-12 text-base font-bold"
-                asChild
-              >
-                <a href="mailto:your.email@example.com">Let's Talk</a>
+                <ExternalLink className="mr-2 h-5 w-5" /> Resume
               </Button>
             </div>
 
             {/* Footer Text */}
             <div className="pt-12">
               <p className="text-white/80 font-medium">
-                © 2026 Klein F. Lavina <span className="mx-2">•</span> Designed by Corey Hu
+                © 2026 Klein F. Lavina <span className="mx-2">•</span> All rights reserved
               </p>
             </div>
           </motion.div>

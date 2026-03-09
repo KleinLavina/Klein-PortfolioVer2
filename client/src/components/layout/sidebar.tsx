@@ -71,7 +71,7 @@ export function AppSidebar() {
   const toggleTheme = () => setTheme(isDark ? "light" : "dark");
 
   return (
-    <Sidebar variant="inset" className="border-r border-border/50">
+    <Sidebar variant="sidebar" className="border-r border-border/50">
       <SidebarHeader className="p-4 flex flex-col items-center justify-center space-y-3 pt-6">
         <div 
           className="relative group cursor-pointer"
