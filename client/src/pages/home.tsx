@@ -2,6 +2,7 @@ import { Shell } from "@/components/layout/shell";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { SkillIndicator, SkillLegend } from "@/components/ui/skill-indicator";
 import { GithubContributions } from "@/components/github-contributions";
+import { DeveloperTimeline } from "@/components/developer-timeline";
 import { useProjects } from "@/hooks/use-projects";
 import { useAchievements } from "@/hooks/use-achievements";
 import { useMessages, useCreateMessage } from "@/hooks/use-messages";
@@ -334,54 +335,13 @@ export default function Home() {
         )}
       </Section>
 
-      {/* TIMELINE SECTION */}
+      {/* DEVELOPER JOURNEY TIMELINE SECTION */}
       <Section id="timeline">
         <SectionHeader 
-          title="Timeline" 
-          subtitle="My educational journey and course milestones." 
+          title="Developer Journey Timeline" 
+          subtitle="My path from learning web fundamentals to building full-stack applications." 
         />
-        
-        {achievementsLoading ? (
-          <div className="flex justify-center py-20"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>
-        ) : !achievements || achievements.length === 0 ? (
-          <div className="text-center py-20 glass-card rounded-3xl">
-            <Trophy className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <h3 className="text-2xl font-bold text-muted-foreground">Journey just beginning.</h3>
-          </div>
-        ) : (
-          <div className="relative max-w-3xl mx-auto">
-            {/* Timeline Line */}
-            <div className="absolute left-[19px] sm:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-secondary to-accent opacity-30 transform sm:-translate-x-1/2 rounded-full"></div>
-            
-            <div className="space-y-12 relative z-10">
-              {achievements.map((achievement, i) => (
-                <motion.div 
-                  key={achievement.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.05 }}
-                  className={`flex flex-col sm:flex-row items-start sm:items-center gap-8 ${i % 2 === 0 ? 'sm:flex-row-reverse' : ''}`}
-                >
-                  <div className="hidden sm:block sm:w-1/2"></div>
-                  
-                  {/* Timeline Dot */}
-                  <div className="absolute left-[8px] sm:left-1/2 w-6 h-6 rounded-full bg-background border-4 border-primary transform sm:-translate-x-1/2 shadow-[0_0_15px_rgba(53,211,97,0.5)] z-20"></div>
-                  
-                  <Card className={`w-full sm:w-1/2 ml-12 sm:ml-0 glass-card rounded-[2rem] border-white/5 ${i % 2 === 0 ? 'sm:mr-12' : 'sm:ml-12'}`}>
-                    <CardHeader className="pb-2">
-                      <div className="text-xs font-black uppercase tracking-widest text-primary mb-2 bg-primary/10 w-fit px-3 py-1 rounded-full">{achievement.date}</div>
-                      <CardTitle className="text-2xl font-black leading-tight">{achievement.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">{achievement.description}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
+        <DeveloperTimeline />
       </Section>
       </div>
 
