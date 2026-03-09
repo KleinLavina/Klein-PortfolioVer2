@@ -7,7 +7,9 @@ import {
   FolderGit2,
   Mail,
   Moon,
-  Sun
+  Sun,
+  Lightbulb,
+  Clock
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,7 +30,7 @@ const navItems = [
   { title: "Home", url: "#home", icon: Home },
   { title: "About", url: "#about", icon: User },
   { title: "Skills", url: "#skills", icon: Code2 },
-  { title: "Achievements", url: "#achievements", icon: Trophy },
+  { title: "Timeline", url: "#timeline", icon: Clock },
   { title: "Projects", url: "#projects", icon: FolderGit2 },
   { title: "Contact", url: "#contact", icon: Mail },
 ];

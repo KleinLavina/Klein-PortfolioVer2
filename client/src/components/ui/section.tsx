@@ -12,11 +12,10 @@ export function Section({ id, className, children }: SectionProps) {
   return (
     <motion.section
       id={id}
-      initial={{ opacity: 0, y: 40, scale: 0.98 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
-      viewport={{ once: false, amount: 0.25 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
       className={cn("min-h-screen py-20 flex flex-col justify-center", className)}
     >
       {children}
@@ -30,8 +29,8 @@ export function SectionHeader({ title, subtitle }: { title: string; subtitle?: s
       <motion.h2 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        viewport={{ once: false, amount: 0.25 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.4 }}
         className="text-4xl md:text-5xl font-black text-foreground"
       >
         {title}
@@ -41,9 +40,8 @@ export function SectionHeader({ title, subtitle }: { title: string; subtitle?: s
         <motion.p 
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -5 }}
-          viewport={{ once: false, amount: 0.25 }}
-          transition={{ delay: 0.1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
           className="mt-4 text-lg text-muted-foreground max-w-2xl"
         >
           {subtitle}

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Send, ExternalLink, Github, Code, Database, MonitorSmartphone, Layers, Server, TerminalSquare, Mail, MessageSquare, FolderGit2, Trophy } from "lucide-react";
+import { Loader2, Send, ExternalLink, Github, Code, Database, MonitorSmartphone, Layers, Server, TerminalSquare, Mail, MessageSquare, FolderGit2, Trophy, Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { format } from "date-fns";
 
@@ -52,7 +52,23 @@ const SKILLS = {
     { name: "Figma", icon: Layers, color: "text-pink-500", level: 2 as const },
     { name: "Canva", icon: Layers, color: "text-cyan-500", level: 2 as const },
   ],
+  "Specializations": [
+    { name: "Frontend Development", icon: MonitorSmartphone, color: "text-cyan-500", level: 3 as const },
+    { name: "Backend Development", icon: Server, color: "text-green-500", level: 3 as const },
+    { name: "Web Performance", icon: Zap, color: "text-yellow-500", level: 3 as const },
+    { name: "Software Architecture", icon: Layers, color: "text-purple-500", level: 2 as const },
+    { name: "AI-Assisted Development", icon: Lightbulb, color: "text-orange-500", level: 2 as const },
+  ],
 };
+
+const PROFESSIONAL_SKILLS = [
+  { name: "Problem Solving", icon: Lightbulb, color: "text-yellow-400", description: "Analytical approach to complex challenges" },
+  { name: "Team Collaboration", icon: Users, color: "text-blue-500", description: "Effective communication and teamwork" },
+  { name: "Technical Troubleshooting", icon: Wrench, color: "text-orange-500", description: "Quick diagnosis and resolution" },
+  { name: "Adaptability", icon: Zap, color: "text-purple-500", description: "Fast learner with new technologies" },
+  { name: "Continuous Learning", icon: BookOpen, color: "text-green-500", description: "Always expanding knowledge" },
+  { name: "Communication", icon: MessageCircle, color: "text-cyan-500", description: "Clear technical and non-technical communication" },
+];
 
 export default function Home() {
   const { data: projects, isLoading: projectsLoading } = useProjects();
@@ -79,11 +95,10 @@ export default function Home() {
           <div className="absolute top-0 right-20 w-72 h-72 bg-secondary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
           
           <motion.div 
-            initial={{ opacity: 0, y: 40, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
-            viewport={{ once: false, amount: 0.25 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
             className="relative z-10"
           >
             <Badge variant="outline" className="mb-4 px-4 py-2 border-primary/30 bg-primary/5 text-primary text-sm font-semibold rounded-full">
@@ -121,11 +136,10 @@ export default function Home() {
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <motion.div 
-            initial={{ opacity: 0, y: 40, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
-            viewport={{ once: false, amount: 0.25 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
             className="relative"
           >
             {/* placeholder tech workspace image */}
@@ -137,11 +151,10 @@ export default function Home() {
             />
           </motion.div>
           <motion.div 
-            initial={{ opacity: 0, y: 40, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
-            viewport={{ once: false, amount: 0.25 }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
             className="space-y-6"
           >
             <h3 className="text-3xl font-bold text-foreground">Innovating through Code</h3>
@@ -186,22 +199,21 @@ export default function Home() {
                 <span className="h-1 w-12 bg-gradient-brand rounded-full"></span>
                 {category}
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {skills.map((skill, index) => (
                   <motion.div
                     key={skill.name}
-                    initial={{ opacity: 0, y: 40, scale: 0.98 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
-                    viewport={{ once: false, amount: 0.25 }}
-                    transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.08 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.05 }}
                     className="group"
                   >
-                    <div className="p-6 rounded-3xl glass-card flex flex-col items-center justify-center gap-4 hover-glow cursor-default">
-                      <div className={`p-4 rounded-full bg-background border border-border shadow-inner group-hover:scale-110 transition-transform duration-300 ${skill.color}`}>
-                        <skill.icon size={32} strokeWidth={1.5} />
+                    <div className="p-3 rounded-xl glass-card flex flex-col items-center justify-center gap-2 hover-glow cursor-default">
+                      <div className={`p-2 rounded-full bg-background border border-border shadow-inner group-hover:scale-110 transition-transform duration-300 ${skill.color}`}>
+                        <skill.icon size={20} strokeWidth={1.5} />
                       </div>
-                      <span className="font-bold text-foreground text-center">{skill.name}</span>
+                      <span className="font-medium text-xs text-foreground text-center leading-tight">{skill.name}</span>
                       <SkillIndicator level={skill.level} className="w-full" />
                     </div>
                   </motion.div>
@@ -209,6 +221,36 @@ export default function Home() {
               </div>
             </div>
           ))}
+          
+          {/* Professional Skills - Different Style */}
+          <div className="mt-16">
+            <h3 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
+              <span className="h-1 w-12 bg-gradient-brand rounded-full"></span>
+              Professional Skills
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {PROFESSIONAL_SKILLS.map((skill, index) => (
+                <motion.div
+                  key={skill.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.05 }}
+                  className="group"
+                >
+                  <div className="p-4 rounded-2xl glass-card hover-glow cursor-default h-full flex items-center gap-4 border-white/5">
+                    <div className={`p-3 rounded-xl bg-gradient-brand/10 border border-primary/20 group-hover:scale-110 transition-transform duration-300 flex-shrink-0 ${skill.color}`}>
+                      <skill.icon size={22} strokeWidth={1.5} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-base text-foreground mb-1">{skill.name}</h4>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{skill.description}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </div>
       </Section>
 
@@ -236,11 +278,10 @@ export default function Home() {
             {projects.map((project, i) => (
               <motion.div
                 key={project.id}
-                initial={{ opacity: 0, y: 40, scale: 0.98 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
-                viewport={{ once: false, amount: 0.25 }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.08 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.05 }}
               >
                 <Card className="h-full flex flex-col overflow-hidden rounded-[2rem] border-white/5 dark:border-white/10 hover:border-primary/50 transition-all duration-500 group shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 bg-card/30 backdrop-blur-xl">
                   <div className="relative h-64 overflow-hidden">
@@ -289,11 +330,11 @@ export default function Home() {
         )}
       </Section>
 
-      {/* ACHIEVEMENTS SECTION */}
-      <Section id="achievements">
+      {/* TIMELINE SECTION */}
+      <Section id="timeline">
         <SectionHeader 
-          title="Achievements" 
-          subtitle="Milestones and recognition along my developer journey." 
+          title="Timeline" 
+          subtitle="My educational journey and course milestones." 
         />
         
         {achievementsLoading ? (
@@ -312,11 +353,10 @@ export default function Home() {
               {achievements.map((achievement, i) => (
                 <motion.div 
                   key={achievement.id}
-                  initial={{ opacity: 0, y: 40, scale: 0.98 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
-                  viewport={{ once: false, amount: 0.25 }}
-                  transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.08 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.05 }}
                   className={`flex flex-col sm:flex-row items-start sm:items-center gap-8 ${i % 2 === 0 ? 'sm:flex-row-reverse' : ''}`}
                 >
                   <div className="hidden sm:block sm:w-1/2"></div>
