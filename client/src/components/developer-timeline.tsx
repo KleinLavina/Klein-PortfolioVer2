@@ -1,6 +1,7 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useState, useEffect, useRef } from "react";
 
 const timelineData = [
   {
@@ -34,8 +35,75 @@ const timelineData = [
 ];
 
 export function DeveloperTimeline() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isTimelineVisible, setIsTimelineVisible] = useState(false);
+  const timelineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Observer for timeline container visibility
+    const containerObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsTimelineVisible(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (containerRef.current) {
+      containerObserver.observe(containerRef.current);
+    }
+
+    // Observer for individual timeline items
+    const itemObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = timelineRefs.current.findIndex((ref) => ref === entry.target);
+            if (index !== -1) {
+              setActiveIndex(index);
+            }
+          }
+        });
+      },
+      { threshold: 0.6, rootMargin: "-100px 0px" }
+    );
+
+    timelineRefs.current.forEach((ref) => {
+      if (ref) itemObserver.observe(ref);
+    });
+
+    return () => {
+      containerObserver.disconnect();
+      itemObserver.disconnect();
+    };
+  }, []);
+
   return (
-    <div className="relative max-w-5xl mx-auto">
+    <div ref={containerRef} className="relative max-w-5xl mx-auto">
+      {/* Mini Floating Image for Mobile (below 690px) */}
+      {isTimelineVisible && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          className="sm:hidden fixed left-4 top-24 z-30 w-20 h-20 rounded-xl overflow-hidden shadow-2xl border-2 border-primary/30 bg-background"
+        >
+          <motion.img
+            key={activeIndex}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
+            src={timelineData[activeIndex].image}
+            alt={timelineData[activeIndex].title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </motion.div>
+      )}
+
       {/* Timeline Line */}
       <div className="absolute left-[19px] sm:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-secondary to-accent opacity-30 transform sm:-translate-x-1/2 rounded-full"></div>
       
@@ -43,6 +111,7 @@ export function DeveloperTimeline() {
         {timelineData.map((item, i) => (
           <motion.div
             key={i}
+            ref={(el) => (timelineRefs.current[i] = el)}
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
@@ -74,23 +143,6 @@ export function DeveloperTimeline() {
 
             {/* Content Card */}
             <div className={`w-full sm:w-1/2 ml-12 sm:ml-0 ${i % 2 === 0 ? "sm:mr-12" : "sm:ml-12"}`}>
-
-              {/* Mobile Floating Image */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className="md:hidden w-full h-48 rounded-2xl overflow-hidden shadow-xl border-2 border-primary/20 mb-4"
-              >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </motion.div>
-
               {/* Timeline Card */}
               <Card className="glass-card rounded-[2rem] border-white/5 hover:border-primary/30 transition-all duration-500 shadow-xl">
                 <CardHeader className="pb-3">
