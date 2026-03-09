@@ -51,9 +51,24 @@ export function GithubContributions() {
         ) : null}
         
         <div className="space-y-4">
-          <p className="text-sm font-semibold text-muted-foreground">
-            GitHub Contribution Activity
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-muted-foreground">
+              GitHub Contribution Activity
+            </p>
+            
+            {/* Contribution Legend */}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span>Less</span>
+              <div className="flex gap-1">
+                <div className="w-3 h-3 rounded-sm bg-[#ebedf0] dark:bg-[#161b22]"></div>
+                <div className="w-3 h-3 rounded-sm bg-[#d6e685]"></div>
+                <div className="w-3 h-3 rounded-sm bg-[#8cc665]"></div>
+                <div className="w-3 h-3 rounded-sm bg-[#44a340]"></div>
+                <div className="w-3 h-3 rounded-sm bg-[#1e6823]"></div>
+              </div>
+              <span>More</span>
+            </div>
+          </div>
           
           {/* GitHub Contribution Chart */}
           <div className="flex justify-center items-center bg-background/50 rounded-2xl p-4 overflow-x-auto">

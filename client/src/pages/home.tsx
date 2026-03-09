@@ -53,11 +53,11 @@ const SKILLS = {
     { name: "Canva", icon: Layers, color: "text-cyan-500", level: 2 as const },
   ],
   "Specializations": [
-    { name: "Frontend Development", icon: MonitorSmartphone, color: "text-cyan-500", level: 3 as const },
-    { name: "Backend Development", icon: Server, color: "text-green-500", level: 3 as const },
-    { name: "Web Performance", icon: Zap, color: "text-yellow-500", level: 3 as const },
-    { name: "Software Architecture", icon: Layers, color: "text-purple-500", level: 2 as const },
-    { name: "AI-Assisted Development", icon: Lightbulb, color: "text-orange-500", level: 2 as const },
+    { name: "Frontend Development", icon: MonitorSmartphone, color: "text-cyan-500", level: 3 as const, description: "Building user interfaces" },
+    { name: "Backend Development", icon: Server, color: "text-green-500", level: 3 as const, description: "Server-side logic" },
+    { name: "Web Performance Optimization", icon: Zap, color: "text-yellow-500", level: 3 as const, description: "Speed & efficiency" },
+    { name: "Software Architecture", icon: Layers, color: "text-purple-500", level: 2 as const, description: "System design" },
+    { name: "AI-Assisted Development", icon: Lightbulb, color: "text-orange-500", level: 2 as const, description: "Productivity tools" },
   ],
 };
 
@@ -214,7 +214,11 @@ export default function Home() {
                         <skill.icon size={20} strokeWidth={1.5} />
                       </div>
                       <span className="font-medium text-xs text-foreground text-center leading-tight">{skill.name}</span>
-                      <SkillIndicator level={skill.level} className="w-full" />
+                      {category === "Specializations" && 'description' in skill ? (
+                        <p className="text-[10px] text-muted-foreground text-center leading-tight">{skill.description}</p>
+                      ) : (
+                        <SkillIndicator level={skill.level} className="w-full" />
+                      )}
                     </div>
                   </motion.div>
                 ))}
