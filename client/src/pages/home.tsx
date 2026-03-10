@@ -1,4 +1,5 @@
 import { Shell } from "@/components/layout/shell";
+import bgPattern from "@assets/image_1773110314866.png";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { SkillIndicator, SkillLegend } from "@/components/ui/skill-indicator";
 import { GithubContributions } from "@/components/github-contributions";
@@ -88,6 +89,18 @@ export default function Home() {
 
   return (
     <Shell>
+      {/* Background Patterns */}
+      <img 
+        src={bgPattern} 
+        alt="" 
+        className="fixed top-0 left-0 w-64 opacity-10 pointer-events-none z-0 blur-sm grayscale"
+      />
+      <img 
+        src={bgPattern} 
+        alt="" 
+        className="fixed bottom-0 right-0 w-64 opacity-10 pointer-events-none z-0 blur-sm grayscale rotate-180"
+      />
+
       <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative">
         {/* HERO SECTION */}
         <Section id="home" className="justify-center min-h-screen py-4 pt-0">
@@ -105,9 +118,9 @@ export default function Home() {
             <Badge variant="outline" className="mb-4 px-4 py-2 border-primary/30 bg-primary/5 text-primary text-sm font-semibold rounded-full">
               👋 Welcome to my portfolio
             </Badge>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-[1.1]">
+            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black tracking-tight text-foreground leading-[1.1]">
               Hi, I'm <br />
-              <span className="text-gradient">Klein F. Lavina</span>
+              <span className="text-gradient font-cursive font-normal block mt-2 px-2">Klein F. Lavina</span>
             </h1>
             <h2 className="mt-4 text-xl sm:text-2xl font-bold text-muted-foreground">
               Crafting digital experiences as a <span className="text-foreground">Full Stack Developer</span>.

@@ -1,0 +1,106 @@
+Here is the **refined and complete prompt** you can give to an AI agent so it follows **clear UI/UX instructions without guessing**:
+
+---
+
+**Frontend UI Improvement Prompt for AI Agent**
+
+Please review the current UI design and improve the **sidebar** and **hero section**, as the current layout feels visually underwhelming and lacks strong visual impact.
+
+Follow the instructions carefully and make improvements while **respecting the existing design system, fonts, and layout structure in the current codebase.**
+
+---
+
+### 1. Sidebar Improvements
+
+Improve the sidebar to make it feel more **modern, structured, and visually engaging**.
+
+Requirements:
+
+* Improve **spacing, alignment, and visual hierarchy**.
+* Enhance navigation styling with:
+
+  * better hover states
+  * clear active states
+  * consistent icon alignment
+* Maintain a **clean developer portfolio aesthetic**.
+
+**Important:**
+
+* The **Contact section/button must be visually stronger and more noticeable**.
+* It should stand out so **employers or recruiters can immediately see how to contact me**.
+* You may use:
+
+  * stronger color contrast
+  * subtle highlight
+  * call-to-action styling
+  * slight emphasis compared to other navigation items
+* Do not make it distracting, but ensure it is **clearly visible and prioritized.**
+
+---
+
+### 2. Hero Section Enhancements
+
+Improve the hero section to create a **stronger first impression**.
+
+For the headline text:
+
+**"Hi, I'm Klein Lavina"**
+
+Requirements:
+
+* Increase the **font size significantly** so it becomes the primary visual focus.
+* Apply a **cursive-style font** for the name or greeting to give it personality.
+* Ensure the cursive font **pairs well with the existing fonts already used in the codebase**.
+* Maintain **good typography balance and readability**.
+
+Also improve:
+
+* spacing
+* layout balance
+* call-to-action positioning (if present)
+
+The hero section should feel **confident, professional, and visually engaging.**
+
+---
+
+### 3. Background Pattern Integration
+
+Use the provided image as a **decorative abstract background element**.
+
+Requirements:
+
+* The image must have a **transparent background** so it blends naturally with the page background.
+* Place the pattern **subtly in the left and right corners** of the layout.
+* The pattern should:
+
+  * have **low opacity (around 5–15%)**
+  * act as a **soft decorative design element**
+  * **not interfere with readability**
+  * remain **secondary to the main content**
+
+Optional enhancements:
+
+* slight blur
+* gradient masking
+* subtle scaling for responsiveness
+
+---
+
+### 4. Design Constraints
+
+* Maintain a **clean, modern developer portfolio aesthetic**.
+* Do **not introduce unnecessary design clutter**.
+* Respect the **existing color palette and typography system**.
+* Ensure the design remains **fully responsive across devices**.
+
+---
+
+If possible, implement improvements with **clear, structured code changes rather than conceptual suggestions.**
+
+---
+
+✅ This version works **very well with AI coding agents like Cursor, Replit AI, Copilot, and GPT agents** because it clearly defines **design goals + constraints + implementation guidance**.
+
+---
+
+If you want, I can also show you **one UI trick used by senior frontend devs** that will make your **hero section instantly look premium (like Apple / Stripe portfolios)**.

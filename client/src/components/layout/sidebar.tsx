@@ -103,7 +103,11 @@ export function AppSidebar() {
                   <SidebarMenuButton 
                     asChild 
                     isActive={activeSection === item.url.replace("#", "")}
-                    className="rounded-xl transition-all duration-300 hover:bg-primary/10 hover:text-primary data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-lg data-[active=true]:shadow-primary/25"
+                    className={`rounded-xl transition-all duration-300 ${
+                      item.title === "Contact" 
+                        ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(53,211,97,0.2)] hover:bg-primary hover:text-white" 
+                        : "hover:bg-primary/10 hover:text-primary"
+                    } data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-lg data-[active=true]:shadow-primary/25`}
                   >
                     <a href={item.url} className="flex items-center gap-3 px-4 py-2.5">
                       <item.icon className="h-4 w-4" />
