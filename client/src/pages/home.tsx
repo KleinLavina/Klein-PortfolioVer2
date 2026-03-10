@@ -1,5 +1,5 @@
 import { Shell } from "@/components/layout/shell";
-import bgPattern from "@assets/image_1773110314866.png";
+import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { SkillIndicator, SkillLegend } from "@/components/ui/skill-indicator";
 import { GithubContributions } from "@/components/github-contributions";
@@ -89,19 +89,8 @@ export default function Home() {
 
   return (
     <Shell>
-      {/* Background Patterns */}
-      <img 
-        src={bgPattern} 
-        alt="" 
-        className="fixed top-0 left-0 w-64 opacity-10 pointer-events-none z-0 blur-sm grayscale"
-      />
-      <img 
-        src={bgPattern} 
-        alt="" 
-        className="fixed bottom-0 right-0 w-64 opacity-10 pointer-events-none z-0 blur-sm grayscale rotate-180"
-      />
-
-      <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative">
+      <BubbleBackground interactive className="fixed inset-0 z-0" />
+      <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative z-10">
         {/* HERO SECTION */}
         <Section id="home" className="justify-center min-h-screen py-4 pt-0">
         <div className="relative">
