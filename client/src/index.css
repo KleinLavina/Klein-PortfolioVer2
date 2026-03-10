@@ -8,7 +8,7 @@
 @layer base {
   :root {
     --font-sans: 'Urbanist', sans-serif;
-    --font-cursive: 'Dancing Script', cursive;
+    --font-cursive: 'Bitcount Single Ink', cursive;
 
     /* Light Theme - derived from provided hex codes */
     --background: 132 50% 97%; /* #f4fdf6 */
