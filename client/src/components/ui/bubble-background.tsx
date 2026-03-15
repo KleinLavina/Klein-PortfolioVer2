@@ -1,209 +1,116 @@
-'use client';
-
 import * as React from 'react';
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  type SpringOptions,
-} from 'framer-motion';
-
 import { cn } from '@/lib/utils';
-
-type BubbleColors = {
-  first: string;
-  second: string;
-  third: string;
-  fourth: string;
-  fifth: string;
-  sixth: string;
-};
 
 type BubbleBackgroundProps = React.ComponentProps<'div'> & {
   interactive?: boolean;
-  transition?: SpringOptions;
-  colors?: BubbleColors;
 };
 
 function BubbleBackground({
   className,
   children,
   interactive = false,
-  transition = { stiffness: 100, damping: 20 },
-  colors = {
-    first: '53,211,97',   // Primary
-    second: '132,205,228', // Secondary
-    third: '90,141,219',  // Accent
-    fourth: '53,211,97',
-    fifth: '132,205,228',
-    sixth: '90,141,219',
-  },
   ...props
 }: BubbleBackgroundProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, transition);
-  const springY = useSpring(mouseY, transition);
-
-  const rectRef = React.useRef<DOMRect | null>(null);
+  const blobRef = React.useRef<HTMLDivElement>(null);
   const rafIdRef = React.useRef<number | null>(null);
-
-  React.useLayoutEffect(() => {
-    const updateRect = () => {
-      if (containerRef.current) {
-        rectRef.current = containerRef.current.getBoundingClientRect();
-      }
-    };
-
-    updateRect();
-
-    const el = containerRef.current;
-    const ro = new ResizeObserver(updateRect);
-    if (el) ro.observe(el);
-
-    window.addEventListener('resize', updateRect);
-    window.addEventListener('scroll', updateRect, { passive: true });
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', updateRect);
-      window.removeEventListener('scroll', updateRect);
-    };
-  }, []);
 
   React.useEffect(() => {
     if (!interactive) return;
 
-    const el = containerRef.current;
-    if (!el) return;
-
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = rectRef.current;
-      if (!rect) return;
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
       if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
       rafIdRef.current = requestAnimationFrame(() => {
-        mouseX.set(e.clientX - centerX);
-        mouseY.set(e.clientY - centerY);
+        if (blobRef.current && containerRef.current) {
+          const rect = containerRef.current.getBoundingClientRect();
+          const x = e.clientX - rect.left - rect.width / 2;
+          const y = e.clientY - rect.top - rect.height / 2;
+          blobRef.current.style.transform = `translate(${x * 0.08}px, ${y * 0.08}px) translateZ(0)`;
+        }
       });
     };
 
-    el.addEventListener('mousemove', handleMouseMove as EventListener, {
-      passive: true,
-    });
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => {
-      el.removeEventListener('mousemove', handleMouseMove as EventListener);
+      window.removeEventListener('mousemove', handleMouseMove);
       if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
     };
-  }, [interactive, mouseX, mouseY]);
+  }, [interactive]);
 
   return (
     <div
       ref={containerRef}
       data-slot="bubble-background"
-      className={cn(
-        'relative size-full overflow-hidden bg-background',
-        className,
-      )}
+      className={cn('relative size-full overflow-hidden bg-background', className)}
+      style={{ contain: 'layout style paint' }}
       {...props}
     >
-      <style>
-        {`
-            :root {
-              --first-color: ${colors.first};
-              --second-color: ${colors.second};
-              --third-color: ${colors.third};
-              --fourth-color: ${colors.fourth};
-              --fifth-color: ${colors.fifth};
-              --sixth-color: ${colors.sixth};
-            }
-          `}
-      </style>
-
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="absolute top-0 left-0 w-0 h-0"
-      >
-        <defs>
-          <filter id="goo">
-            <feGaussianBlur
-              in="SourceGraphic"
-              stdDeviation="16"
-              result="blur"
-            />
-            <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -8"
-              result="goo"
-            />
-            <feBlend in="SourceGraphic" in2="goo" />
-          </filter>
-        </defs>
-      </svg>
+      <style>{`
+        @keyframes blob-drift-1 {
+          0%, 100% { transform: translate(0px, 0px) translateZ(0); }
+          33%       { transform: translate(40px, -60px) translateZ(0); }
+          66%       { transform: translate(-30px, 30px) translateZ(0); }
+        }
+        @keyframes blob-drift-2 {
+          0%, 100% { transform: translate(0px, 0px) translateZ(0); }
+          50%       { transform: translate(-50px, 40px) translateZ(0); }
+        }
+        @keyframes blob-drift-3 {
+          0%, 100% { transform: translate(0px, 0px) translateZ(0); }
+          40%       { transform: translate(60px, 20px) translateZ(0); }
+          80%       { transform: translate(-20px, -40px) translateZ(0); }
+        }
+        .blob-1 { animation: blob-drift-1 28s ease-in-out infinite; will-change: transform; }
+        .blob-2 { animation: blob-drift-2 22s ease-in-out infinite; will-change: transform; animation-delay: -8s; }
+        .blob-3 { animation: blob-drift-3 36s ease-in-out infinite; will-change: transform; animation-delay: -14s; }
+        .blob-interactive { transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); will-change: transform; }
+      `}</style>
 
       <div
-        className="absolute inset-0 opacity-30 dark:opacity-20"
-        style={{ filter: 'url(#goo) blur(40px)' }}
+        className="absolute inset-0 opacity-40 dark:opacity-25"
+        style={{ filter: 'blur(60px)' }}
+        aria-hidden="true"
       >
-        <motion.div
-          className="absolute rounded-full size-[80%] top-[10%] left-[10%] mix-blend-hard-light bg-[radial-gradient(circle_at_center,rgba(var(--first-color),0.8)_0%,rgba(var(--first-color),0)_50%)]"
-          animate={{ y: [-50, 50, -50] }}
-          transition={{ duration: 30, ease: 'easeInOut', repeat: Infinity }}
-          style={{ transform: 'translateZ(0)', willChange: 'transform' }}
-        />
-
-        <motion.div
-          className="absolute inset-0 flex justify-center items-center origin-[calc(50%-400px)]"
-          animate={{ rotate: 360 }}
-          transition={{
-            duration: 20,
-            ease: 'linear',
-            repeat: Infinity,
-            repeatType: 'loop',
+        <div
+          className="blob-1 absolute rounded-full"
+          style={{
+            width: '70%',
+            height: '70%',
+            top: '5%',
+            left: '5%',
+            background: 'radial-gradient(circle at center, rgba(53,211,97,0.7) 0%, transparent 70%)',
           }}
-          style={{ transform: 'translateZ(0)', willChange: 'transform' }}
-        >
-          <div className="rounded-full size-[80%] top-[10%] left-[10%] mix-blend-hard-light bg-[radial-gradient(circle_at_center,rgba(var(--second-color),0.8)_0%,rgba(var(--second-color),0)_50%)]" />
-        </motion.div>
-
-        <motion.div
-          className="absolute inset-0 flex justify-center items-center origin-[calc(50%+400px)]"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 40, ease: 'linear', repeat: Infinity }}
-          style={{ transform: 'translateZ(0)', willChange: 'transform' }}
-        >
-          <div className="absolute rounded-full size-[80%] bg-[radial-gradient(circle_at_center,rgba(var(--third-color),0.8)_0%,rgba(var(--third-color),0)_50%)] mix-blend-hard-light top-[calc(50%+200px)] left-[calc(50%-500px)]" />
-        </motion.div>
-
-        <motion.div
-          className="absolute rounded-full size-[80%] top-[10%] left-[10%] mix-blend-hard-light bg-[radial-gradient(circle_at_center,rgba(var(--fourth-color),0.8)_0%,rgba(var(--fourth-color),0)_50%)] opacity-70"
-          animate={{ x: [-50, 50, -50] }}
-          transition={{ duration: 40, ease: 'easeInOut', repeat: Infinity }}
-          style={{ transform: 'translateZ(0)', willChange: 'transform' }}
         />
-
-        <motion.div
-          className="absolute inset-0 flex justify-center items-center origin-[calc(50%_-_800px)_calc(50%_+_200px)]"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, ease: 'linear', repeat: Infinity }}
-          style={{ transform: 'translateZ(0)', willChange: 'transform' }}
-        >
-          <div className="absolute rounded-full size-[160%] mix-blend-hard-light bg-[radial-gradient(circle_at_center,rgba(var(--fifth-color),0.8)_0%,rgba(var(--fifth-color),0)_50%)] top-[calc(50%-80%)] left-[calc(50%-80%)]" />
-        </motion.div>
-
+        <div
+          className="blob-2 absolute rounded-full"
+          style={{
+            width: '60%',
+            height: '60%',
+            bottom: '5%',
+            right: '5%',
+            background: 'radial-gradient(circle at center, rgba(132,205,228,0.7) 0%, transparent 70%)',
+          }}
+        />
+        <div
+          className="blob-3 absolute rounded-full"
+          style={{
+            width: '55%',
+            height: '55%',
+            top: '30%',
+            left: '30%',
+            background: 'radial-gradient(circle at center, rgba(90,141,219,0.5) 0%, transparent 70%)',
+          }}
+        />
         {interactive && (
-          <motion.div
-            className="absolute rounded-full size-full mix-blend-hard-light bg-[radial-gradient(circle_at_center,rgba(var(--sixth-color),0.8)_0%,rgba(var(--sixth-color),0)_50%)] opacity-70"
+          <div
+            ref={blobRef}
+            className="blob-interactive absolute rounded-full"
             style={{
-              x: springX,
-              y: springY,
-              transform: 'translateZ(0)',
-              willChange: 'transform',
+              width: '50%',
+              height: '50%',
+              top: '25%',
+              left: '25%',
+              background: 'radial-gradient(circle at center, rgba(53,211,97,0.35) 0%, transparent 70%)',
             }}
           />
         )}
