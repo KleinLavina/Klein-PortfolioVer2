@@ -125,114 +125,73 @@ export default function Home() {
 
         {/* ─── HERO ─────────────────────────────────────────────────────── */}
         <Section id="home" className="justify-center min-h-screen py-0 pt-0">
-          <div className="w-full">
+          <div className="w-full flex flex-col justify-center">
 
-            {/* Top bar */}
+            {/* Main hero content — centered layout */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="flex items-center justify-between mb-16 border-b border-border/30 pb-4"
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+              className="max-w-3xl"
             >
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase">Available for work · 2025</span>
-              </div>
-              <span className="text-xs font-mono text-muted-foreground/50 tracking-widest uppercase hidden sm:block">Portfolio v1.0</span>
-            </motion.div>
+              <p className="text-sm font-mono text-primary mb-6 tracking-widest">// Hello, World!</p>
+              <h1 className="text-[clamp(3.5rem,10vw,7.5rem)] font-black leading-[0.88] tracking-tight text-foreground">
+                Hi, I'm
+              </h1>
+              <h1 className="text-[clamp(3.5rem,10vw,7.5rem)] font-black leading-[0.88] tracking-tight mb-6">
+                <span className="text-gradient font-cursive font-normal">Klein F. Lavina</span>
+              </h1>
 
-            {/* Main hero grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 items-center">
-              {/* Left: Copy */}
-              <div>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-                >
-                  <p className="text-sm font-mono text-primary mb-4 tracking-widest">// Hello, World!</p>
-                  <h1 className="text-[clamp(3rem,9vw,7rem)] font-black leading-[0.9] tracking-tight text-foreground">
-                    Hi, I'm
-                  </h1>
-                  <h1 className="text-[clamp(3rem,9vw,7rem)] font-black leading-[0.9] tracking-tight">
-                    <span className="text-gradient font-cursive font-normal">Klein F. Lavina</span>
-                  </h1>
-                  <div className="mt-6 flex items-center gap-4">
-                    <div className="h-px flex-1 bg-border/40 max-w-[60px]" />
-                    <h2 className="text-base sm:text-lg font-semibold text-muted-foreground">
-                      Full Stack Developer
-                    </h2>
-                  </div>
-                  <p className="mt-5 text-base text-muted-foreground max-w-xl leading-relaxed">
-                    I build scalable, modern web applications. Passionate about turning
-                    complex problems into elegant, intuitive interfaces.
-                  </p>
-
-                  {/* Stats row */}
-                  <div className="mt-8 flex gap-8 border-y border-border/30 py-5">
-                    {[
-                      { n: "3+", label: "Years Exp." },
-                      { n: "50+", label: "Projects" },
-                      { n: "100%", label: "Commitment" },
-                    ].map(s => (
-                      <div key={s.label}>
-                        <div className="text-2xl font-black text-primary">{s.n}</div>
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-0.5">{s.label}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* CTAs */}
-                  <div className="mt-8 flex flex-wrap gap-4">
-                    <div
-                      ref={mag1.ref as React.RefObject<HTMLDivElement>}
-                      onMouseMove={mag1.onMouseMove}
-                      onMouseLeave={mag1.onMouseLeave}
-                      className="inline-block"
-                    >
-                      <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-1 transition-all h-12 text-base font-bold">
-                        <a href="#projects" className="flex items-center gap-2">View My Work <ChevronRight size={16} /></a>
-                      </Button>
-                    </div>
-                    <div
-                      ref={mag2.ref as React.RefObject<HTMLDivElement>}
-                      onMouseMove={mag2.onMouseMove}
-                      onMouseLeave={mag2.onMouseLeave}
-                      className="inline-block"
-                    >
-                      <Button size="lg" variant="outline" className="rounded-full px-8 border border-border/60 hover:border-primary/50 hover:text-primary transition-all h-12 text-base font-bold backdrop-blur-sm">
-                        <a href="#contact">Contact Me</a>
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="h-px w-12 bg-primary/50" />
+                <h2 className="text-lg sm:text-xl font-semibold text-muted-foreground tracking-wide">
+                  Full Stack Developer
+                </h2>
               </div>
 
-              {/* Right: Floating tech pills */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
-                className="hidden lg:flex flex-col gap-2.5 relative"
-              >
-                <div className="absolute -left-8 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-border/40 to-transparent" />
-                <p className="text-[10px] font-mono text-muted-foreground/60 uppercase tracking-widest mb-2 pl-2">Tech Stack</p>
-                {TECH_PILLS.map((tech, i) => (
-                  <motion.div
-                    key={tech}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + i * 0.06, duration: 0.4 }}
-                    className="group"
-                  >
-                    <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl glass-card border-white/5 hover:border-primary/30 hover:-translate-x-1 transition-all duration-300 cursor-default">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary/60 group-hover:bg-primary transition-colors" />
-                      <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">{tech}</span>
-                    </div>
-                  </motion.div>
+              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed mb-10">
+                I build scalable, modern web applications. Passionate about turning
+                complex problems into elegant, intuitive interfaces.
+              </p>
+
+              {/* Stats row */}
+              <div className="flex gap-10 border-y border-border/30 py-6 mb-10 w-fit">
+                {[
+                  { n: "3+", label: "Years Exp." },
+                  { n: "50+", label: "Projects" },
+                  { n: "100%", label: "Commitment" },
+                ].map(s => (
+                  <div key={s.label}>
+                    <div className="text-3xl font-black text-primary">{s.n}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{s.label}</div>
+                  </div>
                 ))}
-              </motion.div>
-            </div>
+              </div>
+
+              {/* CTAs */}
+              <div className="flex flex-wrap gap-4">
+                <div
+                  ref={mag1.ref as React.RefObject<HTMLDivElement>}
+                  onMouseMove={mag1.onMouseMove}
+                  onMouseLeave={mag1.onMouseLeave}
+                  className="inline-block"
+                >
+                  <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-1 transition-all h-12 text-base font-bold">
+                    <a href="#projects" className="flex items-center gap-2">View My Work <ChevronRight size={16} /></a>
+                  </Button>
+                </div>
+                <div
+                  ref={mag2.ref as React.RefObject<HTMLDivElement>}
+                  onMouseMove={mag2.onMouseMove}
+                  onMouseLeave={mag2.onMouseLeave}
+                  className="inline-block"
+                >
+                  <Button size="lg" variant="outline" className="rounded-full px-8 border border-border/60 hover:border-primary/50 hover:text-primary transition-all h-12 text-base font-bold backdrop-blur-sm">
+                    <a href="#contact">Contact Me</a>
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
 
             {/* Scroll indicator */}
             <motion.div
