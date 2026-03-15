@@ -5,6 +5,7 @@ import { SkillIndicator, SkillLegend } from "@/components/ui/skill-indicator";
 import { GithubContributions } from "@/components/github-contributions";
 import { DeveloperTimeline } from "@/components/developer-timeline";
 import { ScrollRevealTextSection } from "@/components/ui/scroll-reveal-text";
+import { ScrollRevealColorBarSection } from "@/components/ui/scroll-reveal-colorbar";
 import { useProjects } from "@/hooks/use-projects";
 import { useCreateMessage } from "@/hooks/use-messages";
 import { motion, useMotionValue, useSpring } from "framer-motion";
@@ -526,6 +527,12 @@ export default function Home() {
       {/* ─── SCROLL REVEAL ───────────────────────────────────────────── */}
       <ScrollRevealTextSection
         headline={"I'm passionate about building\nscalable full stack apps and writing\nclean, efficient code to solve real\nproblems."}
+        className="relative z-10"
+      />
+
+      {/* ─── SCROLL REVEAL · COLOR BAR ───────────────────────────────── */}
+      <ScrollRevealColorBarSection
+        headline={"As a developer, I value honesty, ownership,\nand continuous learning. I believe in being\ntransparent when solving problems, taking\nresponsibility for the things I build, and\nconstantly improving my craft.\n\nI care about writing simple, maintainable code\nand building products with empathy for the\npeople who use them. To me, good software\nisn't just about making things work — it's about\ncreating solutions thoughtfully, collaborating\nwith others, and always striving to do better\nwith every project."}
         className="relative z-10"
       />
 
