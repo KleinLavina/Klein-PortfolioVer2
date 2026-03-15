@@ -2,6 +2,7 @@ import { ReactNode, useRef } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./sidebar";
 import { CursorWave } from "@/components/ui/cursor-wave";
+import { CustomCursor } from "@/components/ui/custom-cursor";
 import { ScrollSnake } from "@/components/ui/scroll-snake";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { MessageCircle } from "lucide-react";
@@ -26,6 +27,7 @@ export function Shell({ children }: { children: ReactNode }) {
           style={{ scaleX }}
         />
         
+        <CustomCursor />
         <CursorWave />
         <ScrollSnake />
         <AppSidebar />

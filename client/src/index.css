@@ -5,6 +5,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@media (pointer: fine) {
+  *, *::before, *::after {
+    cursor: none !important;
+  }
+}
+
 @layer base {
   :root {
     --font-sans: 'Urbanist', sans-serif;
