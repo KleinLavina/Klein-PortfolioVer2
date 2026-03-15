@@ -524,29 +524,20 @@ export default function Home() {
 
       {/* ─── CONTACT ─────────────────────────────────────────────────── */}
       <Section id="contact" className="!min-h-fit !py-0 relative overflow-hidden">
-        {/* Wave separator — clean transition, no background div causing a line */}
-        <div className="relative h-36 bg-background pointer-events-none">
-          <svg
-            className="absolute bottom-0 left-0 w-full h-full"
-            viewBox="0 0 1440 144"
-            preserveAspectRatio="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M0,100 C180,144 360,40 600,90 C800,135 1000,20 1200,70 C1320,100 1390,60 1440,50 L1440,144 L0,144 Z"
-              className="fill-primary"
-            />
+        {/* Wave separator */}
+        <div className="relative h-24 bg-background">
+          <svg className="absolute bottom-0 left-0 w-full h-24" viewBox="0 0 1440 96" preserveAspectRatio="none">
+            <path d="M0,48 C360,96 1080,0 1440,48 L1440,96 L0,96 Z" className="fill-primary" />
           </svg>
+          <div className="absolute inset-0 overflow-hidden opacity-[0.06]">
+            <div className="text-7xl font-black text-foreground whitespace-nowrap animate-marquee">
+              Let's build something great · Let's build something great · Let's build something great ·
+            </div>
+          </div>
         </div>
 
         {/* Contact body */}
         <div className="relative bg-gradient-to-br from-primary via-primary/90 to-secondary overflow-hidden">
-          {/* Marquee lives inside the green area — blends perfectly */}
-          <div className="overflow-hidden py-3 border-b border-white/10 mb-0">
-            <div className="text-5xl font-black text-white/[0.07] whitespace-nowrap animate-marquee select-none">
-              Let's build something great · Collaborate with me · Let's build something great · Collaborate with me ·
-            </div>
-          </div>
           {/* Background decoration */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute top-10 left-10 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
