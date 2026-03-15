@@ -24,8 +24,8 @@ const navItems = [
   { title: "Home",     url: "#home",     icon: Home },
   { title: "About",    url: "#about",    icon: User },
   { title: "Skills",   url: "#skills",   icon: Code2 },
-  { title: "Timeline", url: "#timeline", icon: Clock },
   { title: "Projects", url: "#projects", icon: FolderGit2 },
+  { title: "Timeline", url: "#timeline", icon: Clock },
   { title: "Contact",  url: "#contact",  icon: Mail },
 ];
 
