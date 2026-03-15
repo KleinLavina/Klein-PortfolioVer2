@@ -1,0 +1,92 @@
+Got it — you want the **scroll text reveal section to appear *after* the Developer Timeline Journey section**, acting like a reflective statement or transition before the next part of the portfolio.
+
+Here is the **corrected AI agent prompt**:
+
+Create a **React + TypeScript component** called **ScrollRevealTextSection** that implements a **sticky scroll-driven text reveal effect**. This section should be placed **after the Developer Timeline Journey section** in the page flow.
+
+Purpose:
+This component acts as a **transition/reflection section after the Developer Timeline Journey**, reinforcing the developer’s philosophy and passion after users finish reading the timeline of growth.
+
+Layout:
+
+* The section should appear **immediately after the Developer Timeline Journey section**.
+* It should occupy **at least 150–200vh of scroll space** so the scroll animation has enough room to play.
+* Inside it, create a **sticky container (position: sticky, top: 0)** that remains pinned while the user scrolls through the section.
+
+Scroll Behavior:
+
+* Display a **large multi-line headline paragraph** centered in the viewport.
+* Initially the text appears in a **muted / faded color**.
+* As the user scrolls, a **highlight color progressively fills the text from left to right**, acting as a **scroll progress indicator**.
+* The fill progress must be **directly mapped to the scroll progress of the section**.
+* Once the text becomes **fully colored (100% scroll progress)**, the sticky section releases and normal scrolling continues to the next page content.
+
+Visual Effect:
+
+* Implement the reveal using **CSS background-clip: text**, gradient masks, or similar techniques.
+* The base text remains visible but muted, while the **highlighted text gradually overlays it**.
+* Optionally add **minimal floating decorative dots or subtle motion elements** to enhance the modern developer portfolio aesthetic.
+
+Theme & Color System:
+
+* The highlight color must **adapt to the project's theme system**.
+* Do **not hardcode colors**.
+* Pull colors from the **existing codebase palette / design tokens**.
+* Support **dark mode and light mode** automatically.
+
+Use theme variables such as:
+
+* `--primary`
+* `--accent`
+* `--text-muted`
+
+Color behavior:
+
+* Light mode:
+
+  * Base text = muted gray
+  * Highlight fill = primary/accent color
+* Dark mode:
+
+  * Base text = dim gray
+  * Highlight fill = bright accent color with good contrast
+
+Technical Requirements:
+
+* Use **React + TypeScript**
+* Use **Framer Motion** scroll hooks (`useScroll`, `useTransform`) to track scroll progress
+* Use **position: sticky** for the pinned animation
+* Ensure **smooth scroll-linked animation**
+* Ensure **no layout shift during sticky state**
+* Make typography **responsive across desktop, tablet, and mobile**
+
+Component Structure:
+
+* Section wrapper (with extended scroll height)
+* Sticky container
+* Headline text element
+* Scroll progress logic
+* Theme-aware styling
+
+Props:
+
+* `headline: string`
+* `highlightColor?: string` (optional override)
+* `className?: string`
+
+Goal:
+Build a **modern portfolio scroll interaction** where the headline text **fills progressively as the user scrolls**, visually acting like a **scroll progress bar**, then releases once fully revealed to continue the page flow.
+
+✅ This version clearly tells the AI agent:
+
+**Timeline → Scroll Reveal Reflection Section → Next Content**
+
+---
+
+If you'd like, I can also show you **a powerful enhancement many developer portfolios use**:
+
+* Timeline finishes
+* **Scroll text reveal appears**
+* **Then the text breaks into highlighted keywords like "Build", "Scale", "Ship"**
+
+This makes the section **10× more memorable** for recruiters.

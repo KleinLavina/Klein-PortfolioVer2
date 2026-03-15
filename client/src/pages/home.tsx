@@ -4,6 +4,7 @@ import { Section } from "@/components/ui/section";
 import { SkillIndicator, SkillLegend } from "@/components/ui/skill-indicator";
 import { GithubContributions } from "@/components/github-contributions";
 import { DeveloperTimeline } from "@/components/developer-timeline";
+import { ScrollRevealTextSection } from "@/components/ui/scroll-reveal-text";
 import { useProjects } from "@/hooks/use-projects";
 import { useCreateMessage } from "@/hooks/use-messages";
 import { motion, useMotionValue, useSpring } from "framer-motion";
@@ -521,6 +522,12 @@ export default function Home() {
           <DeveloperTimeline />
         </Section>
       </div>
+
+      {/* ─── SCROLL REVEAL ───────────────────────────────────────────── */}
+      <ScrollRevealTextSection
+        headline={"I'm passionate about building\nscalable full stack apps and writing\nclean, efficient code to solve real\nproblems."}
+        className="relative z-10"
+      />
 
       {/* ─── CONTACT ─────────────────────────────────────────────────── */}
       <Section id="contact" className="!min-h-fit !py-0 relative overflow-hidden">

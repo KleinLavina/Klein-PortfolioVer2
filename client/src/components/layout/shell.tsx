@@ -39,7 +39,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <span className="ml-4 font-bold text-lg text-gradient">Klein F. Lavina</span>
           </header>
           
-          <main ref={scrollRef} className="flex-1 overflow-y-auto scroll-smooth w-full">
+          <main ref={scrollRef} className="flex-1 overflow-y-auto scroll-smooth w-full relative">
             {children}
           </main>
         </div>
