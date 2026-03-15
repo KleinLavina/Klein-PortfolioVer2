@@ -19,12 +19,15 @@ export function ScrollSnake() {
       const el = scrollContainer as HTMLElement;
       if (!timeline) return 1;
       const H = el.clientHeight;
-      const mid = timeline.offsetTop + timeline.offsetHeight / 2;
+      // The scroll value at which timeline's midpoint is centered in viewport
+      const timelineMid = timeline.offsetTop + timeline.offsetHeight / 2;
+      const scrollAtMid = timelineMid - H / 2;
+      // Start fading half a viewport before the midpoint is centered
+      const fadeStart = scrollAtMid - H * 0.5;
+      const fadeEnd = scrollAtMid;
       const scroll = scrollRef.current;
-      const fadeStart = mid - H * 0.55;
-      const fadeEnd = mid - H * 0.05;
       if (scroll < fadeStart) return 1;
-      if (scroll > fadeEnd) return 0;
+      if (scroll >= fadeEnd) return 0;
       return 1 - (scroll - fadeStart) / (fadeEnd - fadeStart);
     };
 
@@ -37,16 +40,13 @@ export function ScrollSnake() {
       const maxScroll = Math.max(1, el.scrollHeight - H);
       const pct = scrollRef.current / maxScroll;
 
-      // Snake: horizontal position oscillates left ↔ right as scroll increases
       const targetX = 0.5 + Math.sin(pct * Math.PI * 6) * 0.38;
       currentX.current = lerp(currentX.current, targetX, 0.05);
 
       const cx = W * currentX.current;
       const oppCx = W * (1 - currentX.current);
 
-      // Primary snake curve — left edge to right edge top-to-bottom
       const d1 = `M ${W * 0.08} 0 C ${cx} ${H * 0.35}, ${oppCx} ${H * 0.65}, ${W * 0.92} ${H}`;
-      // Echo — offset & inverted for ribbon depth
       const d2 = `M ${W * 0.08} 0 C ${cx + 24} ${H * 0.3}, ${oppCx - 24} ${H * 0.7}, ${W * 0.92} ${H}`;
 
       const base = getTimelineOpacity();

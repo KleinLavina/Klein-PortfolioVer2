@@ -1,16 +1,18 @@
 import { useEffect, useRef } from "react";
 
 export function CursorWave() {
+  const svgRef = useRef<SVGSVGElement>(null);
   const path1Ref = useRef<SVGPathElement>(null);
   const path2Ref = useRef<SVGPathElement>(null);
   const rafRef = useRef<number | null>(null);
+  const scrollRef = useRef(0);
 
   useEffect(() => {
+    const scrollContainer = document.querySelector("main.flex-1");
     const mouse = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.4 };
     const cp1 = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.4 };
     const cp2 = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.6 };
 
-    // Drifting endpoint Y positions
     const drift = {
       y1: 0.35, v1: 0.00015,
       y2: 0.65, v2: -0.00012,
@@ -24,17 +26,36 @@ export function CursorWave() {
     };
     window.addEventListener("mousemove", onMouseMove, { passive: true });
 
+    const onScroll = () => {
+      if (scrollContainer) scrollRef.current = (scrollContainer as HTMLElement).scrollTop;
+    };
+    scrollContainer?.addEventListener("scroll", onScroll, { passive: true });
+
+    const getTimelineOpacity = (): number => {
+      const timeline = document.getElementById("timeline");
+      const el = scrollContainer as HTMLElement | null;
+      if (!timeline || !el) return 1;
+      const H = el.clientHeight;
+      // Reach 0 exactly when timeline's midpoint is centered in viewport
+      const timelineMid = timeline.offsetTop + timeline.offsetHeight / 2;
+      const scrollAtMid = timelineMid - H / 2;
+      const fadeStart = scrollAtMid - H * 0.5;
+      const fadeEnd = scrollAtMid;
+      const scroll = scrollRef.current;
+      if (scroll < fadeStart) return 1;
+      if (scroll >= fadeEnd) return 0;
+      return 1 - (scroll - fadeStart) / (fadeEnd - fadeStart);
+    };
+
     const tick = () => {
       const W = window.innerWidth;
       const H = window.innerHeight;
 
-      // Smoothly follow cursor with two control points at different speeds
       cp1.x = lerp(cp1.x, mouse.x + 60, 0.04);
       cp1.y = lerp(cp1.y, mouse.y - 80, 0.04);
       cp2.x = lerp(cp2.x, mouse.x - 60, 0.025);
       cp2.y = lerp(cp2.y, mouse.y + 80, 0.025);
 
-      // Drift endpoint Y positions slowly
       drift.y1 += drift.v1;
       drift.y2 += drift.v2;
       if (drift.y1 < 0.15 || drift.y1 > 0.85) drift.v1 *= -1;
@@ -43,12 +64,12 @@ export function CursorWave() {
       const y1 = H * drift.y1;
       const y2 = H * drift.y2;
 
-      // Primary curve: left edge to right edge, cubic bezier through cursor area
       const d1 = `M 0 ${y1} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${W} ${y2}`;
-
-      // Mirror/echo curve: slightly offset for depth, very faint
       const d2 = `M 0 ${y1 + 40} C ${cp1.x - 20} ${cp1.y + 60}, ${cp2.x + 20} ${cp2.y - 60}, ${W} ${y2 + 40}`;
 
+      const opacity = getTimelineOpacity() * 0.5;
+
+      if (svgRef.current) svgRef.current.style.opacity = String(opacity);
       if (path1Ref.current) path1Ref.current.setAttribute("d", d1);
       if (path2Ref.current) path2Ref.current.setAttribute("d", d2);
 
@@ -59,12 +80,14 @@ export function CursorWave() {
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
+      scrollContainer?.removeEventListener("scroll", onScroll);
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
   return (
     <svg
+      ref={svgRef}
       className="fixed inset-0 w-full h-full pointer-events-none"
       style={{ zIndex: 5, opacity: 0.5 }}
       aria-hidden="true"
@@ -83,7 +106,6 @@ export function CursorWave() {
         </linearGradient>
       </defs>
 
-      {/* Primary wave */}
       <path
         ref={path1Ref}
         d=""
@@ -93,7 +115,6 @@ export function CursorWave() {
         strokeLinecap="round"
       />
 
-      {/* Echo wave */}
       <path
         ref={path2Ref}
         d=""
