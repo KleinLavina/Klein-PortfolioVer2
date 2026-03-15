@@ -1,6 +1,7 @@
 import { ReactNode, useRef } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./sidebar";
+import { CursorWave } from "@/components/ui/cursor-wave";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 
@@ -24,6 +25,7 @@ export function Shell({ children }: { children: ReactNode }) {
           style={{ scaleX }}
         />
         
+        <CursorWave />
         <AppSidebar />
         
         <div className="flex flex-col flex-1 relative h-full">
