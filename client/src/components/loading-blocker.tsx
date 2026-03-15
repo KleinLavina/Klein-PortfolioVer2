@@ -6,13 +6,16 @@ const HELLO_WORLD_PHRASES = [
   { text: "你好世界!!", lang: "Chinese" },
   { text: "¡Hola Mundo!!", lang: "Spanish" },
   { text: "مرحبا بالعالم!!", lang: "Arabic" },
+  { text: "नमस्ते दुनिया!!", lang: "Hindi" },
   { text: "Kumusta Kalibutan!!", lang: "Bisaya" },
   { text: "Bonjour le Monde!!", lang: "French" },
+  { text: "Привет Мир!!", lang: "Russian" },
+  { text: "こんにちは世界!!", lang: "Japanese" },
   { text: "Kumusta Mundo!!", lang: "Filipino" },
 ];
 
-const BASE_DURATION = 1400;
-const SPEED_FACTOR = 0.72;
+const BASE_DURATION = 1200;
+const SPEED_FACTOR = 0.75;
 
 function getDelay(index: number): number {
   let delay = 0;
@@ -22,9 +25,13 @@ function getDelay(index: number): number {
   return delay;
 }
 
-export function LoadingBlocker({ isLoaded }: { isLoaded: boolean }) {
+type Props = {
+  isLoaded: boolean;
+  onComplete: () => void;
+};
+
+export function LoadingBlocker({ isLoaded, onComplete }: Props) {
   const [phraseIndex, setPhraseIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     if (isLoaded) return;
@@ -34,30 +41,17 @@ export function LoadingBlocker({ isLoaded }: { isLoaded: boolean }) {
     HELLO_WORLD_PHRASES.forEach((_, i) => {
       if (i === 0) return;
       const delay = getDelay(i);
-      const t = setTimeout(() => {
-        setPhraseIndex(i);
-      }, delay);
+      const t = setTimeout(() => setPhraseIndex(i), delay);
       timers.push(t);
     });
 
-    const totalDuration = getDelay(HELLO_WORLD_PHRASES.length);
-    const loopTimer = setInterval(() => {
-      setPhraseIndex(0);
-      HELLO_WORLD_PHRASES.forEach((_, i) => {
-        if (i === 0) return;
-        const delay = getDelay(i);
-        const t = setTimeout(() => {
-          setPhraseIndex(i);
-        }, delay);
-        timers.push(t);
-      });
-    }, totalDuration + 400);
+    // After the last phrase has been shown for 900ms, trigger completion
+    const lastDelay = getDelay(HELLO_WORLD_PHRASES.length - 1) + 900;
+    const doneTimer = setTimeout(() => onComplete(), lastDelay);
+    timers.push(doneTimer);
 
-    return () => {
-      timers.forEach(clearTimeout);
-      clearInterval(loopTimer);
-    };
-  }, [isLoaded]);
+    return () => timers.forEach(clearTimeout);
+  }, [isLoaded, onComplete]);
 
   const currentPhrase = HELLO_WORLD_PHRASES[phraseIndex];
   const isRTL = currentPhrase.lang === "Arabic";
@@ -67,10 +61,7 @@ export function LoadingBlocker({ isLoaded }: { isLoaded: boolean }) {
       {!isLoaded && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{
-            opacity: 0,
-            transition: { duration: 0.9, ease: "easeInOut" },
-          }}
+          exit={{ opacity: 0, transition: { duration: 0.9, ease: "easeInOut" } }}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-background overflow-hidden"
         >
           {/* Ambient glow blobs */}
@@ -80,21 +71,18 @@ export function LoadingBlocker({ isLoaded }: { isLoaded: boolean }) {
 
           <div className="relative flex flex-col items-center gap-10 px-6 text-center">
 
-            {/* Animated KL Monogram — inspired by existing style */}
+            {/* Animated KL Monogram */}
             <div className="relative flex items-center justify-center">
-              {/* Outer ring */}
               <motion.div
                 className="absolute w-28 h-28 rounded-full border-2 border-primary/20"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 8, ease: "linear", repeat: Infinity }}
               />
-              {/* Middle ring */}
               <motion.div
                 className="absolute w-20 h-20 rounded-full border border-secondary/30"
                 animate={{ rotate: -360 }}
                 transition={{ duration: 5, ease: "linear", repeat: Infinity }}
               />
-              {/* Orbit dot */}
               <motion.div
                 className="absolute w-28 h-28"
                 animate={{ rotate: 360 }}
@@ -102,7 +90,6 @@ export function LoadingBlocker({ isLoaded }: { isLoaded: boolean }) {
               >
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(53,211,97,0.8)]" />
               </motion.div>
-              {/* Center KL */}
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -113,7 +100,7 @@ export function LoadingBlocker({ isLoaded }: { isLoaded: boolean }) {
               </motion.div>
             </div>
 
-            {/* Language phrase block */}
+            {/* Language phrase */}
             <div className="flex flex-col items-center gap-3 min-h-[120px] justify-center">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -125,9 +112,7 @@ export function LoadingBlocker({ isLoaded }: { isLoaded: boolean }) {
                   dir={isRTL ? "rtl" : "ltr"}
                   className="flex flex-col items-center gap-2"
                 >
-                  <h1
-                    className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-none"
-                  >
+                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-none">
                     {currentPhrase.text}
                   </h1>
                   <motion.span
@@ -142,34 +127,14 @@ export function LoadingBlocker({ isLoaded }: { isLoaded: boolean }) {
               </AnimatePresence>
             </div>
 
-            {/* Progress / shimmer bar */}
+            {/* Shimmer bar */}
             <div className="w-48 h-[3px] rounded-full bg-muted overflow-hidden">
               <motion.div
                 className="h-full rounded-full bg-gradient-to-r from-primary via-secondary to-accent"
                 initial={{ x: "-100%" }}
                 animate={{ x: "100%" }}
-                transition={{
-                  duration: 1.4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
+                transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
               />
-            </div>
-
-            {/* Language dots indicator */}
-            <div className="flex gap-1.5">
-              {HELLO_WORLD_PHRASES.map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="rounded-full bg-primary"
-                  animate={{
-                    width: i === phraseIndex ? 20 : 6,
-                    opacity: i === phraseIndex ? 1 : 0.25,
-                  }}
-                  transition={{ duration: 0.25, ease: "easeOut" }}
-                  style={{ height: 6 }}
-                />
-              ))}
             </div>
           </div>
         </motion.div>
