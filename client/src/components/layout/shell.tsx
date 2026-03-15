@@ -1,7 +1,7 @@
 import { ReactNode, useRef } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./sidebar";
-import { CursorWave } from "@/components/ui/cursor-wave";
+import { ScrollWave } from "@/components/ui/scroll-wave";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import { ScrollSnake } from "@/components/ui/scroll-snake";
 import { motion, useScroll, useSpring } from "framer-motion";
@@ -28,7 +28,7 @@ export function Shell({ children }: { children: ReactNode }) {
         />
         
         <CustomCursor />
-        <CursorWave />
+        <ScrollWave />
         <ScrollSnake />
         <AppSidebar />
         
