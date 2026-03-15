@@ -345,10 +345,12 @@ export default function Home() {
                       transition={{ duration: 0.3, delay: index * 0.04 }}
                       className="group"
                     >
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass-card border-white/5 hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 cursor-default">
-                        <skill.icon size={14} strokeWidth={1.5} className={skill.color} />
-                        <span className="text-xs font-semibold text-foreground/80 group-hover:text-foreground transition-colors whitespace-nowrap">{skill.name}</span>
-                        <SkillIndicator level={skill.level} className="scale-75 origin-left" />
+                      <div className="flex flex-col gap-2 px-3 py-2.5 rounded-lg glass-card border-white/5 hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 cursor-default w-28">
+                        <div className="flex items-center gap-1.5">
+                          <skill.icon size={13} strokeWidth={1.5} className={skill.color} />
+                          <span className="text-xs font-semibold text-foreground/80 group-hover:text-foreground transition-colors whitespace-nowrap">{skill.name}</span>
+                        </div>
+                        <SkillIndicator level={skill.level} />
                       </div>
                     </motion.div>
                   ))}
