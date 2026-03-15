@@ -3,24 +3,16 @@ import { useEffect, useState } from "react";
 
 const HELLO_WORLD_PHRASES = [
   { text: "Hello World!!", lang: "English" },
-  { text: "Привет Мир!!", lang: "Russian" },
   { text: "你好世界!!", lang: "Chinese" },
-  { text: "こんにちは世界!!", lang: "Japanese" },
-  { text: "안녕하세요 세계!!", lang: "Korean" },
   { text: "¡Hola Mundo!!", lang: "Spanish" },
-  { text: "Bonjour le Monde!!", lang: "French" },
-  { text: "Hallo Welt!!", lang: "German" },
   { text: "مرحبا بالعالم!!", lang: "Arabic" },
-  { text: "नमस्ते दुनिया!!", lang: "Hindi" },
-  { text: "Olá Mundo!!", lang: "Portuguese" },
-  { text: "Ciao Mondo!!", lang: "Italian" },
-  { text: "Merhaba Dünya!!", lang: "Turkish" },
   { text: "Kumusta Kalibutan!!", lang: "Bisaya" },
+  { text: "Bonjour le Monde!!", lang: "French" },
   { text: "Kumusta Mundo!!", lang: "Filipino" },
 ];
 
-const BASE_DURATION = 700;
-const SPEED_FACTOR = 0.78;
+const BASE_DURATION = 1400;
+const SPEED_FACTOR = 0.72;
 
 function getDelay(index: number): number {
   let delay = 0;

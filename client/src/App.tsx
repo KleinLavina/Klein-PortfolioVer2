@@ -22,8 +22,8 @@ function App() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Simulate initial asset loading
-    const timer = setTimeout(() => setIsLoaded(true), 2000);
+    // Wait long enough for all 7 language phrases to cycle through
+    const timer = setTimeout(() => setIsLoaded(true), 5800);
 
     const handleThemeStart = () => setIsLoaded(false);
     const handleThemeEnd = () => setIsLoaded(true);
