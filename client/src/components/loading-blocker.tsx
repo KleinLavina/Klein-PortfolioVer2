@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const HELLO_WORLD_PHRASES = [
@@ -30,29 +30,47 @@ type Props = {
   onComplete: () => void;
 };
 
+const LAST_PAUSE = 900;
+const TOTAL_DURATION = getDelay(HELLO_WORLD_PHRASES.length - 1) + LAST_PAUSE;
+
 export function LoadingBlocker({ isLoaded, onComplete }: Props) {
   const [phraseIndex, setPhraseIndex] = useState(0);
+  const [displayPct, setDisplayPct] = useState(0);
+  const progress = useMotionValue(0);
+  const barWidth = useTransform(progress, [0, 100], ["0%", "100%"]);
 
   useEffect(() => {
     if (isLoaded) return;
 
     setPhraseIndex(0);
+    progress.set(0);
+    setDisplayPct(0);
+
     const timers: ReturnType<typeof setTimeout>[] = [];
 
+    // Schedule language switches
     HELLO_WORLD_PHRASES.forEach((_, i) => {
       if (i === 0) return;
-      const delay = getDelay(i);
-      const t = setTimeout(() => setPhraseIndex(i), delay);
+      const t = setTimeout(() => setPhraseIndex(i), getDelay(i));
       timers.push(t);
     });
 
-    // After the last phrase has been shown for 900ms, trigger completion
-    const lastDelay = getDelay(HELLO_WORLD_PHRASES.length - 1) + 900;
-    const doneTimer = setTimeout(() => onComplete(), lastDelay);
+    // Animate progress bar 0 → 100 over total duration
+    const controls = animate(progress, 100, {
+      duration: TOTAL_DURATION / 1000,
+      ease: "linear",
+      onUpdate: (v) => setDisplayPct(Math.round(v)),
+    });
+
+    // Dismiss when complete
+    const doneTimer = setTimeout(() => onComplete(), TOTAL_DURATION);
     timers.push(doneTimer);
 
-    return () => timers.forEach(clearTimeout);
-  }, [isLoaded, onComplete]);
+    return () => {
+      timers.forEach(clearTimeout);
+      controls.stop();
+    };
+  }, [isLoaded, onComplete, progress]);
 
   const currentPhrase = HELLO_WORLD_PHRASES[phraseIndex];
   const isRTL = currentPhrase.lang === "Arabic";
@@ -120,14 +138,17 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
               </AnimatePresence>
             </div>
 
-            {/* Shimmer bar */}
-            <div className="w-48 h-[3px] rounded-full bg-muted overflow-hidden">
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-primary via-secondary to-accent"
-                initial={{ x: "-100%" }}
-                animate={{ x: "100%" }}
-                transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-              />
+            {/* Progress bar + percentage */}
+            <div className="flex flex-col items-center gap-2 w-64">
+              <div className="w-full h-[4px] rounded-full bg-muted overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-primary via-secondary to-accent"
+                  style={{ width: barWidth }}
+                />
+              </div>
+              <span className="text-xs font-bold tabular-nums text-muted-foreground tracking-widest">
+                {displayPct}%
+              </span>
             </div>
           </div>
         </motion.div>
