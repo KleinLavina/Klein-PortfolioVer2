@@ -18,7 +18,7 @@ export function Shell({ children }: { children: ReactNode }) {
   });
 
   return (
-    <SidebarProvider style={{ "--sidebar-width": "18rem" } as React.CSSProperties}>
+    <SidebarProvider style={{ "--sidebar-width": "13.5rem" } as React.CSSProperties}>
       <div className="flex h-screen w-full bg-background overflow-hidden relative">
         {/* Scroll Progress Bar */}
         <motion.div
