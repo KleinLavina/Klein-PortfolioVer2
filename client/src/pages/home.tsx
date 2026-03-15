@@ -132,38 +132,37 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-              className="max-w-3xl"
+              className="max-w-4xl"
             >
-              <p className="text-sm font-mono text-primary mb-6 tracking-widest">// Hello, World!</p>
-              <h1 className="text-[clamp(3.5rem,10vw,7.5rem)] font-black leading-[0.88] tracking-tight text-foreground">
-                Hi, I'm
-              </h1>
-              <h1 className="text-[clamp(3.5rem,10vw,7.5rem)] font-black leading-[0.88] tracking-tight mb-6">
-                <span className="text-gradient font-cursive font-normal">Klein F. Lavina</span>
+              <p className="text-xs font-mono text-primary mb-4 tracking-widest">// Hello, World!</p>
+
+              <h1 className="text-[clamp(2.6rem,6.5vw,5.5rem)] font-black leading-[0.9] tracking-tight mb-1">
+                <span className="text-foreground">Hi, I'm </span>
+                <span className="text-gradient font-cursive font-normal whitespace-nowrap">Klein F. Lavina</span>
               </h1>
 
-              <div className="flex items-center gap-4 mb-6">
-                <div className="h-px w-12 bg-primary/50" />
-                <h2 className="text-lg sm:text-xl font-semibold text-muted-foreground tracking-wide">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="h-px w-10 bg-primary/50" />
+                <h2 className="text-base sm:text-lg font-semibold text-muted-foreground tracking-wide">
                   Full Stack Developer
                 </h2>
               </div>
 
-              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed mb-10">
+              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed mb-6">
                 I build scalable, modern web applications. Passionate about turning
                 complex problems into elegant, intuitive interfaces.
               </p>
 
               {/* Stats row */}
-              <div className="flex gap-10 border-y border-border/30 py-6 mb-10 w-fit">
+              <div className="flex gap-8 border-y border-border/30 py-4 mb-6 w-fit">
                 {[
                   { n: "3+", label: "Years Exp." },
                   { n: "50+", label: "Projects" },
                   { n: "100%", label: "Commitment" },
                 ].map(s => (
                   <div key={s.label}>
-                    <div className="text-3xl font-black text-primary">{s.n}</div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{s.label}</div>
+                    <div className="text-2xl font-black text-primary">{s.n}</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-0.5">{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -176,8 +175,8 @@ export default function Home() {
                   onMouseLeave={mag1.onMouseLeave}
                   className="inline-block"
                 >
-                  <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-1 transition-all h-12 text-base font-bold">
-                    <a href="#projects" className="flex items-center gap-2">View My Work <ChevronRight size={16} /></a>
+                  <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-1 transition-all h-11 text-sm font-bold">
+                    <a href="#projects" className="flex items-center gap-2">View My Work <ChevronRight size={15} /></a>
                   </Button>
                 </div>
                 <div
@@ -186,7 +185,7 @@ export default function Home() {
                   onMouseLeave={mag2.onMouseLeave}
                   className="inline-block"
                 >
-                  <Button size="lg" variant="outline" className="rounded-full px-8 border border-border/60 hover:border-primary/50 hover:text-primary transition-all h-12 text-base font-bold backdrop-blur-sm">
+                  <Button size="lg" variant="outline" className="rounded-full px-8 border border-border/60 hover:border-primary/50 hover:text-primary transition-all h-11 text-sm font-bold backdrop-blur-sm">
                     <a href="#contact">Contact Me</a>
                   </Button>
                 </div>
