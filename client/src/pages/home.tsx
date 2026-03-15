@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Send, ExternalLink, Github, Code, Database, MonitorSmartphone, Layers, Server, TerminalSquare, Mail, MessageSquare, FolderGit2, Trophy, Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { useMagnetic } from "@/hooks/use-magnetic";
 
 const SKILLS = {
   "Frontend": [
@@ -79,6 +80,8 @@ export default function Home() {
   const createMessage = useCreateMessage();
 
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const mag1 = useMagnetic(0.3);
+  const mag2 = useMagnetic(0.3);
   const bubbleOpacity = useMotionValue(1);
   const smoothOpacity = useSpring(bubbleOpacity, { stiffness: 60, damping: 20 });
 
@@ -152,12 +155,26 @@ export default function Home() {
             </p>
             
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white hover:shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all h-14 text-lg font-bold">
-                <a href="#projects">View My Work</a>
-              </Button>
-              <Button size="lg" variant="outline" className="rounded-full px-8 border-2 hover:bg-primary/5 hover:text-primary transition-all h-14 text-lg font-bold glass-card border-white/10">
-                <a href="#contact">Contact Me</a>
-              </Button>
+              <div
+                ref={mag1.ref as React.RefObject<HTMLDivElement>}
+                onMouseMove={mag1.onMouseMove}
+                onMouseLeave={mag1.onMouseLeave}
+                className="inline-block"
+              >
+                <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white hover:shadow-2xl hover:shadow-primary/40 hover:-translate-y-1 transition-all h-14 text-lg font-bold">
+                  <a href="#projects">View My Work</a>
+                </Button>
+              </div>
+              <div
+                ref={mag2.ref as React.RefObject<HTMLDivElement>}
+                onMouseMove={mag2.onMouseMove}
+                onMouseLeave={mag2.onMouseLeave}
+                className="inline-block"
+              >
+                <Button size="lg" variant="outline" className="rounded-full px-8 border-2 hover:bg-primary/5 hover:text-primary transition-all h-14 text-lg font-bold glass-card border-white/10">
+                  <a href="#contact">Contact Me</a>
+                </Button>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -317,13 +334,24 @@ export default function Home() {
             {projects.map((project, i) => (
               <motion.div
                 key={project.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.05 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.08 }}
                 className={i % 2 === 0 ? "ml-auto w-full md:w-3/4" : "mr-auto w-full md:w-3/4"}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = (e.clientX - rect.left) / rect.width - 0.5;
+                  const y = (e.clientY - rect.top) / rect.height - 0.5;
+                  e.currentTarget.style.transform = `perspective(900px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg) translateY(-6px) scale3d(1.01,1.01,1.01)`;
+                  e.currentTarget.style.transition = "transform 0.1s ease-out";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0px) scale3d(1,1,1)";
+                  e.currentTarget.style.transition = "transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)";
+                }}
               >
-                <Card className="h-full flex flex-col overflow-hidden rounded-[2rem] border-white/5 dark:border-white/10 hover:border-primary/50 transition-all duration-500 group shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 bg-card/30 backdrop-blur-xl">
+                <Card className="h-full flex flex-col overflow-hidden rounded-[2rem] border-white/5 dark:border-white/10 hover:border-primary/50 transition-colors duration-500 group shadow-2xl hover:shadow-primary/20 bg-card/30 backdrop-blur-xl">
                   <div className="relative h-64 overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 opacity-60"></div>
                     <img 

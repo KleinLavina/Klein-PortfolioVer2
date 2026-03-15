@@ -1,0 +1,124 @@
+Enhance the website’s visual design, animation system, and interaction patterns to create a modern, polished developer portfolio. The implementation must be clean, performant, and professional, avoiding chaotic or “vibe-coded” design.
+
+LOADING SCREEN (PAGE LOAD BLOCKER)
+
+1. Replace the current loading screen with a centered message that displays **“Hello World!!”**.
+2. The text must be **large, centered vertically and horizontally**, and clearly visible.
+3. The phrase **“Hello World!!” should dynamically change languages** while the page is loading.
+4. Cycle through **up to 15 languages**, including:
+
+   * English
+   * Russian
+   * Chinese
+   * Japanese
+   * Korean
+   * Spanish
+   * French
+   * German
+   * Arabic
+   * Hindi
+   * Portuguese
+   * Italian
+   * Turkish
+   * Bisaya (Cebuano)
+   * Filipino
+5. Language transitions should occur **smoothly and exponentially over time** (gradually faster).
+6. Add a **looping animated icon or symbol** inspired by the existing **K and L word animation**.
+7. The loader should **fade out smoothly once the page finishes loading**.
+
+GLOBAL DESIGN SYSTEM IMPROVEMENTS
+
+1. Improve the visual design if it appears too plain or bland by introducing **subtle design patterns and motion accents**.
+2. Maintain a **minimal, modern developer portfolio aesthetic**.
+3. Ensure **consistent spacing, typography, and hierarchy across sections**.
+
+LAYERED VISUAL SYSTEM
+
+Create a layered visual structure:
+
+Layer 1 – background gradient or subtle grid pattern
+Layer 2 – animated snake curve pattern
+Layer 3 – main content (cards, sections, text)
+Layer 4 – hover highlights and micro-interactions
+
+This layered system should create **depth without overwhelming the content**.
+
+SNAKE CURVE SCROLL ANIMATION
+
+1. Implement a **smooth animated snake-like curve pattern** that flows across the page.
+2. The curve must move **in response to scroll movement**, traveling along the page vertically.
+3. The curve should:
+
+   * Appear as a **top layered visual element**
+   * Remain **subtle with low opacity**
+   * Move **fluidly and organically**
+4. The curve should **segue from one side of the screen to the other** as the user scrolls.
+
+DEVELOPER TIMELINE SPECIAL BEHAVIOR
+
+1. When the snake curve reaches the **Developer Journey Timeline section**, adjust its behavior.
+2. As the curve approaches the **center of this section**, gradually **reduce its opacity to 0**.
+3. The fade should be **smooth and progressive**, not abrupt.
+4. After the timeline section, the curve animation can **resume normally**.
+
+CURSOR FOLLOW CURVE INTERACTION
+
+1. Add a **curved animated element that subtly follows cursor movement**.
+2. The curve should:
+
+   * Follow the cursor smoothly
+   * Flow across the screen and transition to the opposite side
+   * Feel fluid and organic
+3. This effect should work **across all sections** while remaining subtle.
+
+ANIMATED CARDS
+
+Enhance all cards (projects, skills, experience, etc.):
+
+1. Add **scroll entry animations**:
+
+   * fade in
+   * slight vertical translation
+2. Add **hover interactions**:
+
+   * soft elevation
+   * small scale increase
+   * subtle glow or highlight
+3. Ensure the card animations remain **smooth and lightweight**.
+
+SCROLL STORYTELLING EFFECT
+
+Implement scroll-driven storytelling:
+
+1. Each section should **animate into view on scroll**.
+2. The Developer Timeline should **reveal items progressively**.
+3. Background elements should move subtly to create **parallax depth**.
+
+MAGNETIC INTERACTIONS
+
+Add subtle interactive effects:
+
+1. Buttons should slightly **move toward the cursor** when hovered.
+2. Cards may **tilt slightly based on cursor position**.
+3. Effects should remain **minimal and professional**.
+
+SECTION TRANSITIONS
+
+Instead of abrupt section changes:
+
+1. Use **smooth transitions between sections**.
+2. Allow background elements (such as the snake curve) to flow between sections.
+3. Maintain consistent motion timing across the site.
+
+PERFORMANCE REQUIREMENTS
+
+All animations must:
+
+1. Use **GPU-friendly transforms (translate, opacity, scale)**.
+2. Avoid heavy DOM updates.
+3. Remain smooth on both **desktop and mobile devices**.
+4. Be optimized for **performance and accessibility**.
+
+GENERAL DESIGN GOAL
+
+The final result should feel like a **professional product-level website**, not an automatically generated layout. The site should appear intentional, cohesive, and polished, showcasing the developer’s technical and design capability.
