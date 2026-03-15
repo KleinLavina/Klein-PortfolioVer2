@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LoadingBlocker } from "@/components/loading-blocker";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 
@@ -21,7 +21,13 @@ function Router() {
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const handleComplete = () => setIsLoaded(true);
+  const handleComplete = useCallback(() => setIsLoaded(true), []);
+
+  useEffect(() => {
+    const handleThemeStart = () => setIsLoaded(false);
+    window.addEventListener("theme-change-start", handleThemeStart);
+    return () => window.removeEventListener("theme-change-start", handleThemeStart);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

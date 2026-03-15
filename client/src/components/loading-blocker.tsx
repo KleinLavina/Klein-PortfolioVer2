@@ -36,6 +36,7 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
   useEffect(() => {
     if (isLoaded) return;
 
+    setPhraseIndex(0);
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     HELLO_WORLD_PHRASES.forEach((_, i) => {
