@@ -115,14 +115,6 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-none">
                     {currentPhrase.text}
                   </h1>
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground"
-                  >
-                    {currentPhrase.lang}
-                  </motion.span>
                 </motion.div>
               </AnimatePresence>
             </div>
