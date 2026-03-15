@@ -7,14 +7,14 @@ import { DeveloperTimeline } from "@/components/developer-timeline";
 import { useProjects } from "@/hooks/use-projects";
 import { useAchievements } from "@/hooks/use-achievements";
 import { useMessages, useCreateMessage } from "@/hooks/use-messages";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Send, ExternalLink, Github, Code, Database, MonitorSmartphone, Layers, Server, TerminalSquare, Mail, MessageSquare, FolderGit2, Trophy, Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 
 const SKILLS = {
@@ -79,6 +79,36 @@ export default function Home() {
   const createMessage = useCreateMessage();
 
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const bubbleOpacity = useMotionValue(1);
+  const smoothOpacity = useSpring(bubbleOpacity, { stiffness: 60, damping: 20 });
+
+  useEffect(() => {
+    const timelineSection = document.getElementById("timeline");
+    if (!timelineSection) return;
+
+    const scrollContainer = document.querySelector("main.flex-1");
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const rect = timelineSection.getBoundingClientRect();
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const containerHeight = containerRect.height;
+
+      // midpoint of the timeline section relative to the viewport
+      const sectionMid = rect.top + rect.height / 2;
+      const viewMid = containerRect.top + containerHeight / 2;
+
+      // start fading when top of section enters view, fully gone at section midpoint
+      const fadeStart = containerRect.top + containerHeight * 0.6;
+      const fadeEnd = viewMid;
+
+      const progress = Math.min(1, Math.max(0, (fadeStart - sectionMid) / (fadeStart - fadeEnd)));
+      bubbleOpacity.set(1 - progress);
+    };
+
+    scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
+    return () => scrollContainer.removeEventListener("scroll", handleScroll);
+  }, [bubbleOpacity]);
 
   const handleMessageSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,7 +119,9 @@ export default function Home() {
 
   return (
     <Shell>
-      <BubbleBackground interactive className="fixed inset-0 z-0" />
+      <motion.div className="fixed inset-0 z-0" style={{ opacity: smoothOpacity }}>
+        <BubbleBackground interactive className="w-full h-full" />
+      </motion.div>
       <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative z-10">
         {/* HERO SECTION */}
         <Section id="home" className="justify-center min-h-screen py-4 pt-0">
