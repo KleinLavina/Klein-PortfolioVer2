@@ -90,20 +90,27 @@ export default function Home() {
   const smoothOpacity = useSpring(bubbleOpacity, { stiffness: 60, damping: 20 });
 
   useEffect(() => {
-    const timelineSection = document.getElementById("timeline");
-    if (!timelineSection) return;
+    const scrollRevealSection = document.querySelector('[class*="ScrollRevealTextSection"]') || 
+                               document.querySelector('div[style*="height: 180vh"]');
+    if (!scrollRevealSection) return;
     const scrollContainer = document.querySelector("main.flex-1");
     if (!scrollContainer) return;
 
     const handleScroll = () => {
-      const rect = timelineSection.getBoundingClientRect();
+      const rect = scrollRevealSection.getBoundingClientRect();
       const containerRect = scrollContainer.getBoundingClientRect();
       const containerHeight = containerRect.height;
+      
+      // Trigger fade when we reach the middle of the scroll reveal section
       const sectionMid = rect.top + rect.height / 2;
-      const fadeStart = containerRect.top + containerHeight * 0.6;
-      const fadeEnd = containerRect.top + containerHeight / 2;
-      const progress = Math.min(1, Math.max(0, (fadeStart - sectionMid) / (fadeStart - fadeEnd)));
-      bubbleOpacity.set(1 - progress);
+      const viewportMid = containerRect.top + containerHeight / 2;
+      
+      // Once we pass the middle of the scroll reveal section, hide blobs completely
+      if (sectionMid <= viewportMid) {
+        bubbleOpacity.set(0); // Completely hide blobs
+      } else {
+        bubbleOpacity.set(1); // Full opacity before reaching the middle
+      }
     };
 
     scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
@@ -415,6 +422,11 @@ export default function Home() {
               Work that<br />
               <span className="text-gradient">speaks for itself.</span>
             </h2>
+            <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-3xl">
+              Each project represents a journey of discovery—built not just for display, but as hands-on explorations 
+              into real-world web technologies. Through these builds, I've gained deep understanding of how systems 
+              communicate, how applications scale, and how the internet truly works beneath the surface.
+            </p>
           </motion.div>
 
           {projectsLoading ? (
@@ -531,35 +543,29 @@ export default function Home() {
       />
 
       {/* ─── SCROLL REVEAL · COLOR BAR ───────────────────────────────── */}
-      <ScrollRevealColorBarSection
-        headline={"As a developer, I value honesty, ownership,\nand continuous learning. I believe in being\ntransparent when solving problems, taking\nresponsibility for the things I build, and\nconstantly improving my craft.\n\nI care about writing simple, maintainable code\nand building products with empathy for the\npeople who use them. To me, good software\nisn't just about making things work — it's about\ncreating solutions thoughtfully, collaborating\nwith others, and always striving to do better\nwith every project."}
+      {/* <ScrollRevealColorBarSection
+        headline={"As a developer, I value honesty, ownership, and continuous learning. I believe in writing simple, maintainable code and building products with empathy for the people who use them."}
+        highlightPhrases={["writing simple", "maintainable code", "empathy"]}
         className="relative z-10"
-      />
+      /> */}
 
       {/* ─── CONTACT ─────────────────────────────────────────────────── */}
-      <Section id="contact" className="!min-h-fit !py-0 relative overflow-hidden">
+      <Section id="contact" className="!min-h-fit !py-0 relative overflow-hidden !shadow-none" style={{ boxShadow: 'none' }}>
         {/* Wave separator */}
-        <div className="relative h-24 bg-background">
-          <svg className="absolute bottom-0 left-0 w-full h-24" viewBox="0 0 1440 96" preserveAspectRatio="none">
-            <path d="M0,48 C360,96 1080,0 1440,48 L1440,96 L0,96 Z" className="fill-primary" />
-          </svg>
-          <div className="absolute inset-0 overflow-hidden opacity-[0.06]">
-            <div className="text-7xl font-black text-foreground whitespace-nowrap animate-marquee">
-              Let's build something great · Let's build something great · Let's build something great ·
+        <div className="relative h-32 bg-background">
+          <div className="absolute inset-0 overflow-hidden opacity-[0.06] z-0">
+            <div className="text-8xl font-black text-foreground whitespace-nowrap animate-marquee flex items-end h-full pb-8">
+              Collaborate with me · Collaborate with me · Collaborate with me · Collaborate with me ·
             </div>
           </div>
+          <svg className="absolute bottom-0 left-0 w-full h-32 z-10" viewBox="0 0 1440 128" preserveAspectRatio="none" style={{ display: 'block' }}>
+            <path d="M0,96 C360,32 720,32 1440,96 L1440,128 L0,128 Z" className="fill-primary" style={{ shapeRendering: 'geometricPrecision' }} />
+          </svg>
         </div>
 
         {/* Contact body */}
-        <div className="relative bg-gradient-to-br from-primary via-primary/90 to-secondary overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-10 left-10 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl" />
-          </div>
-
-          <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-12 py-20">
+        <div className="relative bg-primary overflow-hidden -mt-1">
+          <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-12 pt-20 pb-20">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
               {/* Left: Copy */}
@@ -594,18 +600,9 @@ export default function Home() {
                 {/* Social icons */}
                 <div className="flex gap-3 pt-4 flex-wrap">
                   {[
-                    { href: "https://github.com/yourusername", icon: Github, label: "GitHub" },
+                    { href: "https://github.com/KleinLavina", icon: Github, label: "GitHub" },
                     {
-                      href: "https://linkedin.com/in/yourusername",
-                      icon: () => (
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                        </svg>
-                      ),
-                      label: "LinkedIn"
-                    },
-                    {
-                      href: "https://facebook.com/yourusername",
+                      href: "https://www.facebook.com/klein.lavina.12",
                       icon: () => (
                         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -635,64 +632,56 @@ export default function Home() {
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.6, delay: 0.15 }}
               >
-                <form onSubmit={handleMessageSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-mono text-white/60 uppercase tracking-widest block mb-1.5">Name</label>
-                      <Input
-                        placeholder="Your name"
-                        value={formData.name}
-                        onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
-                        required
-                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/60 focus:bg-white/15 rounded-xl backdrop-blur-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs font-mono text-white/60 uppercase tracking-widest block mb-1.5">Email</label>
-                      <Input
-                        type="email"
-                        placeholder="your@email.com"
-                        value={formData.email}
-                        onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-                        required
-                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/60 focus:bg-white/15 rounded-xl backdrop-blur-sm"
+                <div className="flex flex-col items-center space-y-6">
+                  <div className="text-center space-y-3">
+                    <h3 className="text-xl font-bold text-white">Scan to Connect</h3>
+                    <p className="text-sm text-white/70">Get my contact info instantly</p>
+                  </div>
+                  
+                  {/* QR Code */}
+                  <div className="p-6 bg-white rounded-2xl shadow-2xl">
+                    <div className="w-48 h-48 bg-white flex items-center justify-center">
+                      <img 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=192x192&data=${encodeURIComponent(`BEGIN:VCARD
+VERSION:3.0
+FN:Klein F. Lavina
+TEL:+639380734878
+EMAIL:kleinlav7@gmail.com
+URL:https://github.com/KleinLavina
+URL:https://www.facebook.com/klein.lavina.12
+END:VCARD`)}`}
+                        alt="Contact QR Code"
+                        className="w-full h-full"
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="text-xs font-mono text-white/60 uppercase tracking-widest block mb-1.5">Message</label>
-                    <Textarea
-                      placeholder="Tell me about your project or idea..."
-                      rows={5}
-                      value={formData.message}
-                      onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
-                      required
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-white/60 focus:bg-white/15 rounded-xl backdrop-blur-sm resize-none"
-                    />
+                  
+                  <div className="text-center space-y-2">
+                    <p className="text-xs text-white/50 font-mono uppercase tracking-wider">Includes</p>
+                    <div className="flex flex-wrap justify-center gap-3 text-xs text-white/70">
+                      <div className="flex items-center gap-1">
+                        <Mail size={12} />
+                        <span>Email</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                        <span>Phone</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Github size={12} />
+                        <span>GitHub</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                        <span>Facebook</span>
+                      </div>
+                    </div>
                   </div>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    disabled={createMessage.isPending}
-                    className="w-full rounded-xl bg-white text-primary font-bold hover:bg-white/90 hover:-translate-y-0.5 transition-all shadow-xl h-12"
-                  >
-                    {createMessage.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Send className="h-4 w-4 mr-2" />
-                    )}
-                    Send Message
-                  </Button>
-                  {createMessage.isSuccess && (
-                    <motion.p
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-center text-sm text-white/90 font-medium pt-1"
-                    >
-                      ✓ Message sent! I'll get back to you soon.
-                    </motion.p>
-                  )}
-                </form>
+                </div>
               </motion.div>
             </div>
 

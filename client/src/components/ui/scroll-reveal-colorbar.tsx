@@ -4,10 +4,11 @@ import { cn } from "@/lib/utils";
 
 interface Props {
   headline: string;
+  highlightPhrases?: string[];
   className?: string;
 }
 
-export function ScrollRevealColorBarSection({ headline, className }: Props) {
+export function ScrollRevealColorBarSection({ headline, highlightPhrases = [], className }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const progressMV   = useMotionValue(0);
 
@@ -32,36 +33,78 @@ export function ScrollRevealColorBarSection({ headline, className }: Props) {
   const clipWidth   = useTransform(progressMV, [0.03, 0.97], ["0%", "100%"]);
   const hintOpacity = useTransform(progressMV, [0, 0.12, 0.88, 1], [0.8, 0.3, 0.3, 0]);
 
+  // Function to render text with highlighted phrases - ensuring identical structure
+  const renderTextWithHighlights = (text: string, isColored: boolean = false) => {
+    if (highlightPhrases.length === 0) {
+      return <span>{text}</span>;
+    }
+
+    let parts = [text];
+    
+    highlightPhrases.forEach((phrase) => {
+      const newParts: (string | JSX.Element)[] = [];
+      parts.forEach((part, index) => {
+        if (typeof part === 'string') {
+          const splitParts = part.split(new RegExp(`(${phrase})`, 'gi'));
+          splitParts.forEach((splitPart, splitIndex) => {
+            if (splitPart.toLowerCase() === phrase.toLowerCase()) {
+              newParts.push(
+                <span 
+                  key={`${index}-${splitIndex}`}
+                  className={isColored ? "highlight-colored" : "highlight-base"}
+                >
+                  {splitPart}
+                </span>
+              );
+            } else if (splitPart) {
+              newParts.push(splitPart);
+            }
+          });
+        } else {
+          newParts.push(part);
+        }
+      });
+      parts = newParts;
+    });
+
+    return <>{parts}</>;
+  };
+
   return (
     <div
       ref={containerRef}
       className={cn("relative w-full", className)}
       style={{ height: "220vh" }}
     >
+      <style jsx>{`
+        .highlight-base {
+          color: hsl(var(--primary));
+          font-weight: 700;
+        }
+        .highlight-colored {
+          background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          font-weight: 700;
+        }
+      `}</style>
+      
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
         <div className="relative max-w-4xl mx-auto px-8 text-center select-none">
 
-          {/* Grey base — always visible and static */}
-          <p className="text-[clamp(1.1rem,2.8vw,2rem)] font-bold leading-[1.65] tracking-tight text-foreground/15 whitespace-pre-wrap">
-            {headline}
+          {/* Grey base with highlighted phrases - fixed positioning */}
+          <p className="text-[clamp(1.1rem,2.8vw,2rem)] font-bold leading-[1.65] tracking-tight text-foreground/15 whitespace-pre-wrap relative">
+            {renderTextWithHighlights(headline, false)}
           </p>
 
-          {/* Colored overlay — clips left to right with scroll, text stays static */}
+          {/* Colored overlay — clips left to right with scroll - identical positioning */}
           <motion.div
             className="absolute inset-0 overflow-hidden"
             style={{ width: clipWidth }}
           >
-            <p
-              className="text-[clamp(1.1rem,2.8vw,2rem)] font-bold leading-[1.65] tracking-tight whitespace-pre-wrap"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)))",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                minWidth: "100%",
-              }}
-            >
-              {headline}
+            <p className="text-[clamp(1.1rem,2.8vw,2rem)] font-bold leading-[1.65] tracking-tight whitespace-pre-wrap text-foreground absolute inset-0">
+              {renderTextWithHighlights(headline, true)}
             </p>
           </motion.div>
 

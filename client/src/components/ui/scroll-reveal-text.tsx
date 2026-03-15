@@ -81,19 +81,19 @@ export function ScrollRevealTextSection({ headline, highlightColor, className }:
         </motion.div>
 
         {/* Accent lines */}
-        <motion.div
+        {/* <motion.div
           className="absolute top-12 left-1/2 -translate-x-1/2 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
           style={{ width: clipWidth }}
         />
         <motion.div
           className="absolute bottom-12 left-1/2 -translate-x-1/2 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent"
           style={{ width: clipWidth }}
-        />
+        /> */}
 
         {/* Text */}
         <div className="relative max-w-5xl mx-auto px-8 text-center select-none">
           {/* Muted base */}
-          <p className="text-[clamp(1.6rem,4.5vw,3.8rem)] font-black leading-[1.2] tracking-tight text-foreground/10">
+          <p className="text-[clamp(1.6rem,4.5vw,3.8rem)] font-black leading-[1.2] tracking-tight text-foreground/10 blur-sm">
             {headline}
           </p>
 
