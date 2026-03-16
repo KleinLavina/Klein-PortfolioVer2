@@ -82,11 +82,12 @@ const timelineData = [
     phase: "Chapter 04",
     title: "The Modern Stack",
     subtitle: "Full-stack, frontend-first.",
-    highlight: "Crossed into modern web development — React, Vite, and Django. Built production chatbots, capstone systems, and a school announcement platform.",
+    highlight: "Crossed into modern web development — React, Vite, and Django. Built production chatbots, capstone systems, and a school announcement platform. Capped the chapter with a national IT certification.",
     achievements: [
       "Built J-Gear chatbot for office use",
       "Delivered RDFS as capstone project",
       "Designed School Announcement System",
+      "Passed the PhilNITS IT Passport Exam",
     ],
     learningHighlights: [
       "React JSX + keyword-based chat logic",
@@ -101,6 +102,12 @@ const timelineData = [
     // Replace the URL below with your own proof image link
     proofImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&q=80",
     proofLabel: "J-Gear Chatbot · RDFS Capstone System",
+    certification: {
+      name: "Certified PhilNITS Passer",
+      examineeNo: "IP4500348",
+      registeredName: "Laviña, Klein F.",
+      url: "https://philnits.org",
+    },
   },
 ];
 
@@ -334,6 +341,43 @@ function TimelineCard({
               </ul>
             </div>
           </div>
+
+          {/* Certification block — only renders if the entry has one */}
+          {"certification" in item && item.certification && (
+            <a
+              href={item.certification.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-4 flex items-start gap-3 rounded-xl border border-orange-500/20 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 hover:border-orange-500/40 transition-all duration-300"
+            >
+              {/* Badge icon */}
+              <div className="mt-0.5 shrink-0 w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-base">
+                🏅
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-0.5">
+                  Certification
+                </div>
+                <div className="text-xs font-bold text-foreground leading-snug">
+                  {item.certification.name}
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5">
+                  <span className="text-[10px] text-muted-foreground">
+                    <span className="text-foreground/40">Examinee No.</span>{" "}
+                    <span className="font-mono font-semibold text-foreground/70">{item.certification.examineeNo}</span>
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    <span className="text-foreground/40">Name</span>{" "}
+                    <span className="font-semibold text-foreground/70">{item.certification.registeredName}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* External link arrow */}
+              <div className="shrink-0 text-orange-400/40 group-hover:text-orange-400 transition-colors text-sm mt-0.5">↗</div>
+            </a>
+          )}
 
           {/* Footer: tech badges + proof button */}
           <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3">
