@@ -229,8 +229,9 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-            {/* Left: Terminal card */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            {/* TOP LEFT: JSON Terminal */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -238,15 +239,13 @@ export default function Home() {
               transition={{ duration: 0.6 }}
               className="rounded-2xl overflow-hidden border border-border/30 shadow-2xl"
             >
-              {/* Terminal header */}
               <div className="flex items-center gap-2 px-4 py-3 bg-muted/60 border-b border-border/30 backdrop-blur-sm">
                 <span className="w-3 h-3 rounded-full bg-red-400/80" />
                 <span className="w-3 h-3 rounded-full bg-yellow-400/80" />
                 <span className="w-3 h-3 rounded-full bg-green-400/80" />
                 <span className="ml-3 text-xs font-mono text-muted-foreground/60">about.json</span>
               </div>
-              {/* Terminal body */}
-              <div className="p-6 bg-card/40 backdrop-blur-xl font-mono text-sm leading-relaxed">
+              <div className="p-6 bg-card/40 backdrop-blur-xl font-mono text-sm leading-relaxed h-full">
                 <pre className="text-muted-foreground/80 whitespace-pre-wrap">{`{
   `}<span className="text-secondary">"name"</span>{`: `}<span className="text-primary">"Klein F. Lavina"</span>{`,
   `}<span className="text-secondary">"role"</span>{`: `}<span className="text-primary">"Full Stack Developer"</span>{`,
@@ -264,13 +263,13 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right: Text */}
+            {/* TOP RIGHT: Text */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="space-y-4"
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="flex flex-col justify-center space-y-4 p-2"
             >
               <p className="text-base text-muted-foreground leading-relaxed">
                 I'm a fresh CS grad from the Philippines who builds full-stack web apps using{" "}
@@ -281,64 +280,86 @@ export default function Home() {
               <p className="text-base text-muted-foreground leading-relaxed">
                 I care about writing code that actually makes sense to the next person reading it. Outside of coding I'm still learning — picking up new tools, breaking things, and figuring out why.
               </p>
-
-              {/* Pull quote */}
               <blockquote className="border-l-2 border-primary pl-4">
                 <p className="text-sm italic text-muted-foreground/80">
                   "Passed PhilNITS. Still googling CSS flexbox."
                 </p>
               </blockquote>
+            </motion.div>
 
-              {/* Git Log Terminal */}
-              <div className="pt-2">
-                <div className="rounded-xl overflow-hidden border border-border/30 shadow-2xl" style={{ backgroundColor: '#0d1117' }}>
-                  {/* Terminal header bar */}
-                  <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10" style={{ backgroundColor: '#161b22' }}>
-                    <span className="w-3 h-3 rounded-full bg-red-400/80" />
-                    <span className="w-3 h-3 rounded-full bg-yellow-400/80" />
-                    <span className="w-3 h-3 rounded-full bg-green-400/80" />
-                    <span className="ml-3 text-xs font-mono" style={{ color: '#8b949e' }}>bash</span>
+            {/* BOTTOM LEFT: Value Cards */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="rounded-2xl border border-border/30 p-5 bg-card/40 backdrop-blur-xl shadow-2xl"
+            >
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Values I code by</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: "✏️", title: "Clean Code", desc: "Write it like someone else has to read it tomorrow." },
+                  { icon: "🤝", title: "Honesty", desc: 'I\'d rather say "I don\'t know yet" than fake it.' },
+                  { icon: "🚀", title: "Ship It", desc: "Done and imperfect beats perfect and never shipped." },
+                  { icon: "📖", title: "Always Learning", desc: "Every bug is a lesson. Every project levels me up." },
+                ].map((v) => (
+                  <div key={v.title} className="rounded-xl p-3 bg-muted/30 border border-border/20 hover:border-primary/20 transition-colors">
+                    <div className="text-lg mb-1">{v.icon}</div>
+                    <div className="text-sm font-semibold text-foreground mb-1">{v.title}</div>
+                    <div className="text-xs text-muted-foreground leading-snug">{v.desc}</div>
                   </div>
-                  <div className="p-5 font-mono text-xs leading-relaxed space-y-3" style={{ color: '#e6edf3' }}>
-                    {/* Command prompt */}
-                    <div style={{ color: '#8b949e' }}>$ git log --oneline --graph</div>
+                ))}
+              </div>
+            </motion.div>
 
-                    {/* Commit 1 */}
-                    <div className="space-y-0.5">
-                      <div>
-                        <span style={{ color: '#ffa657' }}>commit a3f91b2</span>{' '}
-                        <span style={{ color: '#79c0ff' }}>(HEAD → </span>
-                        <span style={{ color: '#56d364' }}>main</span>
-                        <span style={{ color: '#79c0ff' }}>, seeking-first-job)</span>
-                      </div>
-                      <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
-                      <div><span style={{ color: '#8b949e' }}>Date:   </span>Mon Mar 16 10:00:00 2026 +0800</div>
-                      <div className="mt-1 ml-4" style={{ color: '#e6edf3' }}>feat: ship 8+ projects &amp; open to work</div>
-                    </div>
+            {/* BOTTOM RIGHT: Git Log Terminal */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="rounded-2xl overflow-hidden border border-border/30 shadow-2xl"
+              style={{ backgroundColor: '#0d1117' }}
+            >
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10" style={{ backgroundColor: '#161b22' }}>
+                <span className="w-3 h-3 rounded-full bg-red-400/80" />
+                <span className="w-3 h-3 rounded-full bg-yellow-400/80" />
+                <span className="w-3 h-3 rounded-full bg-green-400/80" />
+                <span className="ml-3 text-xs font-mono" style={{ color: '#8b949e' }}>bash — git log</span>
+              </div>
+              <div className="p-5 font-mono text-xs leading-relaxed space-y-3" style={{ color: '#e6edf3' }}>
+                <div style={{ color: '#8b949e' }}>$ git log</div>
 
-                    <div style={{ color: '#30363d' }}>─────────────────────────────────────</div>
-
-                    {/* Commit 2 */}
-                    <div className="space-y-0.5">
-                      <div><span style={{ color: '#ffa657' }}>commit b7c24d1</span></div>
-                      <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
-                      <div><span style={{ color: '#8b949e' }}>Date:   </span>Fri Jan 10 09:15:00 2025 +0800</div>
-                      <div className="mt-1 ml-4" style={{ color: '#e6edf3' }}>cert: pass PhilNITS examination</div>
-                    </div>
-
-                    <div style={{ color: '#30363d' }}>─────────────────────────────────────</div>
-
-                    {/* Commit 3 */}
-                    <div className="space-y-0.5">
-                      <div><span style={{ color: '#ffa657' }}>commit e1d08a9</span></div>
-                      <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
-                      <div><span style={{ color: '#8b949e' }}>Date:   </span>Thu Jun 01 08:00:00 2023 +0800</div>
-                      <div className="mt-1 ml-4" style={{ color: '#e6edf3' }}>init: add Django, PHP, React skills</div>
-                    </div>
+                <div className="space-y-0.5">
+                  <div>
+                    <span style={{ color: '#ffa657' }}>commit a3f91b2e4d8c1f0b</span>
                   </div>
+                  <div>
+                    <span style={{ color: '#79c0ff' }}>(HEAD → </span>
+                    <span style={{ color: '#56d364' }}>main</span>
+                    <span style={{ color: '#79c0ff' }}>, origin/seeking-first-job)</span>
+                  </div>
+                  <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
+                  <div><span style={{ color: '#8b949e' }}>Date:   </span>Mon Mar 16 10:00:00 2026 +0800</div>
+                  <div className="mt-1 pl-4" style={{ color: '#e6edf3' }}>feat: ship 8+ projects &amp; open to work</div>
+                </div>
+
+                <div className="border-t border-white/5 pt-3 space-y-0.5">
+                  <div><span style={{ color: '#ffa657' }}>commit b7c24d1a3e9f2c8d</span></div>
+                  <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
+                  <div><span style={{ color: '#8b949e' }}>Date:   </span>Fri Jan 10 09:15:00 2025 +0800</div>
+                  <div className="mt-1 pl-4" style={{ color: '#e6edf3' }}>cert: pass PhilNITS examination</div>
+                </div>
+
+                <div className="border-t border-white/5 pt-3 space-y-0.5">
+                  <div><span style={{ color: '#ffa657' }}>commit e1d08a9c7b5f3e2a</span></div>
+                  <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
+                  <div><span style={{ color: '#8b949e' }}>Date:   </span>Thu Jun 01 08:00:00 2023 +0800</div>
+                  <div className="mt-1 pl-4" style={{ color: '#e6edf3' }}>init: add Django, PHP, React skills</div>
                 </div>
               </div>
             </motion.div>
+
           </div>
         </Section>
 
