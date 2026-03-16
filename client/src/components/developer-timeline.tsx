@@ -9,13 +9,14 @@ const timelineData = [
     subtitle: "Where curiosity became code.",
     highlight: "Enrolled in BSIT at Saint Joseph College and took my first real steps into web development — learning HTML, CSS, and JavaScript from scratch.",
     achievements: [
+      "Wrote first Java program — \"Hello World\" in Notepad++",
       "Built first static web pages",
       "Mastered CSS Flexbox & Grid",
       "Dean's List — First Semester",
     ],
     learningHighlights: [
+      "First steps in programming via Java & OOP fundamentals",
       "Responsive layouts & design fundamentals",
-      "Introduced to Java & OOP concepts",
       "W3Schools, tutorials, and real practice",
     ],
     techStack: ["HTML", "CSS", "JavaScript", "Java"],
