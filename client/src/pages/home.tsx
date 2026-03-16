@@ -15,6 +15,7 @@ import {
   faFile,
   faFileCode
 } from "@fortawesome/free-solid-svg-icons";
+import { faJs, faReact, faHtml5, faCss3Alt, faPython, faPhp, faBootstrap, faGitAlt, faGithub as faGithubBrand, faNodeJs } from "@fortawesome/free-brands-svg-icons";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
@@ -143,22 +144,27 @@ const TECH_PILLS = ["React", "TypeScript", "Node.js", "Django", "PostgreSQL", "P
 // Tech stack icon mapping
 const getTechIcon = (tech: string) => {
   const iconMap: { [key: string]: any } = {
-    "JavaScript": faFileCode,
-    "Django": faCode,
-    "HTML": faFile,
-    "CSS": faFile,
+    "JavaScript": faJs,
+    "TypeScript": faJs,
+    "React": faReact,
+    "HTML": faHtml5,
+    "CSS": faCss3Alt,
+    "Python": faPython,
+    "PHP": faPhp,
+    "Bootstrap": faBootstrap,
+    "Git": faGitAlt,
+    "GitHub": faGithubBrand,
+    "Node.js": faNodeJs,
+    "Django": faPython,
     "PostgreSQL": faDatabase,
-    "Bootstrap": faCode,
-    "Cloudinary": faCloud,
-    "OnRender": faServer,
-    "Python": faCode,
-    "Brevo SMTP": faEnvelope,
-    "TypeScript": faFileCode,
-    "React": faCode,
-    "Vite": faGear,
-    "PHP": faCode,
     "MySQL": faDatabase,
+    "Vite": faGear,
+    "Next.js": faReact,
+    "Tailwind": faCss3Alt,
+    "Cloudinary": faCloud,
     "Netlify": faCloud,
+    "Render": faServer,
+    "Brevo SMTP": faEnvelope,
     "InfinityFree": faServer,
   };
   return iconMap[tech] || faCode;
@@ -598,16 +604,28 @@ export default function Home() {
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.55, ease: "easeOut", delay: i < 3 ? i * 0.05 : (i - 3) * 0.08 }}
                       className="group relative"
+                      onMouseMove={(e) => {
+                        const card = e.currentTarget;
+                        const rect = card.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / rect.width - 0.5;
+                        const y = (e.clientY - rect.top) / rect.height - 0.5;
+                        card.style.transform = `perspective(1000px) rotateX(${-y * 6}deg) rotateY(${x * 6}deg) translateZ(8px)`;
+                        card.style.transition = "transform 0.08s ease-out";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)";
+                        e.currentTarget.style.transition = "transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)";
+                      }}
                     >
                       {/* Glow behind card on hover */}
                       <div className="absolute -inset-px rounded-2xl bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10 from-primary/20 via-secondary/10 to-accent/20" />
 
                       <div className="relative rounded-2xl border border-border/25 bg-card/50 backdrop-blur-xl overflow-hidden shadow-2xl group-hover:border-primary/25 transition-colors duration-500">
 
-                        {/* Left accent stripe — gradient changes per project */}
+                        {/* Left accent stripe */}
                         <div className={`absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b ${accentColors[i % accentColors.length]}`} />
 
-                        {/* Oversized project number — background watermark */}
+                        {/* Oversized project number watermark */}
                         <div
                           className="absolute select-none pointer-events-none font-black leading-none text-[11rem] md:text-[14rem]"
                           style={{
@@ -623,26 +641,18 @@ export default function Home() {
 
                         <div className={`flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
 
-                          {/* Image panel */}
+                          {/* Image panel — no gradient overlay */}
                           <div className="relative md:w-[42%] h-60 md:h-auto overflow-hidden flex-shrink-0">
                             <img
                               src={project.thumbnail}
                               alt={project.title}
                               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                             />
-                            {/* Fade into card bg */}
-                            <div className={`absolute inset-0 ${i % 2 === 0
-                              ? "bg-gradient-to-r from-transparent via-transparent to-card/80"
-                              : "bg-gradient-to-l from-transparent via-transparent to-card/80"
-                            }`} />
-                            {/* Bottom fade for mobile */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent md:hidden" />
                           </div>
 
                           {/* Content panel */}
                           <div className="flex-1 p-7 md:p-10 flex flex-col justify-between relative z-10">
                             <div>
-                              {/* Project index label */}
                               <div className="flex items-center gap-2 mb-4">
                                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
                                 <span className="text-[10px] font-mono font-bold tracking-[0.25em] uppercase text-primary/80">
@@ -658,13 +668,14 @@ export default function Home() {
                                 {project.description}
                               </p>
 
-                              {/* Tech tags — pill style */}
+                              {/* Tech pills with FA icons */}
                               <div className="flex flex-wrap gap-2">
                                 {project.techStack.map(tech => (
                                   <span
                                     key={tech}
-                                    className="font-mono text-[11px] px-3 py-1 rounded-full border border-primary/20 text-primary/80 bg-primary/5 hover:bg-primary/10 transition-colors"
+                                    className="flex items-center gap-1.5 font-mono text-[11px] px-3 py-1 rounded-full border border-primary/20 text-primary/80 bg-primary/5 hover:bg-primary/10 transition-colors"
                                   >
+                                    <FontAwesomeIcon icon={getTechIcon(tech)} className="text-[10px]" />
                                     {tech}
                                   </span>
                                 ))}
