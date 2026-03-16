@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 const HELLO_WORLD_PHRASES = [
   { text: "Hello World!!", lang: "English" },
@@ -17,6 +17,15 @@ const HELLO_WORLD_PHRASES = [
 const BASE_DURATION = 1200;
 const SPEED_FACTOR = 0.75;
 
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 function getDelay(index: number): number {
   let delay = 0;
   for (let i = 0; i < index; i++) {
@@ -31,13 +40,16 @@ type Props = {
 };
 
 const LAST_PAUSE = 900;
-const TOTAL_DURATION = getDelay(HELLO_WORLD_PHRASES.length - 1) + LAST_PAUSE;
 
 export function LoadingBlocker({ isLoaded, onComplete }: Props) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [displayPct, setDisplayPct] = useState(0);
   const progress = useMotionValue(0);
   const barWidth = useTransform(progress, [0, 100], ["0%", "100%"]);
+
+  // Randomize the phrases order each time the component mounts
+  const randomizedPhrases = useMemo(() => shuffleArray(HELLO_WORLD_PHRASES), []);
+  const TOTAL_DURATION = getDelay(randomizedPhrases.length - 1) + LAST_PAUSE;
 
   useEffect(() => {
     if (isLoaded) return;
@@ -49,7 +61,7 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     // Schedule language switches
-    HELLO_WORLD_PHRASES.forEach((_, i) => {
+    randomizedPhrases.forEach((_, i) => {
       if (i === 0) return;
       const t = setTimeout(() => setPhraseIndex(i), getDelay(i));
       timers.push(t);
@@ -70,9 +82,9 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
       timers.forEach(clearTimeout);
       controls.stop();
     };
-  }, [isLoaded, onComplete, progress]);
+  }, [isLoaded, onComplete, progress, randomizedPhrases, TOTAL_DURATION]);
 
-  const currentPhrase = HELLO_WORLD_PHRASES[phraseIndex];
+  const currentPhrase = randomizedPhrases[phraseIndex];
   const isRTL = currentPhrase.lang === "Arabic";
 
   return (
@@ -90,32 +102,20 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
 
           <div className="relative flex flex-col items-center gap-10 px-6 text-center">
 
-            {/* Animated KL Monogram */}
+            {/* Animated Pet GIF */}
             <div className="relative flex items-center justify-center">
-              <motion.div
-                className="absolute w-28 h-28 rounded-full border-2 border-primary/20"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, ease: "linear", repeat: Infinity }}
-              />
-              <motion.div
-                className="absolute w-20 h-20 rounded-full border border-secondary/30"
-                animate={{ rotate: -360 }}
-                transition={{ duration: 5, ease: "linear", repeat: Infinity }}
-              />
-              <motion.div
-                className="absolute w-28 h-28"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 3, ease: "linear", repeat: Infinity }}
-              >
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(53,211,97,0.8)]" />
-              </motion.div>
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                className="relative z-10 w-14 h-14 flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/10 border border-primary/20 shadow-[0_0_30px_rgba(53,211,97,0.15)]"
+                className="relative z-10 w-24 h-24 flex items-center justify-center"
               >
-                <span className="text-xl font-black tracking-tighter text-gradient">KL</span>
+                <img 
+                  src="/ezgif-61ee79b0fb3d6b0b.gif" 
+                  alt="Loading pet"
+                  className="w-full h-full object-contain"
+                  style={{ backgroundColor: 'transparent' }}
+                />
               </motion.div>
             </div>
 

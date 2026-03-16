@@ -351,7 +351,7 @@ export default function Home() {
                           <skill.icon size={13} strokeWidth={1.5} className={skill.color} />
                           <span className="text-xs font-semibold text-foreground/80 group-hover:text-foreground transition-colors whitespace-nowrap">{skill.name}</span>
                         </div>
-                        <SkillIndicator level={skill.level} />
+                        {category !== "Tools" && <SkillIndicator level={skill.level} />}
                       </div>
                     </motion.div>
                   ))}
