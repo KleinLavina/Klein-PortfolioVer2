@@ -238,6 +238,114 @@ function ProofModal({ image, label, phase, title, accent, onClose }: ProofModalP
   );
 }
 
+function CardBody({
+  item,
+  index,
+  hovered,
+  setHovered,
+  onViewProof,
+}: {
+  item: typeof timelineData[0];
+  index: number;
+  hovered: boolean;
+  setHovered: (v: boolean) => void;
+  onViewProof: (item: typeof timelineData[0]) => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.5, ease: "easeOut", delay: index * 0.08 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div
+        className={`relative rounded-2xl border border-white/5 bg-card/50 backdrop-blur-sm p-5 transition-all duration-500 ${item.borderAccent} ${hovered ? "shadow-xl -translate-y-1" : ""}`}
+        style={{ transition: "transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease" }}
+      >
+        {/* Corner gradient accent */}
+        <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-[80px] rounded-tr-2xl bg-gradient-to-bl ${item.color} pointer-events-none`} />
+
+        <div className="grid grid-cols-1 gap-4">
+          {/* Key Achievements */}
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Key Achievements</div>
+            <ul className="space-y-1.5">
+              {item.achievements.map((ach) => (
+                <li key={ach} className="flex items-start gap-2 text-xs text-foreground/80">
+                  <span className={`mt-0.5 text-base leading-none ${accentCheck[item.accent]}`}>✦</span>
+                  {ach}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Learning Highlights */}
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Learning Highlights</div>
+            <ul className="space-y-1.5">
+              {item.learningHighlights.map((hl) => (
+                <li key={hl} className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <span className="mt-0.5 opacity-40">→</span>
+                  {hl}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Certification block */}
+        {"certification" in item && item.certification && (
+          <a
+            href={item.certification.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-4 flex items-start gap-3 rounded-xl border border-orange-500/20 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 hover:border-orange-500/40 transition-all duration-300"
+          >
+            <div className="mt-0.5 shrink-0 w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-base">
+              🏅
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-0.5">Certification</div>
+              <div className="text-xs font-bold text-foreground leading-snug">{item.certification.name}</div>
+              <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5">
+                <span className="text-[10px] text-muted-foreground">
+                  <span className="text-foreground/40">Examinee No.</span>{" "}
+                  <span className="font-mono font-semibold text-foreground/70">{item.certification.examineeNo}</span>
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  <span className="text-foreground/40">Name</span>{" "}
+                  <span className="font-semibold text-foreground/70">{item.certification.registeredName}</span>
+                </span>
+              </div>
+            </div>
+            <div className="shrink-0 text-orange-400/40 group-hover:text-orange-400 transition-colors text-sm mt-0.5">↗</div>
+          </a>
+        )}
+
+        {/* Footer: tech badges + proof button */}
+        <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-1.5">
+            {item.techStack.map((tech) => (
+              <span key={tech} className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${accentBadge[item.accent]}`}>
+                {tech}
+              </span>
+            ))}
+          </div>
+          <button
+            onClick={() => onViewProof(item)}
+            className={`shrink-0 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${accentButton[item.accent]}`}
+          >
+            <span>View Proof</span>
+            <span className="text-sm leading-none">↗</span>
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 function TimelineCard({
   item,
   index,
@@ -251,162 +359,82 @@ function TimelineCard({
   const isRight = index % 2 === 0;
 
   return (
-    <div className={`flex flex-col sm:flex-row items-start gap-0 sm:gap-8 relative ${isRight ? "sm:flex-row" : "sm:flex-row-reverse"}`}>
-
-      {/* ── Label / info panel ── */}
-      <div className="hidden sm:flex sm:w-1/2 items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.85 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.55, delay: index * 0.08 + 0.15 }}
-          className="relative"
-        >
-          <div className={`text-[11px] font-black uppercase tracking-[0.25em] mb-3 ${accentColors[item.accent].split(" ")[0]}`}>
-            {item.phase}
-          </div>
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-bold mb-4 ${accentColors[item.accent]}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-current" />
-            {item.year}
-          </div>
-          <h3 className="text-3xl font-black leading-tight mb-1">{item.title}</h3>
-          <p className={`text-sm italic mb-5 ${accentColors[item.accent].split(" ")[0]} opacity-80`}>{item.subtitle}</p>
-          <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">{item.highlight}</p>
-        </motion.div>
-      </div>
-
-      {/* ── Center dot ── */}
-      <div className="absolute left-[9px] sm:left-1/2 top-2 sm:top-1/2 sm:-translate-y-1/2 sm:-translate-x-1/2 z-20">
-        <motion.div
-          initial={{ scale: 0 }}
-          whileInView={{ scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: index * 0.1 }}
-          className={`w-5 h-5 rounded-full border-4 border-background ${item.dotColor} ${accentGlow[item.accent]}`}
-        />
-      </div>
-
-      {/* ── Content card ── */}
-      <motion.div
-        className={`w-full sm:w-1/2 ml-10 sm:ml-0 ${isRight ? "sm:pl-10" : "sm:pr-10"}`}
-        initial={{ opacity: 0, x: isRight ? 40 : -40 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.1 }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-      >
-        {/* Mobile header */}
-        <div className="sm:hidden mb-4">
-          <div className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1 ${accentColors[item.accent].split(" ")[0]}`}>{item.phase}</div>
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold mb-2 ${accentColors[item.accent]}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-current" />
-            {item.year}
-          </div>
-          <h3 className="text-xl font-black leading-tight">{item.title}</h3>
-          <p className={`text-xs italic ${accentColors[item.accent].split(" ")[0]} opacity-80`}>{item.subtitle}</p>
+    <>
+      {/* ── MOBILE layout ── */}
+      <div className="sm:hidden flex gap-4 items-start">
+        {/* Inline spine: dot + connecting line */}
+        <div className="flex flex-col items-center pt-1 shrink-0" style={{ width: "20px" }}>
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            className={`w-4 h-4 rounded-full border-[3px] border-background shrink-0 ${item.dotColor} ${accentGlow[item.accent]}`}
+          />
+          <div className="flex-1 w-px bg-white/10 mt-2" />
         </div>
 
-        <div
-          className={`relative rounded-2xl border border-white/5 bg-card/50 backdrop-blur-sm p-5 transition-all duration-500 ${item.borderAccent} ${hovered ? "shadow-xl -translate-y-1" : ""}`}
-          style={{ transition: "transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease" }}
-        >
-          {/* Corner gradient accent */}
-          <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-[80px] rounded-tr-2xl bg-gradient-to-bl ${item.color} pointer-events-none`} />
-
-          {/* Mobile highlight */}
-          <p className="sm:hidden text-muted-foreground text-xs leading-relaxed mb-4">{item.highlight}</p>
-
-          <div className="grid grid-cols-1 gap-4">
-            {/* Key Achievements */}
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Key Achievements</div>
-              <ul className="space-y-1.5">
-                {item.achievements.map((ach) => (
-                  <li key={ach} className="flex items-start gap-2 text-xs text-foreground/80">
-                    <span className={`mt-0.5 text-base leading-none ${accentCheck[item.accent]}`}>✦</span>
-                    {ach}
-                  </li>
-                ))}
-              </ul>
+        {/* Mobile content */}
+        <div className="flex-1 min-w-0 pb-6">
+          {/* Header */}
+          <div className="mb-3">
+            <div className={`text-[10px] font-black uppercase tracking-[0.25em] mb-1.5 ${accentColors[item.accent].split(" ")[0]}`}>
+              {item.phase}
             </div>
-
-            {/* Learning Highlights */}
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">Learning Highlights</div>
-              <ul className="space-y-1.5">
-                {item.learningHighlights.map((hl) => (
-                  <li key={hl} className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <span className="mt-0.5 opacity-40">→</span>
-                    {hl}
-                  </li>
-                ))}
-              </ul>
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-bold mb-2 ${accentColors[item.accent]}`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-current" />
+              {item.year}
             </div>
+            <h3 className="text-lg font-black leading-tight mb-0.5">{item.title}</h3>
+            <p className={`text-[11px] italic mb-2 ${accentColors[item.accent].split(" ")[0]} opacity-80`}>{item.subtitle}</p>
+            <p className="text-muted-foreground text-[11px] leading-relaxed">{item.highlight}</p>
           </div>
 
-          {/* Certification block — only renders if the entry has one */}
-          {"certification" in item && item.certification && (
-            <a
-              href={item.certification.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group mt-4 flex items-start gap-3 rounded-xl border border-orange-500/20 bg-orange-500/5 px-4 py-3 hover:bg-orange-500/10 hover:border-orange-500/40 transition-all duration-300"
-            >
-              {/* Badge icon */}
-              <div className="mt-0.5 shrink-0 w-8 h-8 rounded-lg bg-orange-500/15 border border-orange-500/25 flex items-center justify-center text-base">
-                🏅
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-0.5">
-                  Certification
-                </div>
-                <div className="text-xs font-bold text-foreground leading-snug">
-                  {item.certification.name}
-                </div>
-                <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5">
-                  <span className="text-[10px] text-muted-foreground">
-                    <span className="text-foreground/40">Examinee No.</span>{" "}
-                    <span className="font-mono font-semibold text-foreground/70">{item.certification.examineeNo}</span>
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">
-                    <span className="text-foreground/40">Name</span>{" "}
-                    <span className="font-semibold text-foreground/70">{item.certification.registeredName}</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* External link arrow */}
-              <div className="shrink-0 text-orange-400/40 group-hover:text-orange-400 transition-colors text-sm mt-0.5">↗</div>
-            </a>
-          )}
-
-          {/* Footer: tech badges + proof button */}
-          <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-1.5">
-              {item.techStack.map((tech) => (
-                <span
-                  key={tech}
-                  className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${accentBadge[item.accent]}`}
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-
-            {/* View Proof button */}
-            <button
-              onClick={() => onViewProof(item)}
-              className={`shrink-0 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${accentButton[item.accent]}`}
-            >
-              <span>View Proof</span>
-              <span className="text-sm leading-none">↗</span>
-            </button>
-          </div>
+          <CardBody item={item} index={index} hovered={hovered} setHovered={setHovered} onViewProof={onViewProof} />
         </div>
-      </motion.div>
-    </div>
+      </div>
+
+      {/* ── DESKTOP layout ── */}
+      <div className={`hidden sm:flex items-center gap-8 relative ${isRight ? "flex-row" : "flex-row-reverse"}`}>
+        {/* Label / info panel */}
+        <div className="sm:w-1/2 flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.55, delay: index * 0.08 + 0.15 }}
+            className="relative"
+          >
+            <div className={`text-[11px] font-black uppercase tracking-[0.25em] mb-3 ${accentColors[item.accent].split(" ")[0]}`}>
+              {item.phase}
+            </div>
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-bold mb-4 ${accentColors[item.accent]}`}>
+              <span className="w-1.5 h-1.5 rounded-full bg-current" />
+              {item.year}
+            </div>
+            <h3 className="text-3xl font-black leading-tight mb-1">{item.title}</h3>
+            <p className={`text-sm italic mb-5 ${accentColors[item.accent].split(" ")[0]} opacity-80`}>{item.subtitle}</p>
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">{item.highlight}</p>
+          </motion.div>
+        </div>
+
+        {/* Center dot */}
+        <div className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20">
+          <motion.div
+            initial={{ scale: 0 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+            className={`w-5 h-5 rounded-full border-4 border-background ${item.dotColor} ${accentGlow[item.accent]}`}
+          />
+        </div>
+
+        {/* Content card */}
+        <div className={`sm:w-1/2 ${isRight ? "pl-10" : "pr-10"}`}>
+          <CardBody item={item} index={index} hovered={hovered} setHovered={setHovered} onViewProof={onViewProof} />
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -428,8 +456,8 @@ export function DeveloperTimeline() {
       )}
 
       <div className="relative max-w-5xl mx-auto">
-        {/* Vertical spine */}
-        <div className="absolute left-[18px] sm:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent sm:-translate-x-1/2" />
+        {/* Vertical spine — desktop only (mobile uses per-card inline spine) */}
+        <div className="hidden sm:block absolute sm:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent sm:-translate-x-1/2" />
 
         <div className="space-y-20 relative z-10">
           {timelineData.map((item, i) => (
