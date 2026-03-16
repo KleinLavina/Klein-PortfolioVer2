@@ -641,13 +641,15 @@ export default function Home() {
 
                         <div className={`flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
 
-                          {/* Image panel — no gradient overlay */}
+                          {/* Image panel */}
                           <div className="relative md:w-[42%] h-60 md:h-auto overflow-hidden flex-shrink-0">
                             <img
                               src={project.thumbnail}
                               alt={project.title}
                               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                             />
+                            {/* Backdrop that fades out on hover */}
+                            <div className="absolute inset-0 bg-black/60 opacity-100 group-hover:opacity-0 transition-opacity duration-700 ease-in-out" />
                           </div>
 
                           {/* Content panel */}
