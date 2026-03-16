@@ -900,12 +900,9 @@ END:VCARD`)}`}
             </div>
 
             {/* Footer */}
-            <div className="mt-20 pt-8 border-t border-white/15 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="mt-10 pt-6 border-t border-white/15 flex justify-center items-center">
               <p className="text-sm text-white/50 font-mono">
-                © 2025 Klein F. Lavina · Built with React & TypeScript
-              </p>
-              <p className="text-sm text-white/40 font-mono flex items-center gap-1">
-                <Sparkles size={12} /> Designed & developed by Klein
+                © 2025 Klein F. Lavina. All rights reserved.
               </p>
             </div>
           </div>
