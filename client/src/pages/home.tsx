@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faHandshake, faRocket, faBookOpen } from "@fortawesome/free-solid-svg-icons";
+import { faPencil, faHandshake, faRocket, faBookOpen, faArrowsRotate } from "@fortawesome/free-solid-svg-icons";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
@@ -311,6 +311,13 @@ export default function Home() {
                     <div className="text-xs text-muted-foreground leading-snug">{v.desc}</div>
                   </div>
                 ))}
+                <div className="col-span-2 rounded-xl p-3 bg-muted/30 border border-border/20 hover:border-primary/20 transition-colors flex items-center gap-4">
+                  <FontAwesomeIcon icon={faArrowsRotate} className="text-purple-400 text-base shrink-0" />
+                  <div>
+                    <div className="text-sm font-semibold text-foreground mb-0.5">Iteration</div>
+                    <div className="text-xs text-muted-foreground leading-snug">Version 1 is never the best version — keep improving, keep refining.</div>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
