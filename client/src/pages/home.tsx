@@ -579,70 +579,118 @@ export default function Home() {
 
           {(() => {
             const visibleProjects = showAllProjects ? PROJECTS : PROJECTS.slice(0, 3);
+            const accentColors = [
+              "from-primary via-secondary to-accent",
+              "from-accent via-primary to-secondary",
+              "from-secondary via-accent to-primary",
+              "from-primary via-accent to-secondary",
+              "from-accent via-secondary to-primary",
+              "from-secondary via-primary to-accent",
+            ];
             return (
               <>
-                <div className="space-y-6">
+                <div className="space-y-8">
                   {visibleProjects.map((project, i) => (
                     <motion.div
                       key={project.id}
-                      initial={{ opacity: 0, y: 30 }}
+                      initial={{ opacity: 0, y: 40 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.5, ease: "easeOut", delay: i < 3 ? 0 : (i - 3) * 0.08 }}
-                      onMouseMove={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const x = (e.clientX - rect.left) / rect.width - 0.5;
-                        const y = (e.clientY - rect.top) / rect.height - 0.5;
-                        e.currentTarget.style.transform = `perspective(900px) rotateX(${-y * 4}deg) rotateY(${x * 4}deg) translateY(-4px)`;
-                        e.currentTarget.style.transition = "transform 0.1s ease-out";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0px)";
-                        e.currentTarget.style.transition = "transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)";
-                      }}
-                      className="group"
+                      transition={{ duration: 0.55, ease: "easeOut", delay: i < 3 ? i * 0.05 : (i - 3) * 0.08 }}
+                      className="group relative"
                     >
-                      <div className="relative rounded-2xl border border-border/30 bg-card/30 backdrop-blur-xl overflow-hidden hover:border-primary/30 transition-colors duration-500 shadow-xl">
-                        <div className="absolute top-4 right-4 text-6xl font-black text-foreground/5 leading-none select-none pointer-events-none z-0">
+                      {/* Glow behind card on hover */}
+                      <div className="absolute -inset-px rounded-2xl bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10 from-primary/20 via-secondary/10 to-accent/20" />
+
+                      <div className="relative rounded-2xl border border-border/25 bg-card/50 backdrop-blur-xl overflow-hidden shadow-2xl group-hover:border-primary/25 transition-colors duration-500">
+
+                        {/* Left accent stripe — gradient changes per project */}
+                        <div className={`absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b ${accentColors[i % accentColors.length]}`} />
+
+                        {/* Oversized project number — background watermark */}
+                        <div
+                          className="absolute select-none pointer-events-none font-black leading-none text-[11rem] md:text-[14rem]"
+                          style={{
+                            right: i % 2 === 0 ? '-0.5rem' : 'auto',
+                            left: i % 2 !== 0 ? '-0.5rem' : 'auto',
+                            top: '-1rem',
+                            color: 'transparent',
+                            WebkitTextStroke: '1px hsl(var(--foreground) / 0.04)',
+                          }}
+                        >
                           {String(i + 1).padStart(2, "0")}
                         </div>
+
                         <div className={`flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
-                          <div className="relative md:w-2/5 h-52 md:h-auto overflow-hidden flex-shrink-0">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/60 z-10" />
+
+                          {/* Image panel */}
+                          <div className="relative md:w-[42%] h-60 md:h-auto overflow-hidden flex-shrink-0">
                             <img
                               src={project.thumbnail}
                               alt={project.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                             />
+                            {/* Fade into card bg */}
+                            <div className={`absolute inset-0 ${i % 2 === 0
+                              ? "bg-gradient-to-r from-transparent via-transparent to-card/80"
+                              : "bg-gradient-to-l from-transparent via-transparent to-card/80"
+                            }`} />
+                            {/* Bottom fade for mobile */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-card/90 via-transparent to-transparent md:hidden" />
                           </div>
-                          <div className="flex-1 p-6 md:p-8 flex flex-col justify-between relative z-10">
+
+                          {/* Content panel */}
+                          <div className="flex-1 p-7 md:p-10 flex flex-col justify-between relative z-10">
                             <div>
-                              <h3 className="text-xl md:text-2xl font-black text-foreground leading-tight mb-3">{project.title}</h3>
-                              <div className="flex flex-wrap gap-1.5 mb-4">
+                              {/* Project index label */}
+                              <div className="flex items-center gap-2 mb-4">
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
+                                <span className="text-[10px] font-mono font-bold tracking-[0.25em] uppercase text-primary/80">
+                                  Project {String(i + 1).padStart(2, "0")}
+                                </span>
+                              </div>
+
+                              <h3 className="text-2xl md:text-3xl font-black text-foreground leading-tight mb-4 group-hover:text-primary transition-colors duration-300">
+                                {project.title}
+                              </h3>
+
+                              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-5">
+                                {project.description}
+                              </p>
+
+                              {/* Tech tags — pill style */}
+                              <div className="flex flex-wrap gap-2">
                                 {project.techStack.map(tech => (
-                                  <span key={tech} className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
-                                    <FontAwesomeIcon icon={getTechIcon(tech)} className="text-[8px]" />
+                                  <span
+                                    key={tech}
+                                    className="font-mono text-[11px] px-3 py-1 rounded-full border border-primary/20 text-primary/80 bg-primary/5 hover:bg-primary/10 transition-colors"
+                                  >
                                     {tech}
                                   </span>
                                 ))}
                               </div>
-                              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                                {project.description}
-                              </p>
                             </div>
-                            <div className="flex gap-3 mt-6 border-t border-border/20 pt-5">
+
+                            {/* Links */}
+                            <div className="flex flex-wrap gap-3 mt-8 pt-5 border-t border-border/15">
                               {project.liveUrl && (
-                                <a href={project.liveUrl} target="_blank" rel="noreferrer"
-                                  className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                                <a
+                                  href={project.liveUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/25 text-primary text-sm font-semibold hover:bg-primary/20 transition-all duration-200 hover:-translate-y-0.5"
                                 >
-                                  <Globe size={14} /> Live Demo
+                                  <Globe size={13} /> Live Demo
                                 </a>
                               )}
                               {project.githubUrl && (
-                                <a href={project.githubUrl} target="_blank" rel="noreferrer"
-                                  className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                                <a
+                                  href={project.githubUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/40 border border-border/25 text-muted-foreground text-sm font-semibold hover:text-foreground hover:bg-muted/60 transition-all duration-200 hover:-translate-y-0.5"
                                 >
-                                  <Github size={14} /> Source Code
+                                  <Github size={13} /> GitHub
                                 </a>
                               )}
                             </div>
@@ -654,7 +702,7 @@ export default function Home() {
                 </div>
 
                 <motion.div
-                  className="flex justify-center mt-10"
+                  className="flex justify-center mt-12"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
@@ -662,16 +710,16 @@ export default function Home() {
                 >
                   <button
                     onClick={() => setShowAllProjects((prev) => !prev)}
-                    className="group flex items-center gap-2 px-6 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
+                    className="group flex items-center gap-2.5 px-7 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
                   >
                     <motion.span
                       animate={{ rotate: showAllProjects ? 180 : 0 }}
                       transition={{ duration: 0.3 }}
                       className="inline-block"
                     >
-                      <ChevronRight size={16} className="rotate-90" />
+                      <ChevronRight size={15} className="rotate-90" />
                     </motion.span>
-                    {showAllProjects ? `Show Less` : `Show ${PROJECTS.length - 3} More Projects`}
+                    {showAllProjects ? "Show Less" : `Show ${PROJECTS.length - 3} More Projects`}
                   </button>
                 </motion.div>
               </>
