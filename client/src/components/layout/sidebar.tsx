@@ -4,6 +4,7 @@ import {
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/components/theme-provider";
@@ -24,6 +25,7 @@ export function AppSidebar() {
   const [isClicked,     setIsClicked]       = useState(false);
   const [isHovered,     setIsHovered]       = useState(false);
   const { theme, setTheme } = useTheme();
+  const { setOpenMobile } = useSidebar();
   const isDark = theme === "dark";
 
   const activeIndex = navItems.findIndex(i => i.url === `#${activeSection}`);
@@ -118,6 +120,7 @@ export function AppSidebar() {
             <a
               key={item.title}
               href={item.url}
+              onClick={() => setOpenMobile(false)}
               className={cn(
                 "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 overflow-hidden",
                 isContact
