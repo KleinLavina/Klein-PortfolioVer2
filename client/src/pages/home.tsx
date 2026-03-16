@@ -1,5 +1,20 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faHandshake, faRocket, faBookOpen, faArrowsRotate } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faPencil, 
+  faHandshake, 
+  faRocket, 
+  faBookOpen, 
+  faArrowsRotate,
+  faCode,
+  faDatabase,
+  faCloud,
+  faServer,
+  faEnvelope,
+  faGear,
+  faCog,
+  faFile,
+  faFileCode
+} from "@fortawesome/free-solid-svg-icons";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
@@ -71,59 +86,83 @@ const PROJECTS = [
     id: 1,
     title: "RDFS — Real-time Dispatch and Finance System",
     description: "A real-time dispatch and finance system featuring QR code–based driver queuing, live vehicle tracking, and automated fare validation for the Maasin City Terminal, developed as our capstone project.",
-    techStack: ["JavaScript", "Django", "HTML", "CSS", "PostgreSQL", "Bootstrap"],
+    techStack: ["JavaScript", "Django", "HTML", "CSS", "PostgreSQL", "Bootstrap", "Cloudinary", "OnRender"],
     liveUrl: "https://rdfsmaasin.onrender.com",
     githubUrl: "https://github.com/KleinLavina/RDFS",
-    thumbnail: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80",
+    thumbnail: "/rdfs.png",
   },
   {
     id: 2,
     title: "WISE-PENRO — Work Indicator Submission Engine",
     description: "A document tracking system built around the actual workflow of PENRO offices — handling document submission, routing between departments, status monitoring, and deadline tracking. Designed to match how PENRO staff submit and process documents day-to-day, with role-based access for different office levels.",
-    techStack: ["Python", "Django", "PostgreSQL", "HTML", "CSS", "JavaScript"],
+    techStack: ["Django", "PostgreSQL", "HTML", "CSS", "JavaScript", "Cloudinary", "OnRender", "Brevo SMTP"],
     liveUrl: "https://r8penrowise.onrender.com",
     githubUrl: "https://github.com/KleinLavina/WISE-PENRO",
-    thumbnail: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80",
+    thumbnail: "/wise-penro.png",
   },
   {
     id: 3,
     title: "J-Gear Assistant Chatbot",
     description: "A keyword-based FAQ chatbot developed for BSBA TatakJosephinian merchandise that assists users with product, pricing, and ordering inquiries through intelligent keyword matching.",
-    techStack: ["TypeScript", "React", "CSS", "HTML", "Vite"],
+    techStack: ["TypeScript", "React", "CSS", "HTML", "Vite", "Netlify"],
     liveUrl: "https://jgeartatakjosephinian.netlify.app/",
     githubUrl: "https://github.com/KleinLavina/J-Gear-Chatbot",
-    thumbnail: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=600&q=80",
+    thumbnail: "/j-gear.png",
   },
   {
     id: 4,
     title: "Tag-os Elementary School Website",
     description: "A modern elementary school website featuring an admin CMS for managing announcements, events, staff directory, and school information with responsive design and interactive components.",
-    techStack: ["React", "JavaScript", "CSS", "Vite", "HTML"],
+    techStack: ["React", "JavaScript", "CSS", "Vite", "HTML", "Netlify"],
     liveUrl: "https://tagoselementary.netlify.app/",
     githubUrl: "https://github.com/KleinLavina/TES",
-    thumbnail: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80",
+    thumbnail: "/tes.png",
   },
   {
     id: 5,
     title: "Cracken Gear Fits",
-    description: "A fashion e-commerce application featuring role-based access control, shopping cart functionality, CAPTCHA-secured login, and admin product management with full CRUD capabilities using PHP and MySQL.",
-    techStack: ["PHP", "JavaScript", "HTML", "CSS", "MySQL"],
+    description: "A fashion e-commerce application developed as a 3rd year school project, featuring role-based access control, shopping cart functionality, CAPTCHA-secured login, and admin product management with full CRUD capabilities using PHP and MySQL. This is one variant of my original project design.",
+    techStack: ["PHP", "JavaScript", "HTML", "CSS", "MySQL", "InfinityFree"],
     liveUrl: "https://cgearfits.rf.gd/",
     githubUrl: "https://github.com/KleinLavina/CrackenGearFits",
-    thumbnail: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80",
+    thumbnail: "/gearfits.png",
   },
   {
     id: 6,
     title: "Cracken Furniture",
-    description: "A full-stack furniture e-commerce platform with role-based user access, shopping cart functionality, and comprehensive admin controls for managing product inventory through CRUD operations.",
-    techStack: ["PHP", "JavaScript", "HTML", "CSS", "MySQL"],
+    description: "A full-stack furniture e-commerce platform developed as a 3rd year school project, with role-based user access, shopping cart functionality, and comprehensive admin controls for managing product inventory through CRUD operations. This is another variant of my original project design, created for a classmate while maintaining my ownership.",
+    techStack: ["PHP", "JavaScript", "HTML", "CSS", "MySQL", "InfinityFree"],
     liveUrl: "https://cfurniture.rf.gd/",
     githubUrl: "https://github.com/KleinLavina/CrackenFurnture",
-    thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
+    thumbnail: "/furniture.png",
   },
 ];
 
 const TECH_PILLS = ["React", "TypeScript", "Node.js", "Django", "PostgreSQL", "Python", "Next.js", "Tailwind"];
+
+// Tech stack icon mapping
+const getTechIcon = (tech: string) => {
+  const iconMap: { [key: string]: any } = {
+    "JavaScript": faFileCode,
+    "Django": faCode,
+    "HTML": faFile,
+    "CSS": faFile,
+    "PostgreSQL": faDatabase,
+    "Bootstrap": faCode,
+    "Cloudinary": faCloud,
+    "OnRender": faServer,
+    "Python": faCode,
+    "Brevo SMTP": faEnvelope,
+    "TypeScript": faFileCode,
+    "React": faCode,
+    "Vite": faGear,
+    "PHP": faCode,
+    "MySQL": faDatabase,
+    "Netlify": faCloud,
+    "InfinityFree": faServer,
+  };
+  return iconMap[tech] || faCode;
+};
 
 function SectionLabel({ num, label }: { num: string; label: string }) {
   return (
@@ -581,7 +620,8 @@ export default function Home() {
                               <h3 className="text-xl md:text-2xl font-black text-foreground leading-tight mb-3">{project.title}</h3>
                               <div className="flex flex-wrap gap-1.5 mb-4">
                                 {project.techStack.map(tech => (
-                                  <span key={tech} className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                                  <span key={tech} className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                                    <FontAwesomeIcon icon={getTechIcon(tech)} className="text-[8px]" />
                                     {tech}
                                   </span>
                                 ))}
