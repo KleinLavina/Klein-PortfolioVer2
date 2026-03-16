@@ -215,7 +215,7 @@ export default function Home() {
         </Section>
 
         {/* ─── ABOUT ───────────────────────────────────────────────────── */}
-        <Section id="about">
+        <Section id="about" className="!min-h-0 py-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -223,7 +223,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
           >
             <SectionLabel num="01" label="About Me" />
-            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-12 leading-tight">
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-10 leading-tight">
               Crafting the web,<br />
               <span className="text-gradient">one commit at a time.</span>
             </h2>
@@ -270,49 +270,70 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="space-y-5"
+              className="space-y-4"
             >
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Based in the Philippines, I specialize in{" "}
+              <p className="text-base text-muted-foreground leading-relaxed">
+                I'm a fresh CS grad from the Philippines who builds full-stack web apps using{" "}
                 <span className="text-foreground font-semibold">Django</span>,{" "}
                 <span className="text-foreground font-semibold">PHP</span>, and{" "}
-                <span className="text-foreground font-semibold">React</span>.
+                <span className="text-foreground font-semibold">React</span>. I got into dev because I wanted to understand how websites actually work — turns out, I just never stopped building them.
               </p>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Based in the Philippines, I'm a fresh CS grad who builds full-stack web apps using Django, PHP, and React. I got into dev because I wanted to understand how websites actually work — turns out, I just never stopped building them.
-              </p>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-base text-muted-foreground leading-relaxed">
                 I care about writing code that actually makes sense to the next person reading it. Outside of coding I'm still learning — picking up new tools, breaking things, and figuring out why.
               </p>
 
               {/* Pull quote */}
-              <blockquote className="border-l-2 border-primary pl-5 mt-6">
-                <p className="text-base italic text-muted-foreground/80">
+              <blockquote className="border-l-2 border-primary pl-4">
+                <p className="text-sm italic text-muted-foreground/80">
                   "Passed PhilNITS. Still googling CSS flexbox."
                 </p>
               </blockquote>
 
-              {/* Git Status Terminal */}
-              <div className="pt-4">
+              {/* Git Log Terminal */}
+              <div className="pt-2">
                 <div className="rounded-xl overflow-hidden border border-border/30 shadow-2xl" style={{ backgroundColor: '#0d1117' }}>
-                  <div className="p-6 font-mono text-sm leading-relaxed">
-                    <div style={{ color: '#8b949e' }}>
-                      $ git status
+                  {/* Terminal header bar */}
+                  <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10" style={{ backgroundColor: '#161b22' }}>
+                    <span className="w-3 h-3 rounded-full bg-red-400/80" />
+                    <span className="w-3 h-3 rounded-full bg-yellow-400/80" />
+                    <span className="w-3 h-3 rounded-full bg-green-400/80" />
+                    <span className="ml-3 text-xs font-mono" style={{ color: '#8b949e' }}>bash</span>
+                  </div>
+                  <div className="p-5 font-mono text-xs leading-relaxed space-y-3" style={{ color: '#e6edf3' }}>
+                    {/* Command prompt */}
+                    <div style={{ color: '#8b949e' }}>$ git log --oneline --graph</div>
+
+                    {/* Commit 1 */}
+                    <div className="space-y-0.5">
+                      <div>
+                        <span style={{ color: '#ffa657' }}>commit a3f91b2</span>{' '}
+                        <span style={{ color: '#79c0ff' }}>(HEAD → </span>
+                        <span style={{ color: '#56d364' }}>main</span>
+                        <span style={{ color: '#79c0ff' }}>, seeking-first-job)</span>
+                      </div>
+                      <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
+                      <div><span style={{ color: '#8b949e' }}>Date:   </span>Mon Mar 16 10:00:00 2026 +0800</div>
+                      <div className="mt-1 ml-4" style={{ color: '#e6edf3' }}>feat: ship 8+ projects &amp; open to work</div>
                     </div>
-                    <div className="mt-2" style={{ color: '#8b949e' }}>
-                      On branch: <span style={{ color: '#56d364' }}>main</span> · seeking-first-job
+
+                    <div style={{ color: '#30363d' }}>─────────────────────────────────────</div>
+
+                    {/* Commit 2 */}
+                    <div className="space-y-0.5">
+                      <div><span style={{ color: '#ffa657' }}>commit b7c24d1</span></div>
+                      <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
+                      <div><span style={{ color: '#8b949e' }}>Date:   </span>Fri Jan 10 09:15:00 2025 +0800</div>
+                      <div className="mt-1 ml-4" style={{ color: '#e6edf3' }}>cert: pass PhilNITS examination</div>
                     </div>
-                    <div className="mt-3" style={{ color: '#e6edf3' }}>
-                      Changes ready to commit:
-                    </div>
-                    <div className="mt-2 ml-4 space-y-1">
-                      <div><span style={{ color: '#56d364' }}>+</span>  <span style={{ color: '#e6edf3' }}>Django, PHP, React skills</span></div>
-                      <div><span style={{ color: '#56d364' }}>+</span>  <span style={{ color: '#e6edf3' }}>PhilNITS certification</span></div>
-                      <div><span style={{ color: '#56d364' }}>+</span>  <span style={{ color: '#e6edf3' }}>8+ projects shipped</span></div>
-                      <div><span style={{ color: '#ffa657' }}>~</span>  <span style={{ color: '#e6edf3' }}>still learning every day</span></div>
-                    </div>
-                    <div className="mt-3" style={{ color: '#8b949e' }}>
-                      nothing to hide, everything to prove
+
+                    <div style={{ color: '#30363d' }}>─────────────────────────────────────</div>
+
+                    {/* Commit 3 */}
+                    <div className="space-y-0.5">
+                      <div><span style={{ color: '#ffa657' }}>commit e1d08a9</span></div>
+                      <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
+                      <div><span style={{ color: '#8b949e' }}>Date:   </span>Thu Jun 01 08:00:00 2023 +0800</div>
+                      <div className="mt-1 ml-4" style={{ color: '#e6edf3' }}>init: add Django, PHP, React skills</div>
                     </div>
                   </div>
                 </div>
