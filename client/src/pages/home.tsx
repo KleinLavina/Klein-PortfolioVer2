@@ -79,7 +79,7 @@ const PROJECTS = [
   {
     id: 2,
     title: "WISE-PENRO — Work Indicator Submission Engine",
-    description: "A centralized work submission and compliance management system enabling role-based workflow tracking, deadline monitoring, task assignments, and automated email notifications for departmental performance metrics.",
+    description: "A document tracking system built around the actual workflow of PENRO offices — handling document submission, routing between departments, status monitoring, and deadline tracking. Designed to match how PENRO staff submit and process documents day-to-day, with role-based access for different office levels.",
     techStack: ["Python", "Django", "PostgreSQL", "HTML", "CSS", "JavaScript"],
     liveUrl: "https://r8penrowise.onrender.com",
     githubUrl: "https://github.com/KleinLavina/WISE-PENRO",
