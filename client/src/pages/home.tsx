@@ -5,7 +5,6 @@ import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
 import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { GithubContributions } from "@/components/github-contributions";
-import { Vortex } from "@/components/ui/vortex";
 import { DeveloperTimeline } from "@/components/developer-timeline";
 import { useProjects } from "@/hooks/use-projects";
 import { useCreateMessage } from "@/hooks/use-messages";
@@ -371,25 +370,6 @@ export default function Home() {
 
           </div>
         </Section>
-
-        {/* ─── VORTEX TRANSITION ───────────────────────────────────────── */}
-        <div className="relative h-64 w-full overflow-hidden"
-          style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
-          }}
-        >
-          <Vortex
-            className="h-full w-full"
-            particleCount={400}
-            baseHue={260}
-            rangeY={80}
-            baseSpeed={0.2}
-            rangeSpeed={1.2}
-            baseRadius={1}
-            rangeRadius={1.5}
-          />
-        </div>
 
         {/* ─── SKILLS ──────────────────────────────────────────────────── */}
         <Section id="skills">
