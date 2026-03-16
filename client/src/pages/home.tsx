@@ -15,20 +15,16 @@ import {
   faFile,
   faFileCode
 } from "@fortawesome/free-solid-svg-icons";
-import { faJs, faReact, faHtml5, faCss3Alt, faPython, faPhp, faBootstrap, faGitAlt, faGithub as faGithubBrand, faNodeJs } from "@fortawesome/free-brands-svg-icons";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
 import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { GithubContributions } from "@/components/github-contributions";
 import { DeveloperTimeline } from "@/components/developer-timeline";
-import { useCreateMessage } from "@/hooks/use-messages";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Loader2, Send, Github, Code, Database, MonitorSmartphone,
+  Loader2, Github, Code, Database, MonitorSmartphone,
   Layers, Server, TerminalSquare, Mail, FolderGit2,
   Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ArrowDown,
   ChevronRight, Sparkles, Globe
@@ -144,25 +140,26 @@ const TECH_PILLS = ["React", "TypeScript", "Node.js", "Django", "PostgreSQL", "P
 // Tech stack icon mapping
 const getTechIcon = (tech: string) => {
   const iconMap: { [key: string]: any } = {
-    "JavaScript": faJs,
-    "TypeScript": faJs,
-    "React": faReact,
-    "HTML": faHtml5,
-    "CSS": faCss3Alt,
-    "Python": faPython,
-    "PHP": faPhp,
-    "Bootstrap": faBootstrap,
-    "Git": faGitAlt,
-    "GitHub": faGithubBrand,
-    "Node.js": faNodeJs,
-    "Django": faPython,
+    "JavaScript": faFileCode,
+    "TypeScript": faFileCode,
+    "React": faCode,
+    "HTML": faFile,
+    "CSS": faFile,
+    "Python": faCode,
+    "PHP": faCode,
+    "Bootstrap": faCode,
+    "Git": faCode,
+    "GitHub": faCode,
+    "Node.js": faCode,
+    "Django": faCode,
     "PostgreSQL": faDatabase,
     "MySQL": faDatabase,
     "Vite": faGear,
-    "Next.js": faReact,
-    "Tailwind": faCss3Alt,
+    "Next.js": faCode,
+    "Tailwind": faCode,
     "Cloudinary": faCloud,
     "Netlify": faCloud,
+    "OnRender": faServer,
     "Render": faServer,
     "Brevo SMTP": faEnvelope,
     "InfinityFree": faServer,
@@ -181,10 +178,7 @@ function SectionLabel({ num, label }: { num: string; label: string }) {
 }
 
 export default function Home() {
-  const createMessage = useCreateMessage();
   const [showAllProjects, setShowAllProjects] = useState(false);
-
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const mag1 = useMagnetic(0.3);
   const mag2 = useMagnetic(0.3);
   const bubbleOpacity = useMotionValue(1);
@@ -211,12 +205,7 @@ export default function Home() {
     return () => scrollContainer.removeEventListener("scroll", handleScroll);
   }, [bubbleOpacity]);
 
-  const handleMessageSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createMessage.mutate(formData, {
-      onSuccess: () => setFormData({ name: "", email: "", message: "" })
-    });
-  };
+
 
   return (
     <Shell>
