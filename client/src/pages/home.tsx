@@ -753,8 +753,7 @@ export default function Home() {
               <span className="text-gradient">that got me here.</span>
             </h2>
             <p className="mt-4 text-xs text-muted-foreground/60 leading-relaxed max-w-md border-l-2 border-white/10 pl-3">
-              Only programming and development-related milestones are documented here.
-              Some experiences may not be listed due to memory — this reflects the core of my developer journey.
+              Only programming and software development–related milestones are documented here. This timeline highlights the most relevant experiences that shaped my growth as a developer.
             </p>
           </motion.div>
           <DeveloperTimeline />
