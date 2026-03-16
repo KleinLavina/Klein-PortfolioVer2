@@ -8,7 +8,7 @@ import { motion, useScroll, useSpring } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 
 export function Shell({ children }: { children: ReactNode }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     container: scrollRef
   });

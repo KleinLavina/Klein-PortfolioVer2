@@ -1,11 +1,10 @@
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
+import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { SkillIndicator, SkillLegend } from "@/components/ui/skill-indicator";
 import { GithubContributions } from "@/components/github-contributions";
 import { DeveloperTimeline } from "@/components/developer-timeline";
-import { ScrollRevealTextSection } from "@/components/ui/scroll-reveal-text";
-import { ScrollRevealColorBarSection } from "@/components/ui/scroll-reveal-colorbar";
 import { useProjects } from "@/hooks/use-projects";
 import { useCreateMessage } from "@/hooks/use-messages";
 import { motion, useMotionValue, useSpring } from "framer-motion";
@@ -90,27 +89,20 @@ export default function Home() {
   const smoothOpacity = useSpring(bubbleOpacity, { stiffness: 60, damping: 20 });
 
   useEffect(() => {
-    const scrollRevealSection = document.querySelector('[class*="ScrollRevealTextSection"]') || 
-                               document.querySelector('div[style*="height: 180vh"]');
-    if (!scrollRevealSection) return;
+    const timelineSection = document.getElementById("timeline");
+    if (!timelineSection) return;
     const scrollContainer = document.querySelector("main.flex-1");
     if (!scrollContainer) return;
 
     const handleScroll = () => {
-      const rect = scrollRevealSection.getBoundingClientRect();
+      const rect = timelineSection.getBoundingClientRect();
       const containerRect = scrollContainer.getBoundingClientRect();
       const containerHeight = containerRect.height;
-      
-      // Trigger fade when we reach the middle of the scroll reveal section
       const sectionMid = rect.top + rect.height / 2;
-      const viewportMid = containerRect.top + containerHeight / 2;
-      
-      // Once we pass the middle of the scroll reveal section, hide blobs completely
-      if (sectionMid <= viewportMid) {
-        bubbleOpacity.set(0); // Completely hide blobs
-      } else {
-        bubbleOpacity.set(1); // Full opacity before reaching the middle
-      }
+      const fadeStart = containerRect.top + containerHeight * 0.6;
+      const fadeEnd = containerRect.top + containerHeight / 2;
+      const progress = Math.min(1, Math.max(0, (fadeStart - sectionMid) / (fadeStart - fadeEnd)));
+      bubbleOpacity.set(1 - progress);
     };
 
     scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
@@ -536,18 +528,8 @@ export default function Home() {
         </Section>
       </div>
 
-      {/* ─── SCROLL REVEAL ───────────────────────────────────────────── */}
-      <ScrollRevealTextSection
-        headline={"I'm passionate about building\nscalable full stack apps and writing\nclean, efficient code to solve real\nproblems."}
-        className="relative z-10"
-      />
-
-      {/* ─── SCROLL REVEAL · COLOR BAR ───────────────────────────────── */}
-      {/* <ScrollRevealColorBarSection
-        headline={"As a developer, I value honesty, ownership, and continuous learning. I believe in writing simple, maintainable code and building products with empathy for the people who use them."}
-        highlightPhrases={["writing simple", "maintainable code", "empathy"]}
-        className="relative z-10"
-      /> */}
+      {/* ─── SCROLL TEXT FILL ────────────────────────────────────────── */}
+      <ScrollTextFill />
 
       {/* ─── CONTACT ─────────────────────────────────────────────────── */}
       <Section id="contact" className="!min-h-fit !py-0 relative overflow-hidden !shadow-none" style={{ boxShadow: 'none' }}>
