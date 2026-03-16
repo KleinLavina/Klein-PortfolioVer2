@@ -21,20 +21,12 @@ const navItems = [
 ];
 
 export function AppSidebar() {
-  const [activeSection, setActiveSection]   = useState("home");
-  const [isClicked,     setIsClicked]       = useState(false);
-  const [isHovered,     setIsHovered]       = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
   const { theme, setTheme } = useTheme();
   const { setOpenMobile } = useSidebar();
   const isDark = theme === "dark";
 
   const activeIndex = navItems.findIndex(i => i.url === `#${activeSection}`);
-
-  const getAvatarSrc = () => {
-    if (isClicked) return "/ThreePfp.png";
-    if (isHovered) return "/TwoPfp.png";
-    return "/OnePfp.jpg";
-  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -77,19 +69,13 @@ export function AppSidebar() {
         </div>
 
         {/* Avatar with layered rings */}
-        <div
-          className="relative group cursor-pointer"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => { setIsHovered(false); setIsClicked(false); }}
-          onClick={() => setIsClicked(true)}
-        >
-          <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/20 blur-xl group-hover:from-primary/40 group-hover:to-accent/30 transition-all duration-700" />
-          <div className="absolute -inset-1.5 rounded-full border border-primary/20 group-hover:border-primary/50 transition-colors duration-500" />
+        <div className="relative">
+          <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-primary/20 via-secondary/10 to-accent/20 blur-xl" />
+          <div className="absolute -inset-1.5 rounded-full border border-primary/20" />
           <Avatar className="h-16 w-16 border-2 border-background relative z-10 shadow-xl shadow-primary/10">
-            <AvatarImage src={getAvatarSrc()} alt="Klein F. Lavina" className="object-cover" />
+            <AvatarImage src="/OnePfp.jpg" alt="Klein F. Lavina" className="object-cover" />
             <AvatarFallback className="bg-primary/20 text-primary font-bold text-lg">KL</AvatarFallback>
           </Avatar>
-
         </div>
 
         {/* Name + role */}
