@@ -1,5 +1,6 @@
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
+import Ripple from "@/components/ui/ripple";
 
 const HELLO_WORLD_PHRASES = [
   { text: "Hello World!!", lang: "English" },
@@ -95,6 +96,9 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
           exit={{ opacity: 0, transition: { duration: 0.9, ease: "easeInOut" } }}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-background overflow-hidden"
         >
+          {/* Ripple Background */}
+          <Ripple className="absolute inset-0" />
+
           {/* Ambient glow blobs */}
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl animate-blob pointer-events-none" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full filter blur-3xl animate-blob animation-delay-2000 pointer-events-none" />

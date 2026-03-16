@@ -145,21 +145,20 @@ export default function Home() {
               <div className="flex items-center gap-4 mb-4">
                 <div className="h-px w-10 bg-primary/50" />
                 <h2 className="text-base sm:text-lg font-semibold text-muted-foreground tracking-wide">
-                  Full Stack Developer
+                  Fresh Graduate · Full Stack Developer
                 </h2>
               </div>
 
               <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed mb-6">
-                I build scalable, modern web applications. Passionate about turning
-                complex problems into elegant, intuitive interfaces.
+                BSIT graduate with hands-on experience from internship, school and personal projects. I build full-stack apps with Django, PHP, and React — and I'm just getting started.
               </p>
 
               {/* Stats row */}
               <div className="flex gap-8 border-y border-border/30 py-4 mb-6 w-fit">
                 {[
-                  { n: "3+", label: "Years Exp." },
-                  { n: "50+", label: "Projects" },
-                  { n: "100%", label: "Commitment" },
+                  { n: "8+", label: "PROJECTS BUILT" },
+                  { n: "15+", label: "TECH STACKS" },
+                  { n: "PhilNITS", label: "CERTIFIED PASSER" },
                 ].map(s => (
                   <div key={s.label}>
                     <div className="text-2xl font-black text-primary">{s.n}</div>
@@ -176,8 +175,12 @@ export default function Home() {
                   onMouseLeave={mag1.onMouseLeave}
                   className="inline-block"
                 >
-                  <Button size="lg" className="rounded-full px-8 bg-gradient-brand text-white shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:-translate-y-1 transition-all h-11 text-sm font-bold">
-                    <a href="#projects" className="flex items-center gap-2">View My Work <ChevronRight size={15} /></a>
+                  <Button size="lg" className="group relative overflow-hidden rounded-2xl px-8 bg-primary text-white font-bold text-sm shadow-2xl shadow-primary/40 hover:shadow-primary/60 hover:-translate-y-2 hover:scale-105 transition-all duration-300 border-2 border-white/20 backdrop-blur-sm h-11">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
+                    <a href="#projects" className="relative flex items-center gap-3 z-10">
+                      <span className="tracking-wide">View My Work</span>
+                      <ChevronRight size={15} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    </a>
                   </Button>
                 </div>
                 <div
@@ -187,7 +190,10 @@ export default function Home() {
                   className="inline-block"
                 >
                   <Button size="lg" variant="outline" className="rounded-full px-8 border border-border/60 hover:border-primary/50 hover:text-primary transition-all h-11 text-sm font-bold backdrop-blur-sm">
-                    <a href="#contact">Contact Me</a>
+                    <a href="#contact" className="flex items-center gap-2">
+                      <Mail size={15} />
+                      Contact Me
+                    </a>
                   </Button>
                 </div>
               </div>
@@ -245,12 +251,13 @@ export default function Home() {
   `}<span className="text-secondary">"name"</span>{`: `}<span className="text-primary">"Klein F. Lavina"</span>{`,
   `}<span className="text-secondary">"role"</span>{`: `}<span className="text-primary">"Full Stack Developer"</span>{`,
   `}<span className="text-secondary">"location"</span>{`: `}<span className="text-primary">"Philippines 🇵🇭"</span>{`,
-  `}<span className="text-secondary">"experience"</span>{`: `}<span className="text-accent">"3+ years"</span>{`,
+  `}<span className="text-secondary">"experience"</span>{`: `}<span className="text-accent">"Fresh Graduate"</span>{`,
   `}<span className="text-secondary">"specialization"</span>{`: [
     `}<span className="text-primary">"React"</span>{`, `}<span className="text-primary">"Django"</span>{`,
-    `}<span className="text-primary">"PostgreSQL"</span>
+    `}<span className="text-primary">"PHP"</span>{`, `}<span className="text-primary">"PostgreSQL"</span>
 {`  ],
-  `}<span className="text-secondary">"passion"</span>{`: `}<span className="text-primary">"Building elegant UIs"</span>{`,
+  `}<span className="text-secondary">"passion"</span>{`: `}<span className="text-primary">"Making things actually work"</span>{`,
+  `}<span className="text-secondary">"certifications"</span>{`: [`}<span className="text-primary">"PhilNITS Passer"</span>{`],
   `}<span className="text-secondary">"openToWork"</span>{`: `}<span className="text-green-400">true</span>
 {`}`}
 </pre>
@@ -266,40 +273,49 @@ export default function Home() {
               className="space-y-5"
             >
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Based in the Philippines, I specialize in the{" "}
-                <span className="text-foreground font-semibold">MERN stack</span> and{" "}
-                <span className="text-foreground font-semibold">Django</span>. My journey started
-                with a curiosity about how things work on the internet — which quickly became an
-                obsession with building them.
+                Based in the Philippines, I specialize in{" "}
+                <span className="text-foreground font-semibold">Django</span>,{" "}
+                <span className="text-foreground font-semibold">PHP</span>, and{" "}
+                <span className="text-foreground font-semibold">React</span>.
               </p>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                I care deeply about{" "}
-                <span className="text-primary font-semibold">performance</span>,{" "}
-                <span className="text-primary font-semibold">clean architecture</span>, and
-                user experiences that feel effortless. When I'm not coding, I'm exploring new
-                technologies or contributing to open-source.
+                Based in the Philippines, I'm a fresh CS grad who builds full-stack web apps using Django, PHP, and React. I got into dev because I wanted to understand how websites actually work — turns out, I just never stopped building them.
+              </p>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                I care about writing code that actually makes sense to the next person reading it. Outside of coding I'm still learning — picking up new tools, breaking things, and figuring out why.
               </p>
 
               {/* Pull quote */}
               <blockquote className="border-l-2 border-primary pl-5 mt-6">
                 <p className="text-base italic text-muted-foreground/80">
-                  "Code is not just instructions — it's a craft. Every function, every component
-                  should tell a story."
+                  "Passed PhilNITS. Still googling CSS flexbox."
                 </p>
               </blockquote>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 pt-4">
-                {[
-                  { n: "3+", label: "Years", color: "text-primary" },
-                  { n: "50+", label: "Projects", color: "text-secondary" },
-                  { n: "100%", label: "Committed", color: "text-accent" },
-                ].map(s => (
-                  <div key={s.label} className="p-4 rounded-xl glass-card text-center border-white/5">
-                    <div className={`text-3xl font-black ${s.color}`}>{s.n}</div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">{s.label}</div>
+              {/* Git Status Terminal */}
+              <div className="pt-4">
+                <div className="rounded-xl overflow-hidden border border-border/30 shadow-2xl" style={{ backgroundColor: '#0d1117' }}>
+                  <div className="p-6 font-mono text-sm leading-relaxed">
+                    <div style={{ color: '#8b949e' }}>
+                      $ git status
+                    </div>
+                    <div className="mt-2" style={{ color: '#8b949e' }}>
+                      On branch: <span style={{ color: '#56d364' }}>main</span> · seeking-first-job
+                    </div>
+                    <div className="mt-3" style={{ color: '#e6edf3' }}>
+                      Changes ready to commit:
+                    </div>
+                    <div className="mt-2 ml-4 space-y-1">
+                      <div><span style={{ color: '#56d364' }}>+</span>  <span style={{ color: '#e6edf3' }}>Django, PHP, React skills</span></div>
+                      <div><span style={{ color: '#56d364' }}>+</span>  <span style={{ color: '#e6edf3' }}>PhilNITS certification</span></div>
+                      <div><span style={{ color: '#56d364' }}>+</span>  <span style={{ color: '#e6edf3' }}>8+ projects shipped</span></div>
+                      <div><span style={{ color: '#ffa657' }}>~</span>  <span style={{ color: '#e6edf3' }}>still learning every day</span></div>
+                    </div>
+                    <div className="mt-3" style={{ color: '#8b949e' }}>
+                      nothing to hide, everything to prove
+                    </div>
                   </div>
-                ))}
+                </div>
               </div>
             </motion.div>
           </div>

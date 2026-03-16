@@ -173,6 +173,19 @@
     animation: marquee 20s linear infinite;
   }
 
+  .animate-ripple {
+    animation: ripple 3.4s ease-out infinite;
+  }
+
+  @keyframes ripple {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+
   /* ── Custom Scrollbar ── */
   main::-webkit-scrollbar {
     width: 5px;

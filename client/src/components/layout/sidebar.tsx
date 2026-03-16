@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Home, User, Code2, FolderGit2, Mail, Moon, Sun, Clock,
 } from "lucide-react";
@@ -87,13 +87,7 @@ export function AppSidebar() {
             <AvatarImage src={getAvatarSrc()} alt="Klein F. Lavina" className="object-cover" />
             <AvatarFallback className="bg-primary/20 text-primary font-bold text-lg">KL</AvatarFallback>
           </Avatar>
-          {/* Online pulse dot */}
-          <span className="absolute bottom-0 right-0 z-20">
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400 border-2 border-background" />
-            </span>
-          </span>
+
         </div>
 
         {/* Name + role */}
