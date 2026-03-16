@@ -1,0 +1,83 @@
+Name: Real-time Dispatch and Finance System
+
+JavaScript
+DJANGO
+HTML
+CSS
+POSTGRESQL
+BOOTSTRAP
+
+A real-time dispatch and finance system featuring QR code–based driver queuing, live vehicle tracking, and automated fare validation for the Maasin City Terminal, developed as our capstone project.
+
+Live Demo: rdfsmaasin.onrender.com
+Source Code: https://github.com/KleinLavina/RDFS
+
+Name: WISE-PENRO
+
+Python Django PostgreSQL HTML CSS JAVASCRIPT
+
+A centralized work submission and compliance management system enabling role-based workflow tracking, deadline monitoring, task assignments, and automated email notifications for departmental performance metrics and indicator monitoring.
+
+Live Demo: https://r8penrowise.onrender.com 
+Source Code: https://github.com/KleinLavina/WISE-PENRO
+
+
+Name: J-Gear Assistant Chatbot
+
+TypeScript React CSS HTML Vite
+
+A keyword-based FAQ chatbot developed for BSBA TatakJosephinian merchandise that assists users with product, pricing, and ordering inquiries through intelligent keyword matching.
+
+Live Demo: https://jgeartatakjosephinian.netlify.app/ 
+Source Code: https://github.com/KleinLavina/J-Gear-Chatbot
+
+
+Name: Tag-os Elementary School Website
+
+REACT
+
+JAVASCRIPT
+
+CSS
+
+VITE
+
+HTML
+
+A modern elementary school website featuring an admin CMS for managing announcements, events, staff directory, and school information with responsive design and interactive components.
+
+Live Demo: [Your Netlify URL]
+
+Source Code: [Your GitHub repository URL]
+
+Tech Stack Summary:
+
+Frontend: React 19.2.0 with Vite build tool
+Styling: Pure CSS (no frameworks)
+Icons: Material Icons + Lucide React
+Image Processing: react-advanced-cropper
+Data Storage: localStorage (client-side)
+Deployment: Netlify (static hosting)
+Admin Panel: Built-in CMS for content management
+Features: Responsive design, image cropping, rich text editing, carousel components
+
+live demo: tagoselementary.netlify.app/
+source code: https://github.com/KleinLavina/TES
+
+CrackenGearFits
+Name: Cracken Gear Fits Fashion E-commerce Platform
+
+PHP JavaScript HTML CSS MySQL
+
+3rd year school project, A fashion e-commerce application featuring role-based access control, shopping cart functionality, CAPTCHA-secured login, and admin product management with full CRUD capabilities using PHP and MySQL backend, a variant of cracken furniture.
+
+Live Demo: https://cgearfits.rf.gd/ Source Code: https://github.com/KleinLavina/CrackenGearFits
+
+CrackenFurnture
+Name: Cracken Furniture E-commerce System
+
+PHP JavaScript HTML CSS MySQL
+
+3rd year school project.A full-stack furniture e-commerce platform with role-based user access, shopping cart functionality, and comprehensive admin controls for managing product inventory through CRUD operations, a variant of crackengearfits.
+
+Live Demo: https://cfurniture.rf.gd/ Source Code: https://github.com/KleinLavina/CrackenFurnture

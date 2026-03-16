@@ -6,9 +6,8 @@ import { Section } from "@/components/ui/section";
 import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { GithubContributions } from "@/components/github-contributions";
 import { DeveloperTimeline } from "@/components/developer-timeline";
-import { useProjects } from "@/hooks/use-projects";
 import { useCreateMessage } from "@/hooks/use-messages";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,6 +66,63 @@ const PROFESSIONAL_SKILLS = [
   { name: "Communication", icon: MessageCircle, color: "text-cyan-500", description: "Clear technical and non-technical communication" },
 ];
 
+const PROJECTS = [
+  {
+    id: 1,
+    title: "Real-time Dispatch and Finance System",
+    description: "A real-time dispatch and finance system featuring QR code–based driver queuing, live vehicle tracking, and automated fare validation for the Maasin City Terminal, developed as our capstone project.",
+    techStack: ["JavaScript", "Django", "HTML", "CSS", "PostgreSQL", "Bootstrap"],
+    liveUrl: "https://rdfsmaasin.onrender.com",
+    githubUrl: "https://github.com/KleinLavina/RDFS",
+    thumbnail: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80",
+  },
+  {
+    id: 2,
+    title: "WISE-PENRO",
+    description: "A centralized work submission and compliance management system enabling role-based workflow tracking, deadline monitoring, task assignments, and automated email notifications for departmental performance metrics.",
+    techStack: ["Python", "Django", "PostgreSQL", "HTML", "CSS", "JavaScript"],
+    liveUrl: "https://r8penrowise.onrender.com",
+    githubUrl: "https://github.com/KleinLavina/WISE-PENRO",
+    thumbnail: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80",
+  },
+  {
+    id: 3,
+    title: "J-Gear Assistant Chatbot",
+    description: "A keyword-based FAQ chatbot developed for BSBA TatakJosephinian merchandise that assists users with product, pricing, and ordering inquiries through intelligent keyword matching.",
+    techStack: ["TypeScript", "React", "CSS", "HTML", "Vite"],
+    liveUrl: "https://jgeartatakjosephinian.netlify.app/",
+    githubUrl: "https://github.com/KleinLavina/J-Gear-Chatbot",
+    thumbnail: "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=600&q=80",
+  },
+  {
+    id: 4,
+    title: "Tag-os Elementary School Website",
+    description: "A modern elementary school website featuring an admin CMS for managing announcements, events, staff directory, and school information with responsive design and interactive components.",
+    techStack: ["React", "JavaScript", "CSS", "Vite", "HTML"],
+    liveUrl: "https://tagoselementary.netlify.app/",
+    githubUrl: "https://github.com/KleinLavina/TES",
+    thumbnail: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80",
+  },
+  {
+    id: 5,
+    title: "Cracken Gear Fits",
+    description: "A fashion e-commerce application featuring role-based access control, shopping cart functionality, CAPTCHA-secured login, and admin product management with full CRUD capabilities using PHP and MySQL.",
+    techStack: ["PHP", "JavaScript", "HTML", "CSS", "MySQL"],
+    liveUrl: "https://cgearfits.rf.gd/",
+    githubUrl: "https://github.com/KleinLavina/CrackenGearFits",
+    thumbnail: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80",
+  },
+  {
+    id: 6,
+    title: "Cracken Furniture",
+    description: "A full-stack furniture e-commerce platform with role-based user access, shopping cart functionality, and comprehensive admin controls for managing product inventory through CRUD operations.",
+    techStack: ["PHP", "JavaScript", "HTML", "CSS", "MySQL"],
+    liveUrl: "https://cfurniture.rf.gd/",
+    githubUrl: "https://github.com/KleinLavina/CrackenFurnture",
+    thumbnail: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
+  },
+];
+
 const TECH_PILLS = ["React", "TypeScript", "Node.js", "Django", "PostgreSQL", "Python", "Next.js", "Tailwind"];
 
 function SectionLabel({ num, label }: { num: string; label: string }) {
@@ -80,8 +136,8 @@ function SectionLabel({ num, label }: { num: string; label: string }) {
 }
 
 export default function Home() {
-  const { data: projects, isLoading: projectsLoading } = useProjects();
   const createMessage = useCreateMessage();
+  const [showAllProjects, setShowAllProjects] = useState(false);
 
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const mag1 = useMagnetic(0.3);
@@ -482,92 +538,105 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {projectsLoading ? (
-            <div className="flex justify-center py-20"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>
-          ) : !projects || projects.length === 0 ? (
-            <div className="text-center py-20 glass-card rounded-2xl">
-              <FolderGit2 className="h-14 w-14 text-muted-foreground mx-auto mb-4 opacity-40" />
-              <h3 className="text-xl font-bold text-muted-foreground">No projects listed yet.</h3>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {projects.map((project, i) => (
+          {(() => {
+            const visibleProjects = showAllProjects ? PROJECTS : PROJECTS.slice(0, 3);
+            return (
+              <>
+                <div className="space-y-6">
+                  {visibleProjects.map((project, i) => (
+                    <motion.div
+                      key={project.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5, ease: "easeOut", delay: i < 3 ? 0 : (i - 3) * 0.08 }}
+                      onMouseMove={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / rect.width - 0.5;
+                        const y = (e.clientY - rect.top) / rect.height - 0.5;
+                        e.currentTarget.style.transform = `perspective(900px) rotateX(${-y * 4}deg) rotateY(${x * 4}deg) translateY(-4px)`;
+                        e.currentTarget.style.transition = "transform 0.1s ease-out";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0px)";
+                        e.currentTarget.style.transition = "transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)";
+                      }}
+                      className="group"
+                    >
+                      <div className="relative rounded-2xl border border-border/30 bg-card/30 backdrop-blur-xl overflow-hidden hover:border-primary/30 transition-colors duration-500 shadow-xl">
+                        <div className="absolute top-4 right-4 text-6xl font-black text-foreground/5 leading-none select-none pointer-events-none z-0">
+                          {String(i + 1).padStart(2, "0")}
+                        </div>
+                        <div className={`flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
+                          <div className="relative md:w-2/5 h-52 md:h-auto overflow-hidden flex-shrink-0">
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/60 z-10" />
+                            <img
+                              src={project.thumbnail}
+                              alt={project.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                            />
+                          </div>
+                          <div className="flex-1 p-6 md:p-8 flex flex-col justify-between relative z-10">
+                            <div>
+                              <h3 className="text-xl md:text-2xl font-black text-foreground leading-tight mb-3">{project.title}</h3>
+                              <div className="flex flex-wrap gap-1.5 mb-4">
+                                {project.techStack.map(tech => (
+                                  <span key={tech} className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                                    {tech}
+                                  </span>
+                                ))}
+                              </div>
+                              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                                {project.description}
+                              </p>
+                            </div>
+                            <div className="flex gap-3 mt-6 border-t border-border/20 pt-5">
+                              {project.liveUrl && (
+                                <a href={project.liveUrl} target="_blank" rel="noreferrer"
+                                  className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+                                >
+                                  <Globe size={14} /> Live Demo
+                                </a>
+                              )}
+                              {project.githubUrl && (
+                                <a href={project.githubUrl} target="_blank" rel="noreferrer"
+                                  className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                  <Github size={14} /> Source Code
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
                 <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{ duration: 0.6, ease: "easeOut", delay: i * 0.1 }}
-                  onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = (e.clientX - rect.left) / rect.width - 0.5;
-                    const y = (e.clientY - rect.top) / rect.height - 0.5;
-                    e.currentTarget.style.transform = `perspective(900px) rotateX(${-y * 4}deg) rotateY(${x * 4}deg) translateY(-4px)`;
-                    e.currentTarget.style.transition = "transform 0.1s ease-out";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0px)";
-                    e.currentTarget.style.transition = "transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94)";
-                  }}
-                  className="group"
+                  className="flex justify-center mt-10"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
                 >
-                  <div className="relative rounded-2xl border border-border/30 bg-card/30 backdrop-blur-xl overflow-hidden hover:border-primary/30 transition-colors duration-500 shadow-xl">
-                    {/* Project number */}
-                    <div className="absolute top-4 right-4 text-6xl font-black text-foreground/5 leading-none select-none pointer-events-none z-0">
-                      {String(i + 1).padStart(2, "0")}
-                    </div>
-
-                    <div className={`flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
-                      {/* Image */}
-                      <div className="relative md:w-2/5 h-52 md:h-auto overflow-hidden flex-shrink-0">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/60 z-10" />
-                        <img
-                          src={project.thumbnail || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80"}
-                          alt={project.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                        />
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 p-6 md:p-8 flex flex-col justify-between relative z-10">
-                        <div>
-                          <div className="flex items-start justify-between gap-4 mb-3">
-                            <h3 className="text-xl md:text-2xl font-black text-foreground leading-tight">{project.title}</h3>
-                          </div>
-                          <div className="flex flex-wrap gap-1.5 mb-4">
-                            {project.techStack.map(tech => (
-                              <span key={tech} className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
-                                {tech}
-                              </span>
-                            ))}
-                          </div>
-                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                            {project.description}
-                          </p>
-                        </div>
-                        <div className="flex gap-3 mt-6 border-t border-border/20 pt-5">
-                          {project.liveUrl && (
-                            <a href={project.liveUrl} target="_blank" rel="noreferrer"
-                              className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
-                            >
-                              <Globe size={14} /> Live Demo
-                            </a>
-                          )}
-                          {project.githubUrl && (
-                            <a href={project.githubUrl} target="_blank" rel="noreferrer"
-                              className="flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                            >
-                              <Github size={14} /> Source Code
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => setShowAllProjects((prev) => !prev)}
+                    className="group flex items-center gap-2 px-6 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
+                  >
+                    <motion.span
+                      animate={{ rotate: showAllProjects ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="inline-block"
+                    >
+                      <ChevronRight size={16} className="rotate-90" />
+                    </motion.span>
+                    {showAllProjects ? `Show Less` : `Show ${PROJECTS.length - 3} More Projects`}
+                  </button>
                 </motion.div>
-              ))}
-            </div>
-          )}
+              </>
+            );
+          })()}
         </Section>
 
         {/* ─── TIMELINE ────────────────────────────────────────────────── */}
