@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencil, faHandshake, faRocket, faBookOpen } from "@fortawesome/free-solid-svg-icons";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
@@ -298,13 +300,13 @@ export default function Home() {
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Values I code by</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { icon: "✏️", title: "Clean Code", desc: "Write it like someone else has to read it tomorrow." },
-                  { icon: "🤝", title: "Honesty", desc: 'I\'d rather say "I don\'t know yet" than fake it.' },
-                  { icon: "🚀", title: "Ship It", desc: "Done and imperfect beats perfect and never shipped." },
-                  { icon: "📖", title: "Always Learning", desc: "Every bug is a lesson. Every project levels me up." },
+                  { icon: faPencil, color: "text-primary", title: "Clean Code", desc: "Write it like someone else has to read it tomorrow." },
+                  { icon: faHandshake, color: "text-secondary", title: "Honesty", desc: 'I\'d rather say "I don\'t know yet" than fake it.' },
+                  { icon: faRocket, color: "text-accent", title: "Ship It", desc: "Done and imperfect beats perfect and never shipped." },
+                  { icon: faBookOpen, color: "text-green-400", title: "Always Learning", desc: "Every bug is a lesson. Every project levels me up." },
                 ].map((v) => (
                   <div key={v.title} className="rounded-xl p-3 bg-muted/30 border border-border/20 hover:border-primary/20 transition-colors">
-                    <div className="text-lg mb-1">{v.icon}</div>
+                    <FontAwesomeIcon icon={v.icon} className={`${v.color} text-base mb-2`} />
                     <div className="text-sm font-semibold text-foreground mb-1">{v.title}</div>
                     <div className="text-xs text-muted-foreground leading-snug">{v.desc}</div>
                   </div>
