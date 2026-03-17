@@ -1,12 +1,20 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
+import { sqlite } from "./db";
 import { api } from "@shared/routes";
 import { z } from "zod";
 
 type ChatHistoryItem = {
   from: "user" | "klein";
   text: string;
+};
+
+type DailyUsageSummary = {
+  used: number;
+  remaining: number;
+  limit: number;
+  dateKey: string;
 };
 
 type GeminiPart =
@@ -34,6 +42,112 @@ type GeminiGenerateResponse = {
     };
   }>;
 };
+
+const DAILY_CHAT_LIMIT = 8;
+
+function getLocalDateKey(now: Date): string {
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function buildDailyUsageSummary(dateKey: string, used: number): DailyUsageSummary {
+  const remaining = Math.max(0, DAILY_CHAT_LIMIT - used);
+  return {
+    used,
+    remaining,
+    limit: DAILY_CHAT_LIMIT,
+    dateKey,
+  };
+}
+
+function getChatDailyUsage(clientId: string): DailyUsageSummary {
+  const dateKey = getLocalDateKey(new Date());
+  const row = sqlite
+    .prepare(
+      `
+        SELECT used_count AS used
+        FROM chat_daily_usage
+        WHERE client_id = ? AND date_key = ?
+      `,
+    )
+    .get(clientId, dateKey) as { used: number } | undefined;
+
+  return buildDailyUsageSummary(dateKey, row?.used ?? 0);
+}
+
+function tryConsumeDailyMessage(clientId: string): {
+  allowed: boolean;
+  usage: DailyUsageSummary;
+} {
+  const dateKey = getLocalDateKey(new Date());
+
+  const transaction = sqlite.transaction((targetClientId: string) => {
+    const current = sqlite
+      .prepare(
+        `
+          SELECT used_count AS used
+          FROM chat_daily_usage
+          WHERE client_id = ? AND date_key = ?
+        `,
+      )
+      .get(targetClientId, dateKey) as { used: number } | undefined;
+
+    const used = current?.used ?? 0;
+    if (used >= DAILY_CHAT_LIMIT) {
+      return {
+        allowed: false,
+        usage: buildDailyUsageSummary(dateKey, used),
+      };
+    }
+
+    sqlite
+      .prepare(
+        `
+          INSERT INTO chat_daily_usage (client_id, date_key, used_count, updated_at)
+          VALUES (?, ?, 1, unixepoch())
+          ON CONFLICT(client_id, date_key)
+          DO UPDATE SET
+            used_count = used_count + 1,
+            updated_at = unixepoch()
+        `,
+      )
+      .run(targetClientId, dateKey);
+
+    const next = sqlite
+      .prepare(
+        `
+          SELECT used_count AS used
+          FROM chat_daily_usage
+          WHERE client_id = ? AND date_key = ?
+        `,
+      )
+      .get(targetClientId, dateKey) as { used: number };
+
+    return {
+      allowed: true,
+      usage: buildDailyUsageSummary(dateKey, next.used),
+    };
+  });
+
+  return transaction(clientId);
+}
+
+function trackUniqueLifetimeVisitor(visitorId: string): number {
+  const insertStatement = sqlite.prepare(`
+    INSERT OR IGNORE INTO visitor_lifetime (visitor_id)
+    VALUES (?)
+  `);
+  insertStatement.run(visitorId);
+
+  const countStatement = sqlite.prepare(`
+    SELECT COUNT(*) AS total
+    FROM visitor_lifetime
+  `);
+  const result = countStatement.get() as { total: number };
+  return result.total;
+}
 
 function toGeminiHistory(history: ChatHistoryItem[]): GeminiContent[] {
   return history.map((item) => ({
@@ -89,7 +203,8 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   const chatInputSchema = z.object({
-    message: z.string().trim().min(1).max(2000),
+    clientId: z.string().trim().min(8).max(128),
+    message: z.string().trim().min(1).max(50),
     history: z
       .array(
         z.object({
@@ -99,6 +214,12 @@ export async function registerRoutes(
       )
       .max(30)
       .optional(),
+  });
+  const chatUsageQuerySchema = z.object({
+    clientId: z.string().trim().min(8).max(128),
+  });
+  const visitorTrackSchema = z.object({
+    visitorId: z.string().trim().min(8).max(128),
   });
   
   // GitHub API routes
@@ -175,7 +296,14 @@ export async function registerRoutes(
         });
       }
 
-      const { message, history = [] } = chatInputSchema.parse(req.body);
+      const { clientId, message, history = [] } = chatInputSchema.parse(req.body);
+      const consumption = tryConsumeDailyMessage(clientId);
+      if (!consumption.allowed) {
+        return res.status(429).json({
+          message: "You've reached your daily limit. Please come back tomorrow.",
+          usage: consumption.usage,
+        });
+      }
 
       const systemPrompt = [
         "You are Klein's portfolio AI assistant.",
@@ -255,6 +383,7 @@ export async function registerRoutes(
           return res.status(502).json({
             message: "Gemini request failed.",
             details: errorText,
+            usage: consumption.usage,
           });
         }
 
@@ -278,9 +407,13 @@ export async function registerRoutes(
           if (!reply) {
             return res.status(502).json({
               message: "Gemini returned an empty response.",
+              usage: consumption.usage,
             });
           }
-          return res.json({ reply });
+          return res.json({
+            reply,
+            usage: consumption.usage,
+          });
         }
 
         contents.push({
@@ -311,6 +444,41 @@ export async function registerRoutes(
 
       res.status(502).json({
         message: "Agent reached max tool iterations without final response.",
+        usage: consumption.usage,
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join("."),
+        });
+      }
+      throw err;
+    }
+  });
+
+  app.get("/api/chat/usage", (req, res) => {
+    try {
+      const { clientId } = chatUsageQuerySchema.parse(req.query);
+      const usage = getChatDailyUsage(clientId);
+      return res.json({ usage });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join("."),
+        });
+      }
+      throw err;
+    }
+  });
+
+  app.post("/api/visitors/track", (req, res) => {
+    try {
+      const { visitorId } = visitorTrackSchema.parse(req.body);
+      const count = trackUniqueLifetimeVisitor(visitorId);
+      return res.json({
+        count,
       });
     } catch (err) {
       if (err instanceof z.ZodError) {

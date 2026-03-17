@@ -13,7 +13,8 @@ import {
   faGear,
   faCog,
   faFile,
-  faFileCode
+  faFileCode,
+  faEye
 } from "@fortawesome/free-solid-svg-icons";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
@@ -178,8 +179,22 @@ function SectionLabel({ num, label }: { num: string; label: string }) {
   );
 }
 
+function getOrCreateVisitorId(): string {
+  if (typeof window === "undefined") return "visitor-server";
+
+  const storageKey = "portfolio_visitor_id";
+  const existing = window.localStorage.getItem(storageKey);
+  if (existing) return existing;
+
+  const generated = `visitor-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  window.localStorage.setItem(storageKey, generated);
+  return generated;
+}
+
 export default function Home() {
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const [visitorCount, setVisitorCount] = useState<number | null>(null);
+  const [visitorLoading, setVisitorLoading] = useState(true);
   const mag1 = useMagnetic(0.3);
   const mag2 = useMagnetic(0.3);
   const bubbleOpacity = useMotionValue(1);
@@ -205,6 +220,32 @@ export default function Home() {
     scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
     return () => scrollContainer.removeEventListener("scroll", handleScroll);
   }, [bubbleOpacity]);
+
+  useEffect(() => {
+    const trackVisitor = async () => {
+      try {
+        const visitorId = getOrCreateVisitorId();
+        const response = await fetch("/api/visitors/track", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ visitorId }),
+        });
+
+        if (!response.ok) return;
+
+        const data = (await response.json()) as { count?: number };
+        if (typeof data.count === "number") {
+          setVisitorCount(data.count);
+        }
+      } catch {
+        // Keep graceful fallback UI when visitor tracking fails.
+      } finally {
+        setVisitorLoading(false);
+      }
+    };
+
+    void trackVisitor();
+  }, []);
 
 
 
@@ -892,9 +933,19 @@ END:VCARD`)}`}
             </div>
 
             {/* Footer */}
-            <div className="mt-10 pt-6 border-t border-white/15 flex justify-center items-center">
+            <div className="mt-10 pt-6 border-t border-white/15 flex flex-col justify-center items-center gap-2">
               <p className="text-sm text-white/50 font-mono">
                 © 2025 Klein F. Lavina. All rights reserved.
+              </p>
+              <p className="text-sm text-white/50 font-mono flex items-center gap-2">
+                {visitorLoading
+                  ? "Loading visitor count..."
+                  : (
+                    <>
+                      <FontAwesomeIcon icon={faEye} />
+                      <span>{visitorCount ?? 0} unique visitors all time</span>
+                    </>
+                  )}
               </p>
             </div>
           </div>

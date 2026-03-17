@@ -17,8 +17,17 @@ type Message = {
   text: string;
 };
 
+type ChatUsage = {
+  used: number;
+  remaining: number;
+  limit: number;
+};
+
 const TYPEWRITER_STEP = 3;
 const TYPEWRITER_DELAY_MS = 12;
+const MESSAGE_CHAR_LIMIT = 50;
+const DAILY_MESSAGE_LIMIT = 8;
+const DAILY_LIMIT_MESSAGE = "You've reached your daily limit. Please come back tomorrow.";
 
 const WELCOME_MESSAGES = [
   "Welcome. I am Klein's AI assistant. How can I help today?",
@@ -45,6 +54,18 @@ function pickRandomWelcomeMessage(): string {
 function pickRandomAvatarIcon() {
   const index = Math.floor(Math.random() * AVATAR_ICONS.length);
   return AVATAR_ICONS[index];
+}
+
+function getOrCreateClientId(): string {
+  if (typeof window === "undefined") return "client-server";
+
+  const key = "portfolio_chat_client_id";
+  const existing = window.localStorage.getItem(key);
+  if (existing) return existing;
+
+  const generated = `client-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  window.localStorage.setItem(key, generated);
+  return generated;
 }
 
 function buildSuggestedReplies(messages: Message[]): string[] {
@@ -114,6 +135,7 @@ function buildSuggestedReplies(messages: Message[]): string[] {
 }
 
 export function FloatingChat() {
+  const [clientId] = useState(() => getOrCreateClientId());
   const [AvatarIcon] = useState(() => pickRandomAvatarIcon());
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => [
@@ -126,6 +148,11 @@ export function FloatingChat() {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showSuggestedReplies, setShowSuggestedReplies] = useState(true);
+  const [usage, setUsage] = useState<ChatUsage>({
+    used: 0,
+    remaining: DAILY_MESSAGE_LIMIT,
+    limit: DAILY_MESSAGE_LIMIT,
+  });
   const [suggestedReplies, setSuggestedReplies] = useState<string[]>(
     DEFAULT_SUGGESTED_REPLIES,
   );
@@ -139,6 +166,28 @@ export function FloatingChat() {
   useEffect(() => {
     setSuggestedReplies(buildSuggestedReplies(messages));
   }, [messages]);
+
+  useEffect(() => {
+    const loadUsage = async () => {
+      try {
+        const response = await fetch(
+          `/api/chat/usage?clientId=${encodeURIComponent(clientId)}`,
+        );
+        if (!response.ok) return;
+        const data = (await response.json()) as { usage?: ChatUsage };
+        if (data.usage) setUsage(data.usage);
+      } catch {
+        // Keep default usage state when usage lookup fails.
+      }
+    };
+
+    if (open) {
+      void loadUsage();
+    }
+  }, [clientId, open]);
+
+  const isAtDailyLimit = usage.remaining <= 0;
+  const isNearDailyLimit = usage.used >= 6 && !isAtDailyLimit;
 
   const sleep = (ms: number) =>
     new Promise<void>((resolve) => {
@@ -165,7 +214,7 @@ export function FloatingChat() {
 
   const send = async () => {
     const trimmed = input.trim();
-    if (!trimmed || isSending) return;
+    if (!trimmed || isSending || isAtDailyLimit) return;
 
     const userMessage: Message = { id: Date.now(), from: "user", text: trimmed };
     const nextMessages = [...messages, userMessage];
@@ -181,6 +230,7 @@ export function FloatingChat() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          clientId,
           message: trimmed,
           history: messages.map((msg) => ({ from: msg.from, text: msg.text })),
         }),
@@ -190,9 +240,13 @@ export function FloatingChat() {
         reply?: string;
         message?: string;
         details?: string;
+        usage?: ChatUsage;
       };
+      if (data.usage) {
+        setUsage(data.usage);
+      }
       if (!response.ok || !data.reply) {
-        throw new Error(data.details || data.message || "Failed to fetch AI response.");
+        throw new Error(data.message || data.details || "Failed to fetch AI response.");
       }
       const reply = data.reply;
       const assistantMessageId = Date.now() + 1;
@@ -228,8 +282,8 @@ export function FloatingChat() {
   };
 
   const applySuggestedReply = (reply: string) => {
-    if (isSending) return;
-    setInput(reply);
+    if (isSending || isAtDailyLimit) return;
+    setInput(reply.slice(0, MESSAGE_CHAR_LIMIT));
     setShowSuggestedReplies(false);
   };
 
@@ -368,7 +422,7 @@ export function FloatingChat() {
                         <button
                           key={reply}
                           onClick={() => applySuggestedReply(reply)}
-                          disabled={isSending}
+                          disabled={isSending || isAtDailyLimit}
                           className="rounded-full border border-border/40 bg-muted/40 px-3 py-1.5 text-xs text-foreground hover:bg-muted/70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                           {reply}
@@ -378,20 +432,45 @@ export function FloatingChat() {
                   </motion.div>
                 )}
               </AnimatePresence>
+              <div className="mb-2 flex items-center justify-between text-xs">
+                <p className="font-medium text-foreground">
+                  {usage.remaining}/{usage.limit} messages left today
+                </p>
+                <p className="text-muted-foreground">
+                  {input.length}/{MESSAGE_CHAR_LIMIT}
+                </p>
+              </div>
+              {isNearDailyLimit && (
+                <p className="mb-2 text-xs text-amber-600">
+                  Warning: You are close to your daily chat limit.
+                </p>
+              )}
+              {isAtDailyLimit && (
+                <p className="mb-2 text-xs text-red-600">{DAILY_LIMIT_MESSAGE}</p>
+              )}
               </div>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) =>
+                    setInput(e.target.value.slice(0, MESSAGE_CHAR_LIMIT))
+                  }
                   onKeyDown={(e) => e.key === "Enter" && send()}
-                  placeholder={isSending ? "Thinking..." : "Type a message..."}
-                  disabled={isSending}
+                  placeholder={
+                    isAtDailyLimit
+                      ? "Daily limit reached"
+                      : isSending
+                        ? "Thinking..."
+                        : "Type a message..."
+                  }
+                  disabled={isSending || isAtDailyLimit}
+                  maxLength={MESSAGE_CHAR_LIMIT}
                   className="flex-1 bg-muted/40 border border-border/30 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/60 transition-colors"
                 />
                 <button
                   onClick={send}
-                  disabled={!input.trim() || isSending}
+                  disabled={!input.trim() || isSending || isAtDailyLimit}
                   className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/80 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5 shrink-0"
                 >
                   <Send size={15} />
