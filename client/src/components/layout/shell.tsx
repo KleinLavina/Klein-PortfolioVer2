@@ -5,7 +5,6 @@ import { ScrollWave } from "@/components/ui/scroll-wave";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import { ScrollSnake } from "@/components/ui/scroll-snake";
 import { motion, useScroll, useSpring } from "framer-motion";
-import { MessageCircle } from "lucide-react";
 
 export function Shell({ children }: { children: ReactNode }) {
   const scrollRef = useRef<HTMLElement>(null);
@@ -43,16 +42,6 @@ export function Shell({ children }: { children: ReactNode }) {
             {children}
           </main>
         </div>
-
-        {/* Floating WhatsApp Button */}
-        <a 
-          href="https://wa.me/1234567890" 
-          target="_blank" 
-          rel="noreferrer"
-          className="fixed bottom-8 right-8 z-50 p-4 bg-gradient-brand text-white rounded-full shadow-[0_10px_30px_rgba(53,211,97,0.4)] hover:shadow-[0_10px_40px_rgba(53,211,97,0.6)] hover:-translate-y-1 transition-all duration-300 group"
-        >
-          <MessageCircle className="h-6 w-6 group-hover:scale-110 transition-transform" />
-        </a>
       </div>
     </SidebarProvider>
   );
