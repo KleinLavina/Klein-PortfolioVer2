@@ -21,6 +21,7 @@ import { Section } from "@/components/ui/section";
 import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { GithubContributions } from "@/components/github-contributions";
 import { DeveloperTimeline } from "@/components/developer-timeline";
+import { FloatingChat } from "@/components/floating-chat";
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -899,6 +900,7 @@ END:VCARD`)}`}
           </div>
         </div>
       </Section>
+      <FloatingChat />
     </Shell>
   );
 }
