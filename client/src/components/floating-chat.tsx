@@ -17,6 +17,9 @@ type Message = {
   text: string;
 };
 
+const TYPEWRITER_STEP = 3;
+const TYPEWRITER_DELAY_MS = 12;
+
 const WELCOME_MESSAGES = [
   "Welcome. I am Klein's AI assistant. How can I help today?",
   "Hi there. Welcome to Klein's portfolio chat.",
@@ -137,6 +140,29 @@ export function FloatingChat() {
     setSuggestedReplies(buildSuggestedReplies(messages));
   }, [messages]);
 
+  const sleep = (ms: number) =>
+    new Promise<void>((resolve) => {
+      setTimeout(resolve, ms);
+    });
+
+  const typewriterReply = async (messageId: number, fullText: string) => {
+    for (let index = TYPEWRITER_STEP; index <= fullText.length; index += TYPEWRITER_STEP) {
+      const nextText = fullText.slice(0, index);
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === messageId ? { ...message, text: nextText } : message,
+        ),
+      );
+      await sleep(TYPEWRITER_DELAY_MS);
+    }
+
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id === messageId ? { ...message, text: fullText } : message,
+      ),
+    );
+  };
+
   const send = async () => {
     const trimmed = input.trim();
     if (!trimmed || isSending) return;
@@ -169,15 +195,18 @@ export function FloatingChat() {
         throw new Error(data.details || data.message || "Failed to fetch AI response.");
       }
       const reply = data.reply;
+      const assistantMessageId = Date.now() + 1;
 
       setMessages((prev) => [
         ...prev,
         {
-          id: Date.now() + 1,
+          id: assistantMessageId,
           from: "klein",
-          text: reply,
+          text: "",
         },
       ]);
+      setIsSending(false);
+      await typewriterReply(assistantMessageId, reply);
     } catch (error) {
       const fallbackError = "I could not connect to the AI service right now. Please try again.";
       const errorText =
@@ -268,8 +297,13 @@ export function FloatingChat() {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2 }}
-                  className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex items-end gap-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
                 >
+                  {msg.from === "klein" && (
+                    <div className="w-7 h-7 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
+                      <AvatarIcon size={14} />
+                    </div>
+                  )}
                   <div
                     className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       msg.from === "user"
@@ -281,6 +315,22 @@ export function FloatingChat() {
                   </div>
                 </motion.div>
               ))}
+              {isSending && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex justify-start"
+                >
+                  <div className="max-w-[80%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted/60 text-foreground border border-border/20">
+                    <div className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/80 animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/80 animate-pulse [animation-delay:120ms]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/80 animate-pulse [animation-delay:240ms]" />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
               <div ref={bottomRef} />
             </div>
 
