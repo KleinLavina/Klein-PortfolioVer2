@@ -1,5 +1,6 @@
 import "dotenv/config";
-import express, { type Request, Response, NextFunction } from "express";
+import express from "express";
+import type { Request, Response, NextFunction } from "express";
 import { createServer } from "http";
 import { registerRoutes } from "./routes.ts";
 import { serveStatic } from "./static.ts";
