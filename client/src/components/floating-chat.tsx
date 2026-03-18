@@ -30,7 +30,7 @@ const MESSAGE_CHAR_LIMIT = 50;
 const DAILY_MESSAGE_LIMIT = 8;
 const DAILY_LIMIT_MESSAGE = "You've reached your daily limit. Please come back tomorrow.";
 
-const WELCOME_MESSAGES = [
+const FALLBACK_WELCOME_MESSAGES = [
   "Welcome. I am Klein's AI assistant. How can I help today?",
   "Hi there. Welcome to Klein's portfolio chat.",
   "Glad you are here. Ask me anything about Klein's work.",
@@ -38,7 +38,7 @@ const WELCOME_MESSAGES = [
   "Hello. This is Klein's assistant. What would you like to know?",
 ];
 
-const DEFAULT_SUGGESTED_REPLIES = [
+const FALLBACK_SUGGESTED_REPLIES = [
   "Can you introduce Klein?",
   "Show me recent projects.",
   "What skills does Klein have?",
@@ -47,8 +47,40 @@ const DEFAULT_SUGGESTED_REPLIES = [
 
 const AVATAR_ICONS = [Bot, UserRound, Sparkles, Cpu];
 
+let _cachedWelcomeMessages: string[] | null = null;
+let _cachedQuickReplies: string[] | null = null;
+
+async function fetchWelcomeMessages(): Promise<string[]> {
+  if (_cachedWelcomeMessages) return _cachedWelcomeMessages;
+  try {
+    const res = await fetch("/api/chatbot/welcome-messages");
+    if (!res.ok) throw new Error();
+    const data = (await res.json()) as string[];
+    if (Array.isArray(data) && data.length > 0) {
+      _cachedWelcomeMessages = data;
+      return data;
+    }
+  } catch {}
+  return FALLBACK_WELCOME_MESSAGES;
+}
+
+async function fetchQuickReplies(): Promise<string[]> {
+  if (_cachedQuickReplies) return _cachedQuickReplies;
+  try {
+    const res = await fetch("/api/chatbot/quick-replies");
+    if (!res.ok) throw new Error();
+    const data = (await res.json()) as string[];
+    if (Array.isArray(data) && data.length > 0) {
+      _cachedQuickReplies = data;
+      return data;
+    }
+  } catch {}
+  return FALLBACK_SUGGESTED_REPLIES;
+}
+
 function pickRandomWelcomeMessage(): string {
-  return WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)];
+  const pool = _cachedWelcomeMessages ?? FALLBACK_WELCOME_MESSAGES;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function pickRandomAvatarIcon() {
@@ -65,12 +97,12 @@ function getOrCreateClientId(): string {
   return generated;
 }
 
-function buildSuggestedReplies(messages: Message[]): string[] {
-  const latest = messages[messages.length - 1];
-  if (!latest) return DEFAULT_SUGGESTED_REPLIES;
+function buildSuggestedReplies(msgs: Message[], quickReplies: string[]): string[] {
+  const latest = msgs[msgs.length - 1];
+  if (!latest) return quickReplies.length > 0 ? quickReplies : FALLBACK_SUGGESTED_REPLIES;
 
   const latestText = latest.text.toLowerCase();
-  const recentText = messages.slice(-5).map((m) => m.text.toLowerCase()).join(" ");
+  const recentText = msgs.slice(-5).map((m) => m.text.toLowerCase()).join(" ");
 
   if (recentText.includes("project")) {
     return [
@@ -112,7 +144,7 @@ function buildSuggestedReplies(messages: Message[]): string[] {
       "What do we know for sure?",
     ];
   }
-  return DEFAULT_SUGGESTED_REPLIES;
+  return quickReplies.length > 0 ? quickReplies : FALLBACK_SUGGESTED_REPLIES;
 }
 
 export function FloatingChat() {
@@ -130,17 +162,34 @@ export function FloatingChat() {
     remaining: DAILY_MESSAGE_LIMIT,
     limit: DAILY_MESSAGE_LIMIT,
   });
-  const [suggestedReplies, setSuggestedReplies] = useState<string[]>(DEFAULT_SUGGESTED_REPLIES);
+  const [quickReplies, setQuickReplies] = useState<string[]>(FALLBACK_SUGGESTED_REPLIES);
+  const [suggestedReplies, setSuggestedReplies] = useState<string[]>(FALLBACK_SUGGESTED_REPLIES);
   const bottomRef = useRef<HTMLDivElement>(null);
   const suggestedRepliesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchQuickReplies().then((replies) => {
+      setQuickReplies(replies);
+      setSuggestedReplies((prev) => (prev === FALLBACK_SUGGESTED_REPLIES ? replies : prev));
+    });
+    fetchWelcomeMessages().then((msgs) => {
+      setMessages((prev) => {
+        if (prev.length === 1 && prev[0].id === 0) {
+          const welcome = msgs[Math.floor(Math.random() * msgs.length)];
+          return [{ id: 0, from: "klein", text: welcome }];
+        }
+        return prev;
+      });
+    });
+  }, []);
 
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
   useEffect(() => {
-    setSuggestedReplies(buildSuggestedReplies(messages));
-  }, [messages]);
+    setSuggestedReplies(buildSuggestedReplies(messages, quickReplies));
+  }, [messages, quickReplies]);
 
   useEffect(() => {
     const loadUsage = async () => {

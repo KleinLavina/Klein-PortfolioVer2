@@ -3,6 +3,27 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { sql } from "drizzle-orm";
 
+export const chatbotContent = sqliteTable("chatbot_content", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  category: text("category").notNull(),
+  label: text("label").notNull(),
+  content: text("content").notNull(),
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().default(sql`(unixepoch())`),
+});
+
+export const insertChatbotContentSchema = createInsertSchema(chatbotContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const updateChatbotContentSchema = insertChatbotContentSchema.partial();
+export type InsertChatbotContent = z.infer<typeof insertChatbotContentSchema>;
+export type UpdateChatbotContent = z.infer<typeof updateChatbotContentSchema>;
+export type ChatbotContent = typeof chatbotContent.$inferSelect;
+
 export const messages = sqliteTable("messages", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),

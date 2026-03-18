@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { sqlite } from "./db";
 import { api } from "@shared/routes";
 import { z } from "zod";
+import { registerAdminRoutes, seedChatbotContent, getActiveSystemPrompt } from "./admin-routes";
 
 type ChatHistoryItem = {
   from: "user" | "klein";
@@ -202,6 +203,8 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  registerAdminRoutes(app);
+
   const chatInputSchema = z.object({
     clientId: z.string().trim().min(8).max(128),
     message: z.string().trim().min(1).max(50),
@@ -305,12 +308,7 @@ export async function registerRoutes(
         });
       }
 
-      const systemPrompt = [
-        "You are Klein's portfolio AI assistant.",
-        "Answer only about Klein's work, projects, skills, achievements, services, and contact process.",
-        "When the user asks for portfolio facts, prefer calling tools instead of guessing.",
-        "If data is unavailable, say so clearly and keep the response concise.",
-      ].join(" ");
+      const systemPrompt = await getActiveSystemPrompt();
 
       const contents: GeminiContent[] = [
         ...toGeminiHistory(history),
@@ -578,8 +576,9 @@ export async function registerRoutes(
     }
   }
 
-  // Call seed function
+  // Call seed functions
   seedDatabase();
+  seedChatbotContent();
 
   return httpServer;
 }

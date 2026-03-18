@@ -1,0 +1,153 @@
+Task: Read and modify my existing portfolio codebase to add a hidden admin panel and CMS for managing my AI chatbot content.
+
+Core instruction:
+You must first inspect my existing codebase before making changes. Do not hallucinate file names, routes, components, models, styles, or database structures. Reuse what already exists whenever possible. If something is missing, create it in the most consistent way with my current project structure and design system.
+
+Main goal:
+Create a hidden admin panel and CMS for my portfolio so I can manage the AI chatbot scripts, predefined replies, prompts, and response content from the database instead of hardcoded JSON files.
+
+Requirements:
+
+1. Codebase analysis first
+- Read my full codebase first.
+- Identify:
+  - the current color palette
+  - fonts
+  - spacing system
+  - border radius
+  - shadows
+  - button styles
+  - card styles
+  - form styles
+  - layout patterns
+  - theme system if present
+- Reuse the same visual design language in the admin panel so it matches my portfolio.
+- Do not introduce a random design style that clashes with my existing UI.
+
+2. Admin panel route and access
+- Create a hidden admin panel accessible only through manual URL input.
+- Admin endpoint must be exactly:
+  - `/klein/admin/`
+- Do not add any visible navigation link, menu item, button, footer link, or public entry point to this admin panel anywhere in the portfolio UI.
+- The route should still work when manually entered in the browser.
+
+3. Login requirements
+- The admin login must use password-only authentication.
+- No username field.
+- No email field.
+- Only one password input is required.
+- Mock login password should be:
+  - `admin`
+- Use mock authentication only for now, but structure the code so it can be replaced later with real authentication.
+- Keep the login logic isolated and easy to upgrade.
+- Add basic session handling so the admin panel remains accessible after login until logout or session expiration.
+- Add logout functionality.
+- Do not expose the password anywhere in the visible UI except as seeded mock data or setup code where necessary.
+
+4. CMS purpose
+- Replace hardcoded JSON-based chatbot content management with database-driven content management.
+- Find all chatbot-related hardcoded content, including but not limited to:
+  - common replies
+  - fallback replies
+  - greeting messages
+  - quick replies
+  - suggested prompts
+  - system instructions if appropriate
+  - chatbot knowledge/context entries that are currently stored in JSON or hardcoded arrays/objects
+- Display all existing hardcoded or JSON chatbot scripts/content inside the CMS.
+- Migrate them into database-backed records.
+- After migration, the chatbot should read from the database instead of static JSON wherever appropriate.
+
+5. CMS features
+Create CRUD operations for chatbot content:
+- Create new script/reply/content entry
+- Read/list all entries
+- Update existing entries
+- Delete entries
+
+The CMS should allow managing fields such as:
+- title or label
+- category/type
+- content/body
+- trigger or intent key if present
+- active/inactive status
+- ordering/sort priority if useful
+- created at / updated at if useful
+
+6. Database
+- Make sure the database works with Supabase PostgreSQL.
+- Use my existing project database approach if one already exists, but adapt it so it is compatible with Supabase.
+- Do not invent unsupported database code.
+- If schema changes are needed, create proper models, migrations, and database access code.
+- Ensure the admin panel and CMS data persist correctly in Supabase.
+
+7. Migration behavior
+- Detect current hardcoded JSON/script sources used by the chatbot.
+- Convert them into seed/mock database entries so the CMS initially shows the same content already used by the chatbot.
+- After migration, update the chatbot code so it loads responses from the database instead of the old hardcoded JSON.
+- Do not leave duplicate unused logic behind unless absolutely necessary.
+- If old JSON files are no longer needed, either remove them safely or clearly mark them as deprecated.
+
+8. UI/UX requirements
+- Admin panel design must visually match my portfolio.
+- Use the same palette, typography, spacing, and component style.
+- Keep the layout clean and modern.
+- Since there is no navigation, the admin panel can use a minimal layout with:
+  - login screen
+  - dashboard/home screen
+  - CMS listing page
+  - create/edit form page or modal
+- Keep it functional and simple, not overly complex.
+- Add loading, empty, success, and error states.
+- Make forms readable and easy to edit.
+
+9. Architecture and implementation quality
+- Keep the implementation modular and maintainable.
+- Separate:
+  - UI components
+  - API/data-fetching logic
+  - database models/schema
+  - admin auth/session logic
+  - chatbot content service
+- Reuse existing folder conventions from my codebase.
+- Do not break the existing portfolio pages or chatbot behavior.
+
+10. Safety and non-hallucination rules
+- Do not assume libraries or frameworks unless they are already in my codebase or clearly required.
+- Before adding a new dependency, check whether an existing one already solves the problem.
+- Do not fabricate existing files, routes, styles, or backend services.
+- If some requirement cannot be fully implemented due to missing structure in the codebase, create the smallest clean implementation that fits the existing architecture.
+
+11. Deliverables
+After implementation, provide:
+- a summary of what you found in my current design system
+- what files were added/updated
+- what database tables/models were created
+- what hardcoded chatbot content was migrated
+- how the new admin login works
+- how the CMS CRUD works
+- what endpoint was added
+- any environment variables or migration steps required
+- any Supabase-related setup needed
+
+12. Important constraints
+- Admin route must be exactly `/klein/admin/`
+- No visible public navigation to admin
+- Login is password-only
+- Mock password is `admin`
+- CMS must manage chatbot scripts/replies previously stored in JSON/hardcoded content
+- Must work with Supabase
+- Must match my current portfolio design
+
+Implementation priority:
+1. Analyze codebase and existing design system
+2. Create database schema and migration plan
+3. Build hidden admin login
+4. Build CMS CRUD UI
+5. Migrate hardcoded chatbot content into database
+6. Connect chatbot to database-backed content
+7. Keep everything visually consistent with my portfolio
+
+Do not skip the codebase reading step.
+Do not hallucinate.
+Do not replace my existing portfolio design with a generic admin template.
