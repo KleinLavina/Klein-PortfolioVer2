@@ -12,7 +12,9 @@ export function SupabaseTest() {
 
   const testConnection = async () => {
     try {
-      // Test 1: Fetch projects
+      if (!supabase) {
+        throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+      }
       const { data, error } = await supabase
         .from('projects')
         .select('*')

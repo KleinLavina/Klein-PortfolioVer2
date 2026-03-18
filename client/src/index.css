@@ -16,88 +16,89 @@
     --font-sans: 'Urbanist', sans-serif;
     --font-cursive: 'Bitcount Single Ink', cursive;
 
-    /* Light Theme - derived from provided hex codes */
-    --background: 132 50% 97%; /* #f4fdf6 */
-    --foreground: 131 65% 3%;  /* #030e06 */
-    
-    --primary: 137 66% 52%;    /* #35d361 */
-    --primary-foreground: 132 50% 97%;
-    
-    --secondary: 194 63% 71%;  /* #84cde4 */
-    --secondary-foreground: 131 65% 3%;
-    
-    --accent: 216 64% 61%;     /* #5a8ddb */
-    --accent-foreground: 132 50% 97%;
+    /* ── Light Theme ── */
+    --background: 132 45% 96%;   /* soft mint page bg */
+    --foreground: 131 60% 8%;    /* near-black with green undertone */
 
-    --card: 0 0% 100%;
-    --card-foreground: 131 65% 3%;
-    --card-border: 132 20% 90%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 131 65% 3%;
-    --popover-border: 132 20% 90%;
+    --primary: 137 66% 46%;      /* slightly deeper green for contrast on light */
+    --primary-foreground: 0 0% 100%;
 
-    --border: 132 20% 90%;
-    --input: 132 20% 90%;
-    --ring: 137 66% 52%;
+    --secondary: 194 55% 62%;    /* muted cyan-teal */
+    --secondary-foreground: 131 60% 8%;
 
-    --muted: 132 20% 90%;
-    --muted-foreground: 131 20% 40%;
-    
+    --accent: 216 58% 56%;       /* medium blue accent */
+    --accent-foreground: 0 0% 100%;
+
+    --card: 132 40% 99%;         /* near-white with a breath of green */
+    --card-foreground: 131 60% 8%;
+    --card-border: 132 30% 88%;
+
+    --popover: 132 40% 99%;
+    --popover-foreground: 131 60% 8%;
+    --popover-border: 132 30% 88%;
+
+    --border: 132 28% 86%;
+    --input: 132 28% 86%;
+    --ring: 137 66% 46%;
+
+    --muted: 132 28% 91%;        /* distinctly green-tinted muted bg */
+    --muted-foreground: 131 22% 38%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --sidebar: 0 0% 100%;
-    --sidebar-foreground: 131 65% 3%;
-    --sidebar-border: 132 20% 90%;
-    --sidebar-primary: 137 66% 52%;
-    --sidebar-primary-foreground: 132 50% 97%;
-    --sidebar-accent: 132 20% 90%;
-    --sidebar-accent-foreground: 131 65% 3%;
-    --sidebar-ring: 137 66% 52%;
+    --sidebar: 132 40% 99%;
+    --sidebar-foreground: 131 60% 8%;
+    --sidebar-border: 132 28% 86%;
+    --sidebar-primary: 137 66% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 132 28% 91%;
+    --sidebar-accent-foreground: 131 60% 8%;
+    --sidebar-ring: 137 66% 46%;
 
     --radius: 1.5rem;
   }
 
   .dark {
-    /* Dark Theme - Professional Inverted */
-    --background: 131 65% 2%;  /* Slightly deeper black */
-    --foreground: 132 50% 98%; 
-    
-    --primary: 137 66% 52%;    
-    --primary-foreground: 131 65% 2%;
-    
-    --secondary: 194 63% 71%;  
-    --secondary-foreground: 131 65% 2%;
-    
-    --accent: 216 64% 61%;     
-    --accent-foreground: 132 50% 98%;
+    /* ── Dark Theme — forest-green layered surfaces ── */
+    /* Layer stack (light%): bg=4 → card=9 → muted=13 → border=18 */
+    --background: 131 40% 4%;    /* deepest layer — dark forest floor */
+    --foreground: 132 35% 92%;   /* warm off-white, easier on the eyes */
 
-    --card: 131 40% 4%;
-    --card-foreground: 132 50% 98%;
-    --card-border: 131 30% 10%;
-    
-    --popover: 131 40% 4%;
-    --popover-foreground: 132 50% 98%;
-    --popover-border: 131 30% 10%;
+    --primary: 137 66% 52%;      /* keep vivid green */
+    --primary-foreground: 131 40% 4%;
 
-    --border: 131 30% 8%;
-    --input: 131 30% 8%;
+    --secondary: 194 55% 65%;    /* slightly softer cyan for dark bg */
+    --secondary-foreground: 131 40% 4%;
+
+    --accent: 216 58% 62%;
+    --accent-foreground: 131 40% 4%;
+
+    --card: 131 38% 9%;          /* elevated surface — clearly distinct from bg */
+    --card-foreground: 132 35% 92%;
+    --card-border: 131 32% 16%;  /* visible, green-tinted border */
+
+    --popover: 131 38% 9%;
+    --popover-foreground: 132 35% 92%;
+    --popover-border: 131 32% 16%;
+
+    --border: 131 30% 14%;       /* comfortable border visibility */
+    --input: 131 30% 14%;
     --ring: 137 66% 52%;
 
-    --muted: 131 30% 6%;
-    --muted-foreground: 132 15% 65%;
-    
-    --destructive: 0 84% 60%;
+    --muted: 131 32% 13%;        /* third layer — between card and border */
+    --muted-foreground: 132 18% 62%;
+
+    --destructive: 0 78% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --sidebar: 131 60% 4%;
-    --sidebar-foreground: 132 50% 97%;
-    --sidebar-border: 131 40% 12%;
+    --sidebar: 131 42% 6%;       /* sidebar slightly deeper than card */
+    --sidebar-foreground: 132 35% 92%;
+    --sidebar-border: 131 32% 16%;
     --sidebar-primary: 137 66% 52%;
-    --sidebar-primary-foreground: 131 65% 3%;
-    --sidebar-accent: 131 40% 12%;
-    --sidebar-accent-foreground: 132 50% 97%;
+    --sidebar-primary-foreground: 131 40% 4%;
+    --sidebar-accent: 131 32% 13%;
+    --sidebar-accent-foreground: 132 35% 92%;
     --sidebar-ring: 137 66% 52%;
   }
 

@@ -238,17 +238,21 @@ export function FloatingChat() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
+              className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[2px]"
             />
 
-            {/* Chat panel — size unchanged: 340/380px wide, 400px max-height */}
+            {/* ── Chat panel — size unchanged: 340/380px wide, 400px max-height ── */}
             <motion.div
               key="chat-panel"
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              exit={{ opacity: 0, y: 20, scale: 0.96 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="fixed bottom-24 right-5 sm:right-8 z-50 w-[340px] sm:w-[380px] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-border/30 bg-card dark:bg-card"
+              className="fixed bottom-24 right-5 sm:right-8 z-50 w-[340px] sm:w-[380px] flex flex-col rounded-2xl overflow-hidden
+                         shadow-[0_24px_60px_-12px_rgba(0,0,0,0.4)]
+                         border
+                         bg-[#f6fcf8] border-[#c6e2cc]/70
+                         dark:bg-[#0d1a10] dark:border-[#1e3a23]/80"
               style={{ maxHeight: "400px" }}
               onClick={(e) => {
                 if (!showSuggestedReplies) return;
@@ -257,45 +261,70 @@ export function FloatingChat() {
               }}
             >
               {/* ── Header ── */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-primary/20 bg-primary shrink-0">
+              <div className="flex items-center justify-between px-4 py-3 shrink-0
+                              bg-primary border-b border-primary/20">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-primary-foreground">
-                    <AvatarIcon size={16} />
+                  {/* Avatar ring */}
+                  <div className="relative">
+                    <div className="absolute -inset-0.5 rounded-full bg-white/20 blur-sm" />
+                    <div className="relative w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-primary-foreground">
+                      <AvatarIcon size={15} />
+                    </div>
                   </div>
                   <div>
-                    <p className="text-[11px] font-medium text-primary-foreground/75 leading-none mb-0.5">Chat with</p>
-                    <p className="text-sm font-bold text-primary-foreground leading-none">Klein's Chatbot</p>
+                    <p className="text-[10px] font-medium text-primary-foreground/60 leading-none mb-0.5 tracking-wide uppercase">
+                      Chat with
+                    </p>
+                    <p className="text-[13px] font-bold text-primary-foreground leading-none">
+                      Klein's Chatbot
+                    </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/15 transition-all duration-150"
-                  aria-label="Close chat"
-                >
-                  <X size={15} />
-                </button>
+                {/* Online indicator + close */}
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/15">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    <span className="text-[9px] font-semibold text-white/80 uppercase tracking-wider">Live</span>
+                  </div>
+                  <button
+                    onClick={() => setOpen(false)}
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-primary-foreground/60 hover:text-primary-foreground hover:bg-white/15 transition-all duration-150"
+                    aria-label="Close chat"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
               </div>
 
               {/* ── Messages ── */}
-              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-background dark:bg-background/80 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+              <div className="flex-1 overflow-y-auto px-3.5 py-3.5 space-y-2.5 custom-scrollbar
+                              bg-[#f0faf3]
+                              dark:bg-[#0a1510]">
                 {messages.map((msg) => (
                   <motion.div
                     key={msg.id}
-                    initial={{ opacity: 0, y: 6 }}
+                    initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.18 }}
+                    transition={{ duration: 0.16 }}
                     className={`flex items-end gap-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
                   >
+                    {/* Bot avatar dot */}
                     {msg.from === "klein" && (
-                      <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 flex items-center justify-center text-primary shrink-0">
-                        <AvatarIcon size={12} />
+                      <div className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center
+                                      bg-primary/15 border border-primary/25 text-primary
+                                      dark:bg-primary/20 dark:border-primary/30">
+                        <AvatarIcon size={10} />
                       </div>
                     )}
                     <div
-                      className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                      className={`max-w-[80%] px-3.5 py-2 rounded-2xl text-[13px] leading-relaxed ${
                         msg.from === "user"
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : "bg-muted dark:bg-muted/60 text-foreground border border-border/30 dark:border-border/20 rounded-bl-sm"
+                          ? /* user bubble — primary green in both modes */
+                            "bg-primary text-primary-foreground rounded-br-[4px] shadow-sm shadow-primary/20"
+                          : /* bot bubble — warm surface, green-tinted */
+                            "rounded-bl-[4px] border " +
+                            "bg-white border-[#c8e2ce]/80 text-[#1a2e1e] " +
+                            "dark:bg-[#162219] dark:border-[#2a4530]/70 dark:text-[#d4edd9]"
                       }`}
                     >
                       {msg.text}
@@ -306,16 +335,23 @@ export function FloatingChat() {
                 {/* Typing indicator */}
                 {isSending && (
                   <motion.div
-                    initial={{ opacity: 0, y: 6 }}
+                    initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.18 }}
-                    className="flex justify-start"
+                    transition={{ duration: 0.16 }}
+                    className="flex items-end gap-2 justify-start"
                   >
-                    <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-muted dark:bg-muted/60 border border-border/30 dark:border-border/20 shadow-sm">
+                    <div className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center
+                                    bg-primary/15 border border-primary/25 text-primary
+                                    dark:bg-primary/20 dark:border-primary/30">
+                      <AvatarIcon size={10} />
+                    </div>
+                    <div className="px-4 py-2.5 rounded-2xl rounded-bl-[4px] border
+                                    bg-white border-[#c8e2ce]/80
+                                    dark:bg-[#162219] dark:border-[#2a4530]/70">
                       <div className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:120ms]" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:240ms]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-bounce [animation-delay:0ms]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-bounce [animation-delay:130ms]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary/50 animate-bounce [animation-delay:260ms]" />
                       </div>
                     </div>
                   </motion.div>
@@ -324,13 +360,18 @@ export function FloatingChat() {
               </div>
 
               {/* ── Footer / Input area ── */}
-              <div className="shrink-0 px-4 py-3 border-t border-border/40 bg-card dark:bg-card/90 backdrop-blur-md">
+              <div className="shrink-0 px-3.5 py-3 border-t
+                              bg-[#f6fcf8] border-[#c6e2cc]/60
+                              dark:bg-[#0d1a10] dark:border-[#1e3a23]/70">
                 {/* Suggested replies */}
                 <div ref={suggestedRepliesRef}>
-                  <div className="mb-2">
+                  <div className="mb-1.5">
                     <button
                       onClick={() => setShowSuggestedReplies((v) => !v)}
-                      className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                      className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider
+                                 text-[#5a8a65] hover:text-[#35d361]
+                                 dark:text-[#4a7a54] dark:hover:text-[#35d361]
+                                 transition-colors"
                       aria-label="Toggle suggested replies"
                     >
                       <motion.span
@@ -339,9 +380,9 @@ export function FloatingChat() {
                         transition={{ duration: 0.2 }}
                         className="flex items-center"
                       >
-                        <ChevronUp size={13} />
+                        <ChevronUp size={12} />
                       </motion.span>
-                      Suggested replies
+                      Quick replies
                     </button>
                   </div>
 
@@ -355,13 +396,16 @@ export function FloatingChat() {
                         transition={{ duration: 0.2, ease: "easeOut" }}
                         className="overflow-hidden"
                       >
-                        <div className="mb-2.5 flex flex-wrap gap-1.5">
+                        <div className="mb-2 flex flex-wrap gap-1.5">
                           {suggestedReplies.map((reply) => (
                             <button
                               key={reply}
                               onClick={() => applySuggestedReply(reply)}
                               disabled={isSending || isAtDailyLimit}
-                              className="rounded-full border border-border/50 bg-muted/50 dark:bg-muted/30 px-2.5 py-1 text-[11px] text-foreground hover:bg-muted dark:hover:bg-muted/60 hover:border-border disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
+                              className="rounded-full px-2.5 py-1 text-[11px] border transition-all duration-150
+                                         bg-white border-[#c0dcc6] text-[#2d5c38] hover:bg-[#e8f5ec] hover:border-[#35d361]/50
+                                         dark:bg-[#162219] dark:border-[#2a4530] dark:text-[#a8d8b4] dark:hover:bg-[#1e2e20] dark:hover:border-[#35d361]/40
+                                         disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               {reply}
                             </button>
@@ -373,21 +417,21 @@ export function FloatingChat() {
 
                   {/* Usage + char count */}
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-[11px] font-medium text-muted-foreground">
+                    <p className="text-[10px] font-medium text-[#6a9a72] dark:text-[#4a7a54]">
                       {usage.remaining}/{usage.limit} messages left today
                     </p>
-                    <p className="text-[11px] text-muted-foreground/60">
+                    <p className="text-[10px] text-[#8aaa90] dark:text-[#3a5a3e]">
                       {input.length}/{MESSAGE_CHAR_LIMIT}
                     </p>
                   </div>
 
                   {isNearDailyLimit && (
-                    <p className="mb-2 text-[11px] text-amber-500 dark:text-amber-400">
+                    <p className="mb-1.5 text-[11px] text-amber-600 dark:text-amber-400">
                       You're close to your daily message limit.
                     </p>
                   )}
                   {isAtDailyLimit && (
-                    <p className="mb-2 text-[11px] text-red-500 dark:text-red-400">{DAILY_LIMIT_MESSAGE}</p>
+                    <p className="mb-1.5 text-[11px] text-red-500 dark:text-red-400">{DAILY_LIMIT_MESSAGE}</p>
                   )}
                 </div>
 
@@ -403,12 +447,20 @@ export function FloatingChat() {
                     }
                     disabled={isSending || isAtDailyLimit}
                     maxLength={MESSAGE_CHAR_LIMIT}
-                    className="flex-1 bg-muted/40 dark:bg-muted/20 border border-border/40 rounded-xl px-3.5 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/50 focus:bg-muted/60 dark:focus:bg-muted/30 disabled:opacity-50 transition-all duration-150"
+                    className="flex-1 rounded-xl px-3.5 py-2 text-sm border transition-all duration-150
+                               bg-white border-[#c0dcc6] text-[#1a2e1e] placeholder:text-[#8aaa90]
+                               focus:outline-none focus:border-[#35d361]/60 focus:ring-1 focus:ring-[#35d361]/25
+                               dark:bg-[#162219] dark:border-[#2a4530] dark:text-[#d4edd9] dark:placeholder:text-[#4a6a50]
+                               dark:focus:border-[#35d361]/50 dark:focus:ring-[#35d361]/15
+                               disabled:opacity-50"
                   />
                   <button
                     onClick={send}
                     disabled={!input.trim() || isSending || isAtDailyLimit}
-                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/85 active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed transition-all duration-150 shrink-0"
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground
+                               hover:bg-primary/85 active:scale-95
+                               shadow-sm shadow-primary/30
+                               disabled:opacity-35 disabled:cursor-not-allowed transition-all duration-150 shrink-0"
                     aria-label="Send message"
                   >
                     <Send size={14} />
@@ -425,8 +477,10 @@ export function FloatingChat() {
         onClick={() => setOpen((v) => !v)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-5 right-5 sm:right-8 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm shadow-lg hover:bg-primary/90 transition-colors"
-        style={{ boxShadow: "0 4px 24px hsl(var(--primary) / 0.4)" }}
+        className="fixed bottom-5 right-5 sm:right-8 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl
+                   bg-primary text-primary-foreground font-bold text-sm
+                   hover:bg-primary/90 transition-colors"
+        style={{ boxShadow: "0 4px 24px hsl(var(--primary) / 0.45)" }}
       >
         <AnimatePresence mode="wait">
           {open ? (
