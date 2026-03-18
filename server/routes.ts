@@ -55,6 +55,16 @@ type GeminiGenerateResponse = {
 };
 
 const DAILY_CHAT_LIMIT = 8;
+const CHAT_FORMATTER_INSTRUCTIONS = [
+  "RESPONSE FORMAT RULES — follow these exactly:",
+  "1. Write clean, well-structured explanations with natural sentence flow.",
+  "2. Separate distinct ideas with a blank line when it improves readability.",
+  "3. Never include raw URLs or pasted hyperlinks in the text. Links are shown below as separate action buttons.",
+  "4. If relevant links exist, refer to them naturally, for example: 'You can check it below.'",
+  "5. Keep replies concise and readable. Prefer short paragraphs or short grouped sections over dense blocks.",
+  "6. For tech stacks, tools, or technologies, place them on their own line using [tech:Name] markers so the UI can render them cleanly with icons.",
+  "7. Avoid duplicating the same link or call to action in both the text and the action buttons.",
+].join("\n");
 
 function getLocalDateKey(now: Date): string {
   const year = now.getFullYear();
@@ -165,6 +175,21 @@ const SECTION_KEYWORD_MAP: Array<{ keywords: string[]; anchor: string; label: st
   { keywords: ["about", "background", "who is", "story", "motivation", "personality", "values", "working style"], anchor: "#about", label: "View About" },
 ];
 
+function inferSectionAction(userMessage: string, reply: string): ChatAction | null {
+  const combined = `${userMessage} ${reply}`.toLowerCase();
+  for (const entry of SECTION_KEYWORD_MAP) {
+    if (entry.keywords.some((kw) => combined.includes(kw))) {
+      return {
+        label: entry.label,
+        url: entry.anchor,
+        kind: "section",
+      };
+    }
+  }
+
+  return null;
+}
+
 function buildChatActions(
   accessedSectionIds: Set<string>,
   portfolioMemory: Array<{ id: string; links?: Array<{ label: string; url: string }> }>,
@@ -204,7 +229,111 @@ function buildChatActions(
     }
   }
 
-  return actions.slice(0, 5);
+  return actions;
+}
+
+function humanizeExternalLabel(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes("github.com")) return "Open GitHub";
+    if (parsed.hostname.includes("facebook.com")) return "Open Facebook";
+    if (parsed.hostname.includes("netlify.app")) return "Open Live Site";
+    if (parsed.hostname.includes("onrender.com")) return "Open Live Demo";
+    return "Open Link";
+  } catch {
+    return "Open Link";
+  }
+}
+
+function extractActionsFromReply(reply: string): ChatAction[] {
+  const urlMatches = reply.match(/https?:\/\/[^\s)]+/gi) ?? [];
+  const seen = new Set<string>();
+  const actions: ChatAction[] = [];
+
+  for (const rawUrl of urlMatches) {
+    const normalizedUrl = rawUrl.replace(/[),.;!?]+$/g, "");
+    if (!normalizedUrl || seen.has(normalizedUrl)) continue;
+    seen.add(normalizedUrl);
+    actions.push({
+      label: humanizeExternalLabel(normalizedUrl),
+      url: normalizedUrl,
+      kind: "external",
+    });
+  }
+
+  return actions;
+}
+
+function mergeChatActions(...groups: ChatAction[][]): ChatAction[] {
+  const merged: ChatAction[] = [];
+  const seen = new Set<string>();
+
+  for (const group of groups) {
+    for (const action of group) {
+      const key = `${action.kind}:${action.url}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push(action);
+      if (merged.length >= 5) {
+        return merged;
+      }
+    }
+  }
+
+  return merged;
+}
+
+function prioritizeChatActions(
+  actions: ChatAction[],
+  userMessage: string,
+  reply: string,
+): ChatAction[] {
+  const sectionActions = actions.filter((action) => action.kind === "section");
+  const externalActions = actions.filter((action) => action.kind === "external");
+  const inferredSection = inferSectionAction(userMessage, reply);
+
+  const preferredSection =
+    sectionActions.find((action) => action.url === inferredSection?.url) ??
+    inferredSection ??
+    sectionActions[0] ??
+    null;
+
+  const selected: ChatAction[] = [];
+  if (preferredSection) {
+    selected.push(preferredSection);
+  }
+
+  const externalLimit = preferredSection ? 4 : 5;
+  selected.push(...externalActions.slice(0, externalLimit));
+
+  if (selected.length < 5) {
+    const remainingSections = sectionActions.filter(
+      (action) => action.url !== preferredSection?.url,
+    );
+    selected.push(...remainingSections.slice(0, 5 - selected.length));
+  }
+
+  return selected.slice(0, 5);
+}
+
+function sanitizeAssistantReply(reply: string): string {
+  return reply
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/gi, "$1")
+    .replace(/https?:\/\/[^\s)]+/gi, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\s+([,.;!?])/g, "$1")
+    .trim();
+}
+
+function normalizeSystemPromptForModel(prompt: string): string {
+  return (
+    prompt
+      .split(/\n\s*\nRESPONSE FORMAT RULES/i)[0]
+      .trim() ||
+    "You are Klein F. Lavina's portfolio AI assistant. Answer only about Klein's work, projects, skills, achievements, services, and contact process. Prefer portfolio facts over guesswork, and say clearly when information is unavailable."
+  );
 }
 
 async function runAgentTool(
@@ -338,7 +467,9 @@ export async function registerRoutes(
         });
       }
 
-      const systemPrompt = await getActiveSystemPrompt();
+      const systemPrompt = normalizeSystemPromptForModel(
+        await getActiveSystemPrompt(),
+      );
       const activePortfolioMemory = await getPortfolioMemory(false);
       const portfolioMemoryPrompt = buildPortfolioMemoryPrompt(activePortfolioMemory);
 
@@ -361,7 +492,7 @@ export async function registerRoutes(
               systemInstruction: {
                 parts: [
                   {
-                    text: `${systemPrompt}\n\nAuthoritative portfolio memory:\n${portfolioMemoryPrompt}\n\nUse this memory as the primary source for Klein Lavina's details. Do not invent portfolio facts outside it.`,
+                    text: `${systemPrompt}\n\n${CHAT_FORMATTER_INSTRUCTIONS}\n\nAuthoritative portfolio memory:\n${portfolioMemoryPrompt}\n\nUse this memory as the primary source for Klein Lavina's details. Do not invent portfolio facts outside it.`,
                   },
                 ],
               },
@@ -435,18 +566,26 @@ export async function registerRoutes(
           );
 
         if (functionCalls.length === 0) {
-          const reply = textParts.join("\n").trim();
+          const rawReply = textParts.join("\n").trim();
+          const reply = sanitizeAssistantReply(rawReply);
           if (!reply) {
             return res.status(502).json({
               message: "Gemini returned an empty response.",
               usage: consumption.usage,
             });
           }
-          const actions = buildChatActions(
-            accessedSectionIds,
-            activePortfolioMemory,
+          const actions = prioritizeChatActions(
+            mergeChatActions(
+            buildChatActions(
+              accessedSectionIds,
+              activePortfolioMemory,
+              message,
+              rawReply,
+            ),
+            extractActionsFromReply(rawReply),
+            ),
             message,
-            reply,
+            rawReply,
           );
           return res.json({
             reply,

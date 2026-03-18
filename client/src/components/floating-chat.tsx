@@ -1,5 +1,34 @@
-import { useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import {
+  faBootstrap,
+  faCss3Alt,
+  faDocker,
+  faFigma,
+  faGitAlt,
+  faGithub,
+  faHtml5,
+  faJs,
+  faLaravel,
+  faNodeJs,
+  faPhp,
+  faPython,
+  faReact,
+  faVuejs,
+} from "@fortawesome/free-brands-svg-icons";
+import {
+  faBolt,
+  faCloud,
+  faCode,
+  faDatabase as faDatabaseSolid,
+  faEnvelope,
+  faGear,
+  faGlobe,
+  faMicrochip,
+  faServer,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   X,
   MessageCircle,
@@ -11,150 +40,265 @@ import {
   Cpu,
   ExternalLink,
   ArrowRight,
-  Database,
-  Globe,
 } from "lucide-react";
-import {
-  SiReact,
-  SiNodedotjs,
-  SiTypescript,
-  SiJavascript,
-  SiPython,
-  SiDjango,
-  SiPhp,
-  SiHtml5,
-  SiCss3,
-  SiTailwindcss,
-  SiMysql,
-  SiPostgresql,
-  SiMongodb,
-  SiGit,
-  SiGithub,
-  SiVite,
-  SiNextdotjs,
-  SiVuedotjs,
-  SiLaravel,
-  SiFirebase,
-  SiSupabase,
-  SiDocker,
-  SiFigma,
-  SiRedux,
-  SiGraphql,
-  SiExpress,
-  SiBootstrap,
-  SiWordpress,
-  SiLinux,
-} from "react-icons/si";
 import type { ChatAction } from "@shared/schema";
 
-type TechEntry = { icon: React.ReactNode; color: string };
+type TechEntry = { icon: IconDefinition; color: string };
 
-const TECH_ICON_MAP: Record<string, TechEntry> = {
-  "React": { icon: <SiReact />, color: "#61DAFB" },
-  "React.js": { icon: <SiReact />, color: "#61DAFB" },
-  "Node.js": { icon: <SiNodedotjs />, color: "#339933" },
-  "Node": { icon: <SiNodedotjs />, color: "#339933" },
-  "TypeScript": { icon: <SiTypescript />, color: "#3178C6" },
-  "TS": { icon: <SiTypescript />, color: "#3178C6" },
-  "JavaScript": { icon: <SiJavascript />, color: "#F7DF1E" },
-  "JS": { icon: <SiJavascript />, color: "#F7DF1E" },
-  "Python": { icon: <SiPython />, color: "#3776AB" },
-  "Django": { icon: <SiDjango />, color: "#0C4B33" },
-  "PHP": { icon: <SiPhp />, color: "#777BB4" },
-  "HTML": { icon: <SiHtml5 />, color: "#E34F26" },
-  "HTML5": { icon: <SiHtml5 />, color: "#E34F26" },
-  "CSS": { icon: <SiCss3 />, color: "#1572B6" },
-  "CSS3": { icon: <SiCss3 />, color: "#1572B6" },
-  "Tailwind": { icon: <SiTailwindcss />, color: "#06B6D4" },
-  "TailwindCSS": { icon: <SiTailwindcss />, color: "#06B6D4" },
-  "Tailwind CSS": { icon: <SiTailwindcss />, color: "#06B6D4" },
-  "MySQL": { icon: <SiMysql />, color: "#4479A1" },
-  "PostgreSQL": { icon: <SiPostgresql />, color: "#4169E1" },
-  "Postgres": { icon: <SiPostgresql />, color: "#4169E1" },
-  "MongoDB": { icon: <SiMongodb />, color: "#47A248" },
-  "Git": { icon: <SiGit />, color: "#F05032" },
-  "GitHub": { icon: <SiGithub />, color: "#6e7681" },
-  "Vite": { icon: <SiVite />, color: "#646CFF" },
-  "Next.js": { icon: <SiNextdotjs />, color: "#6e7681" },
-  "Vue": { icon: <SiVuedotjs />, color: "#4FC08D" },
-  "Vue.js": { icon: <SiVuedotjs />, color: "#4FC08D" },
-  "Laravel": { icon: <SiLaravel />, color: "#FF2D20" },
-  "Firebase": { icon: <SiFirebase />, color: "#FFCA28" },
-  "Supabase": { icon: <SiSupabase />, color: "#3ECF8E" },
-  "Docker": { icon: <SiDocker />, color: "#2496ED" },
-  "Figma": { icon: <SiFigma />, color: "#F24E1E" },
-  "Redux": { icon: <SiRedux />, color: "#764ABC" },
-  "GraphQL": { icon: <SiGraphql />, color: "#E10098" },
-  "Express": { icon: <SiExpress />, color: "#6e7681" },
-  "Express.js": { icon: <SiExpress />, color: "#6e7681" },
-  "Bootstrap": { icon: <SiBootstrap />, color: "#7952B3" },
-  "WordPress": { icon: <SiWordpress />, color: "#21759B" },
-  "Linux": { icon: <SiLinux />, color: "#FCC624" },
-  "REST": { icon: <Globe size={12} />, color: "#22c55e" },
-  "REST API": { icon: <Globe size={12} />, color: "#22c55e" },
-  "API": { icon: <Globe size={12} />, color: "#22c55e" },
-  "SQL": { icon: <Database size={12} />, color: "#4479A1" },
+const TECH_ALIASES: Record<string, string> = {
+  react: "React",
+  "react.js": "React",
+  node: "Node.js",
+  "node.js": "Node.js",
+  typescript: "TypeScript",
+  ts: "TypeScript",
+  javascript: "JavaScript",
+  js: "JavaScript",
+  python: "Python",
+  django: "Django",
+  php: "PHP",
+  html: "HTML",
+  html5: "HTML",
+  css: "CSS",
+  css3: "CSS",
+  tailwind: "Tailwind CSS",
+  tailwindcss: "Tailwind CSS",
+  "tailwind css": "Tailwind CSS",
+  mysql: "MySQL",
+  postgresql: "PostgreSQL",
+  postgres: "PostgreSQL",
+  mongodb: "MongoDB",
+  git: "Git",
+  github: "GitHub",
+  vite: "Vite",
+  "next.js": "Next.js",
+  nextjs: "Next.js",
+  vue: "Vue",
+  "vue.js": "Vue",
+  laravel: "Laravel",
+  firebase: "Firebase",
+  supabase: "Supabase",
+  docker: "Docker",
+  figma: "Figma",
+  redux: "Redux",
+  graphql: "GraphQL",
+  express: "Express",
+  "express.js": "Express",
+  bootstrap: "Bootstrap",
+  wordpress: "WordPress",
+  linux: "Linux",
+  rest: "REST API",
+  "rest api": "REST API",
+  api: "API",
+  sql: "SQL",
+  postman: "Postman",
+  cloudinary: "Cloudinary",
+  replit: "Replit",
+  render: "Render",
+  onrender: "Render",
+  canva: "Canva",
+  "brevo smtp": "Brevo SMTP",
+  netlify: "Netlify",
+  "vs code": "VS Code",
+  java: "Java",
+  r: "R",
 };
 
+const TECH_ICON_MAP: Record<string, TechEntry> = {
+  "React": { icon: faReact, color: "#61DAFB" },
+  "Node.js": { icon: faNodeJs, color: "#339933" },
+  "TypeScript": { icon: faCode, color: "#3178C6" },
+  "JavaScript": { icon: faJs, color: "#F7DF1E" },
+  "Python": { icon: faPython, color: "#3776AB" },
+  "Django": { icon: faServer, color: "#0C4B33" },
+  "PHP": { icon: faPhp, color: "#777BB4" },
+  "HTML": { icon: faHtml5, color: "#E34F26" },
+  "CSS": { icon: faCss3Alt, color: "#1572B6" },
+  "Tailwind CSS": { icon: faBolt, color: "#06B6D4" },
+  "MySQL": { icon: faDatabaseSolid, color: "#4479A1" },
+  "PostgreSQL": { icon: faDatabaseSolid, color: "#4169E1" },
+  "MongoDB": { icon: faDatabaseSolid, color: "#47A248" },
+  "Git": { icon: faGitAlt, color: "#F05032" },
+  "GitHub": { icon: faGithub, color: "#6E7681" },
+  "Vite": { icon: faGear, color: "#646CFF" },
+  "Next.js": { icon: faCode, color: "#94A3B8" },
+  "Vue": { icon: faVuejs, color: "#4FC08D" },
+  "Laravel": { icon: faLaravel, color: "#FF2D20" },
+  "Firebase": { icon: faCloud, color: "#FFCA28" },
+  "Supabase": { icon: faDatabaseSolid, color: "#3ECF8E" },
+  "Docker": { icon: faDocker, color: "#2496ED" },
+  "Figma": { icon: faFigma, color: "#F24E1E" },
+  "Redux": { icon: faCode, color: "#764ABC" },
+  "GraphQL": { icon: faGlobe, color: "#E10098" },
+  "Express": { icon: faServer, color: "#94A3B8" },
+  "Bootstrap": { icon: faBootstrap, color: "#7952B3" },
+  "WordPress": { icon: faGlobe, color: "#21759B" },
+  "Linux": { icon: faServer, color: "#FCC624" },
+  "REST API": { icon: faGlobe, color: "#22C55E" },
+  "API": { icon: faGlobe, color: "#22C55E" },
+  "SQL": { icon: faDatabaseSolid, color: "#4479A1" },
+  "Postman": { icon: faGlobe, color: "#FF6C37" },
+  "Cloudinary": { icon: faCloud, color: "#3448C5" },
+  "Replit": { icon: faCode, color: "#F26207" },
+  "Render": { icon: faServer, color: "#7C3AED" },
+  "Canva": { icon: faFigma, color: "#00C4CC" },
+  "Brevo SMTP": { icon: faEnvelope, color: "#10B981" },
+  "Netlify": { icon: faCloud, color: "#14B8A6" },
+  "VS Code": { icon: faCode, color: "#3B82F6" },
+  "Java": { icon: faCode, color: "#EF4444" },
+  "R": { icon: faCode, color: "#2563EB" },
+};
+
+function normalizeTechName(rawName: string): string {
+  const cleaned = rawName.trim().replace(/^[\s*•-]+/, "").replace(/[.,;:]+$/, "");
+  return TECH_ALIASES[cleaned.toLowerCase()] ?? cleaned;
+}
+
+function getTechEntry(rawName: string): { name: string; entry?: TechEntry } {
+  const name = normalizeTechName(rawName);
+  return { name, entry: TECH_ICON_MAP[name] };
+}
+
 function TechBadge({ name }: { name: string }) {
-  const entry = TECH_ICON_MAP[name];
+  const { name: normalizedName, entry } = getTechEntry(name);
   return (
     <span
       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium leading-none
-                 bg-white border border-[#c8e2ce]/80 text-[#1a2e1e]
+                 bg-white border border-[#c8e2ce]/80 text-[#1a2e1e] shadow-[0_6px_18px_-16px_rgba(24,46,30,0.7)]
                  dark:bg-[#1a2b1e] dark:border-[#2a4530]/70 dark:text-[#d4edd9]"
-      data-testid={`tech-badge-${name.toLowerCase().replace(/[\s.]+/g, "-")}`}
+      data-testid={`tech-badge-${normalizedName.toLowerCase().replace(/[\s.]+/g, "-")}`}
     >
       {entry ? (
-        <span style={{ color: entry.color }} className="text-[13px] leading-none shrink-0">
-          {entry.icon}
-        </span>
+        <FontAwesomeIcon
+          icon={entry.icon}
+          style={{ color: entry.color }}
+          className="text-[12px] leading-none shrink-0"
+        />
       ) : (
-        <Cpu size={11} className="text-primary shrink-0" />
+        <FontAwesomeIcon icon={faMicrochip} className="text-[12px] text-primary shrink-0" />
       )}
-      {name}
+      {normalizedName}
     </span>
   );
 }
 
-function renderMessageContent(text: string): React.ReactNode {
-  const paragraphs = text.split(/\n\n+/);
+function renderInlineContent(text: string): React.ReactNode {
+  const normalized = text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, "$1");
+  const parts = normalized.split(/(\*\*[^*]+\*\*)/g).filter(Boolean);
+
+  return parts.map((part, index) => {
+    const strongMatch = part.match(/^\*\*(.+)\*\*$/);
+    if (strongMatch) {
+      return (
+        <strong key={`${part}-${index}`} className="font-semibold text-[#16321d] dark:text-[#ebfff0]">
+          {strongMatch[1]}
+        </strong>
+      );
+    }
+
+    return <Fragment key={`${part}-${index}`}>{part}</Fragment>;
+  });
+}
+
+function extractTechGroup(line: string): { label?: string; techs: string[] } | null {
+  const markerMatches = Array.from(line.matchAll(/\[tech:([^\]]+)\]/g));
+  if (markerMatches.length > 0) {
+    const techs = markerMatches
+      .map((match) => normalizeTechName(match[1]))
+      .filter(Boolean);
+    const label = line.replace(/\[tech:[^\]]+\]\s*/g, "").trim().replace(/:+$/, "");
+    return { label: label || undefined, techs };
+  }
+
+  const cleaned = line.trim().replace(/^[-*•]\s+/, "");
+  const match = cleaned.match(/^(?:\*\*([^*]+)\*\*|([^:]+)):\s*(.+)$/);
+  if (!match) return null;
+
+  const label = (match[1] ?? match[2] ?? "").trim();
+  const rhs = match[3].trim();
+  const techs = rhs
+    .split(",")
+    .map((item) => normalizeTechName(item))
+    .filter((item) => Boolean(TECH_ICON_MAP[item]));
+
+  if (techs.length === 0) return null;
+  if (techs.length < 2 && !/tech|stack|frontend|backend|database|language|tool/i.test(label)) {
+    return null;
+  }
+
+  return { label, techs };
+}
+
+function renderMessageLine(line: string, key: string): React.ReactNode {
+  const trimmed = line.trim();
+  if (!trimmed) return null;
+
+  const techGroup = extractTechGroup(trimmed);
+  if (techGroup) {
+    return (
+      <div key={key} className="rounded-xl border border-[#d7eadb]/80 bg-[#f7fcf8] px-3 py-2 dark:border-[#274130]/70 dark:bg-[#122016]">
+        {techGroup.label && (
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4d7358] dark:text-[#87b292]">
+            {renderInlineContent(techGroup.label)}
+          </div>
+        )}
+        <div className="flex flex-wrap gap-1.5">
+          {techGroup.techs.map((name) => (
+            <TechBadge key={`${key}-${name}`} name={name} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const listMatch = trimmed.match(/^[-*•]\s+(.+)$/);
+  if (listMatch) {
+    return (
+      <div key={key} className="flex items-start gap-2">
+        <span className="mt-1 text-[9px] text-primary/70 dark:text-primary">●</span>
+        <span className="min-w-0">{renderInlineContent(listMatch[1].trim())}</span>
+      </div>
+    );
+  }
+
+  if (/^[A-Za-z][^.!?]{0,48}:$/.test(trimmed)) {
+    return (
+      <div key={key} className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4d7358] dark:text-[#87b292]">
+        {renderInlineContent(trimmed.slice(0, -1))}
+      </div>
+    );
+  }
+
   return (
-    <>
-      {paragraphs.map((para, pi) => {
-        const lines = para.split(/\n/);
+    <div key={key} className="text-[13px] leading-relaxed">
+      {renderInlineContent(trimmed)}
+    </div>
+  );
+}
+
+function renderMessageContent(text: string): React.ReactNode {
+  const paragraphs = text
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="space-y-3">
+      {paragraphs.map((paragraph, paragraphIndex) => {
+        const lines = paragraph
+          .split("\n")
+          .map((line) => line.trimEnd())
+          .filter(Boolean);
+
         return (
-          <div key={pi} className={pi > 0 ? "mt-2" : ""}>
-            {lines.map((line, li) => {
-              const techMatches = [...line.matchAll(/\[tech:([^\]]+)\]/g)];
-              if (techMatches.length > 0) {
-                const names = techMatches.map((m) => m[1]);
-                const remainder = line.replace(/\[tech:[^\]]+\]\s*/g, "").trim();
-                return (
-                  <div key={li} className={li > 0 ? "mt-1" : ""}>
-                    {remainder && (
-                      <span className="block mb-1.5 text-[12px] text-[#4a7055] dark:text-[#7aaa88] font-medium">
-                        {remainder}
-                      </span>
-                    )}
-                    <div className="flex flex-wrap gap-1.5">
-                      {names.map((name) => (
-                        <TechBadge key={name} name={name} />
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
-              return (
-                <span key={li} className={li > 0 ? "block mt-0.5" : ""}>
-                  {line}
-                </span>
-              );
-            })}
+          <div key={`paragraph-${paragraphIndex}`} className="space-y-1.5">
+            {lines.map((line, lineIndex) =>
+              renderMessageLine(line, `paragraph-${paragraphIndex}-line-${lineIndex}`),
+            )}
           </div>
         );
       })}
-    </>
+    </div>
   );
 }
 
@@ -430,6 +574,18 @@ export function FloatingChat() {
     setShowSuggestedReplies(false);
   };
 
+  const handleSectionAction = (anchor: string) => {
+    const target = document.querySelector(anchor);
+    setOpen(false);
+    setShowSuggestedReplies(false);
+
+    requestAnimationFrame(() => {
+      if (target instanceof HTMLElement) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  };
+
   return (
     <>
       <AnimatePresence>
@@ -538,13 +694,16 @@ export function FloatingChat() {
                               transition={{ duration: 0.22, ease: "easeOut" }}
                               className="flex flex-wrap gap-1.5"
                             >
-                              {msg.actions.map((action) =>
+                              {msg.actions.map((action, actionIndex) =>
                                 action.kind === "external" ? (
-                                  <a
+                                  <motion.a
                                     key={action.url}
                                     href={action.url}
                                     target="_blank"
                                     rel="noreferrer"
+                                    initial={{ opacity: 0, y: 6 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.24, ease: "easeOut", delay: actionIndex * 0.05 }}
                                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold
                                                bg-white border border-[#c0dcc6] text-[#2d5c38]
                                                hover:bg-[#e8f5ec] hover:border-[#35d361]/60
@@ -555,16 +714,18 @@ export function FloatingChat() {
                                   >
                                     <ExternalLink size={10} className="shrink-0" />
                                     {action.label}
-                                  </a>
+                                  </motion.a>
                                 ) : (
-                                  <a
+                                  <motion.a
                                     key={action.url}
                                     href={action.url}
                                     onClick={(e) => {
                                       e.preventDefault();
-                                      const target = document.querySelector(action.url);
-                                      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+                                      handleSectionAction(action.url);
                                     }}
+                                    initial={{ opacity: 0, y: 6 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.24, ease: "easeOut", delay: actionIndex * 0.05 }}
                                     className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold
                                                bg-primary/10 border border-primary/25 text-primary
                                                hover:bg-primary/20 hover:border-primary/40
@@ -575,7 +736,7 @@ export function FloatingChat() {
                                   >
                                     <ArrowRight size={10} className="shrink-0" />
                                     {action.label}
-                                  </a>
+                                  </motion.a>
                                 ),
                               )}
                             </motion.div>
