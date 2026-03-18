@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .status { padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .loading { background: #e3f2fd; color: #1976d2; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .error { background: #ffebee; color: #c62828; }
+        .key-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #1976d2; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #1565c0; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Supabase Connection Test</h1>
+        <p>Test your Supabase connection for Klein's Portfolio</p>
+        
+        <div>
+            <label>Enter your Supabase Anon Key:</label>
+            <input type="text" id="anonKey" class="key-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+            <button onclick="testConnection()">Test Connection</button>
+        </div>
+        
+        <div id="status"></div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function testConnection() {
+            const anonKey = document.getElementById('anonKey').value.trim();
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            
+            if (!anonKey) {
+                statusDiv.innerHTML = '<div class="status error">❌ Please enter your anon key</div>';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div class="status loading">🔄 Testing connection...</div>';
+            resultsDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('https://grjltcbjxiocekfnjhgz.supabase.co/rest/v1/projects?select=*&limit=5', {
+                    headers: {
+                        'apikey': anonKey,
+                        'Authorization': `Bearer ${anonKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ Supabase connected successfully!<br>
+                        📊 Found ${data.length} project(s) in database
+                    </div>
+                `;
+                
+                resultsDiv.innerHTML = `
+                    <h3>📋 Projects Data:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ Connection failed: ${error.message}<br><br>
+                        💡 Common issues:<br>
+                        • Wrong anon key<br>
+                        • Projects table doesn't exist<br>
+                        • Row Level Security blocking access
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-fill if key is in URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const keyParam = urlParams.get('key');
+        if (keyParam) {
+            document.getElementById('anonKey').value = keyParam;
+        }
+    </script>
+</body>
+</html>
