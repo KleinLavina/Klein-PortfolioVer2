@@ -4,7 +4,7 @@ import {
   insertMessageSchema,
   messageSchema,
   projectSchema,
-} from "./schema";
+} from "./schema.ts";
 
 export const errorSchemas = {
   validation: z.object({

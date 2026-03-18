@@ -1,8 +1,8 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import { createServer } from "http";
-import { registerRoutes } from "./routes";
-import { serveStatic } from "./static";
+import { registerRoutes } from "./routes.ts";
+import { serveStatic } from "./static.ts";
 
 declare module "http" {
   interface IncomingMessage {
@@ -81,7 +81,7 @@ export async function createApp(clientMode: ClientMode) {
   if (clientMode === "production") {
     serveStatic(app);
   } else if (clientMode === "development") {
-    const { setupVite } = await import("./vite");
+    const { setupVite } = await import("./vite.ts");
     await setupVite(httpServer, app);
   }
 

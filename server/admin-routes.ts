@@ -7,7 +7,7 @@ import {
 import { portfolioMemorySections } from "@shared/portfolio-memory";
 import { z } from "zod";
 import { randomBytes } from "crypto";
-import { getServerSupabase, unwrapSupabaseResult } from "./supabase";
+import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin";
 const SESSION_TTL_SECONDS = 60 * 60 * 24;

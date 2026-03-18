@@ -6,7 +6,7 @@ import {
   type Message,
   type Project,
 } from "@shared/schema";
-import { getServerSupabase, unwrapSupabaseResult } from "./supabase";
+import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
 
 type MessageRow = {
   id: number;

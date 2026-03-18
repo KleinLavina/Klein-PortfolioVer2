@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import type { Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage.ts";
 import { api } from "@shared/routes";
 import {
   buildPortfolioMemoryPrompt,
@@ -13,8 +13,8 @@ import {
   seedPortfolioMemory,
   getActiveSystemPrompt,
   getPortfolioMemory,
-} from "./admin-routes";
-import { getServerSupabase, unwrapSupabaseResult } from "./supabase";
+} from "./admin-routes.ts";
+import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
 
 type ChatHistoryItem = {
   from: "user" | "klein";
