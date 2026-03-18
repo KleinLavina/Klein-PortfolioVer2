@@ -11,8 +11,152 @@ import {
   Cpu,
   ExternalLink,
   ArrowRight,
+  Database,
+  Globe,
 } from "lucide-react";
+import {
+  SiReact,
+  SiNodedotjs,
+  SiTypescript,
+  SiJavascript,
+  SiPython,
+  SiDjango,
+  SiPhp,
+  SiHtml5,
+  SiCss3,
+  SiTailwindcss,
+  SiMysql,
+  SiPostgresql,
+  SiMongodb,
+  SiGit,
+  SiGithub,
+  SiVite,
+  SiNextdotjs,
+  SiVuedotjs,
+  SiLaravel,
+  SiFirebase,
+  SiSupabase,
+  SiDocker,
+  SiFigma,
+  SiRedux,
+  SiGraphql,
+  SiExpress,
+  SiBootstrap,
+  SiWordpress,
+  SiLinux,
+} from "react-icons/si";
 import type { ChatAction } from "@shared/schema";
+
+type TechEntry = { icon: React.ReactNode; color: string };
+
+const TECH_ICON_MAP: Record<string, TechEntry> = {
+  "React": { icon: <SiReact />, color: "#61DAFB" },
+  "React.js": { icon: <SiReact />, color: "#61DAFB" },
+  "Node.js": { icon: <SiNodedotjs />, color: "#339933" },
+  "Node": { icon: <SiNodedotjs />, color: "#339933" },
+  "TypeScript": { icon: <SiTypescript />, color: "#3178C6" },
+  "TS": { icon: <SiTypescript />, color: "#3178C6" },
+  "JavaScript": { icon: <SiJavascript />, color: "#F7DF1E" },
+  "JS": { icon: <SiJavascript />, color: "#F7DF1E" },
+  "Python": { icon: <SiPython />, color: "#3776AB" },
+  "Django": { icon: <SiDjango />, color: "#0C4B33" },
+  "PHP": { icon: <SiPhp />, color: "#777BB4" },
+  "HTML": { icon: <SiHtml5 />, color: "#E34F26" },
+  "HTML5": { icon: <SiHtml5 />, color: "#E34F26" },
+  "CSS": { icon: <SiCss3 />, color: "#1572B6" },
+  "CSS3": { icon: <SiCss3 />, color: "#1572B6" },
+  "Tailwind": { icon: <SiTailwindcss />, color: "#06B6D4" },
+  "TailwindCSS": { icon: <SiTailwindcss />, color: "#06B6D4" },
+  "Tailwind CSS": { icon: <SiTailwindcss />, color: "#06B6D4" },
+  "MySQL": { icon: <SiMysql />, color: "#4479A1" },
+  "PostgreSQL": { icon: <SiPostgresql />, color: "#4169E1" },
+  "Postgres": { icon: <SiPostgresql />, color: "#4169E1" },
+  "MongoDB": { icon: <SiMongodb />, color: "#47A248" },
+  "Git": { icon: <SiGit />, color: "#F05032" },
+  "GitHub": { icon: <SiGithub />, color: "#6e7681" },
+  "Vite": { icon: <SiVite />, color: "#646CFF" },
+  "Next.js": { icon: <SiNextdotjs />, color: "#6e7681" },
+  "Vue": { icon: <SiVuedotjs />, color: "#4FC08D" },
+  "Vue.js": { icon: <SiVuedotjs />, color: "#4FC08D" },
+  "Laravel": { icon: <SiLaravel />, color: "#FF2D20" },
+  "Firebase": { icon: <SiFirebase />, color: "#FFCA28" },
+  "Supabase": { icon: <SiSupabase />, color: "#3ECF8E" },
+  "Docker": { icon: <SiDocker />, color: "#2496ED" },
+  "Figma": { icon: <SiFigma />, color: "#F24E1E" },
+  "Redux": { icon: <SiRedux />, color: "#764ABC" },
+  "GraphQL": { icon: <SiGraphql />, color: "#E10098" },
+  "Express": { icon: <SiExpress />, color: "#6e7681" },
+  "Express.js": { icon: <SiExpress />, color: "#6e7681" },
+  "Bootstrap": { icon: <SiBootstrap />, color: "#7952B3" },
+  "WordPress": { icon: <SiWordpress />, color: "#21759B" },
+  "Linux": { icon: <SiLinux />, color: "#FCC624" },
+  "REST": { icon: <Globe size={12} />, color: "#22c55e" },
+  "REST API": { icon: <Globe size={12} />, color: "#22c55e" },
+  "API": { icon: <Globe size={12} />, color: "#22c55e" },
+  "SQL": { icon: <Database size={12} />, color: "#4479A1" },
+};
+
+function TechBadge({ name }: { name: string }) {
+  const entry = TECH_ICON_MAP[name];
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium leading-none
+                 bg-white border border-[#c8e2ce]/80 text-[#1a2e1e]
+                 dark:bg-[#1a2b1e] dark:border-[#2a4530]/70 dark:text-[#d4edd9]"
+      data-testid={`tech-badge-${name.toLowerCase().replace(/[\s.]+/g, "-")}`}
+    >
+      {entry ? (
+        <span style={{ color: entry.color }} className="text-[13px] leading-none shrink-0">
+          {entry.icon}
+        </span>
+      ) : (
+        <Cpu size={11} className="text-primary shrink-0" />
+      )}
+      {name}
+    </span>
+  );
+}
+
+function renderMessageContent(text: string): React.ReactNode {
+  const paragraphs = text.split(/\n\n+/);
+  return (
+    <>
+      {paragraphs.map((para, pi) => {
+        const lines = para.split(/\n/);
+        return (
+          <div key={pi} className={pi > 0 ? "mt-2" : ""}>
+            {lines.map((line, li) => {
+              const techMatches = [...line.matchAll(/\[tech:([^\]]+)\]/g)];
+              if (techMatches.length > 0) {
+                const names = techMatches.map((m) => m[1]);
+                const remainder = line.replace(/\[tech:[^\]]+\]\s*/g, "").trim();
+                return (
+                  <div key={li} className={li > 0 ? "mt-1" : ""}>
+                    {remainder && (
+                      <span className="block mb-1.5 text-[12px] text-[#4a7055] dark:text-[#7aaa88] font-medium">
+                        {remainder}
+                      </span>
+                    )}
+                    <div className="flex flex-wrap gap-1.5">
+                      {names.map((name) => (
+                        <TechBadge key={name} name={name} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <span key={li} className={li > 0 ? "block mt-0.5" : ""}>
+                  {line}
+                </span>
+              );
+            })}
+          </div>
+        );
+      })}
+    </>
+  );
+}
 
 type Message = {
   id: number;
@@ -381,10 +525,10 @@ export function FloatingChat() {
                         </div>
                         <div className="flex flex-col gap-1.5 min-w-0 max-w-[80%]">
                           {/* Bot text bubble */}
-                          <div className="px-3.5 py-2 rounded-2xl rounded-bl-[4px] border text-[13px] leading-relaxed
+                          <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-[4px] border text-[13px] leading-relaxed
                                           bg-white border-[#c8e2ce]/80 text-[#1a2e1e]
                                           dark:bg-[#162219] dark:border-[#2a4530]/70 dark:text-[#d4edd9]">
-                            {msg.text}
+                            {renderMessageContent(msg.text)}
                           </div>
                           {/* Action buttons — appear after typewriter finishes */}
                           {msg.actionsReady && msg.actions && msg.actions.length > 0 && (

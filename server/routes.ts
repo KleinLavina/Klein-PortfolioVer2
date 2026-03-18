@@ -204,7 +204,7 @@ function buildChatActions(
     }
   }
 
-  return actions;
+  return actions.slice(0, 5);
 }
 
 async function runAgentTool(
@@ -404,7 +404,7 @@ export async function registerRoutes(
               ],
               generationConfig: {
                 temperature: 0.6,
-                maxOutputTokens: 450,
+                maxOutputTokens: 600,
               },
             }),
           },
