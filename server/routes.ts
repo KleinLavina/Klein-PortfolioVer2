@@ -6,6 +6,7 @@ import {
   buildPortfolioMemoryPrompt,
 } from "@shared/portfolio-memory";
 import { z } from "zod";
+import type { ChatAction } from "@shared/schema";
 import {
   registerAdminRoutes,
   seedChatbotContent,
@@ -145,20 +146,83 @@ function parsePositiveLimit(value: unknown, fallback: number): number {
   return Math.min(normalized, 10);
 }
 
+const SECTION_ANCHOR_MAP: Record<string, { anchor: string; label: string }> = {
+  identity: { anchor: "#home", label: "View Home" },
+  about: { anchor: "#about", label: "View About" },
+  values: { anchor: "#about", label: "View About" },
+  "technical-skills": { anchor: "#skills", label: "View Skills" },
+  "soft-skills": { anchor: "#skills", label: "View Skills" },
+  projects: { anchor: "#projects", label: "View Projects" },
+  timeline: { anchor: "#timeline", label: "View Timeline" },
+  contact: { anchor: "#contact", label: "View Contact" },
+};
+
+const SECTION_KEYWORD_MAP: Array<{ keywords: string[]; anchor: string; label: string }> = [
+  { keywords: ["contact", "email", "reach", "hire", "inquiry", "facebook", "linkedin", "message"], anchor: "#contact", label: "View Contact" },
+  { keywords: ["project", "demo", "github", "live", "built", "portfolio", "work"], anchor: "#projects", label: "View Projects" },
+  { keywords: ["skill", "stack", "technology", "language", "framework", "frontend", "backend", "tool"], anchor: "#skills", label: "View Skills" },
+  { keywords: ["timeline", "history", "journey", "experience", "year", "progression", "chapter", "learning path"], anchor: "#timeline", label: "View Timeline" },
+  { keywords: ["about", "background", "who is", "story", "motivation", "personality", "values", "working style"], anchor: "#about", label: "View About" },
+];
+
+function buildChatActions(
+  accessedSectionIds: Set<string>,
+  portfolioMemory: Array<{ id: string; links?: Array<{ label: string; url: string }> }>,
+  userMessage: string,
+  reply: string,
+): ChatAction[] {
+  const actions: ChatAction[] = [];
+  const seenUrls = new Set<string>();
+  const seenAnchors = new Set<string>();
+
+  for (const sectionId of Array.from(accessedSectionIds)) {
+    const section = portfolioMemory.find((s) => s.id === sectionId);
+    if (section?.links) {
+      for (const link of section.links) {
+        if (!seenUrls.has(link.url)) {
+          actions.push({ label: link.label, url: link.url, kind: "external" });
+          seenUrls.add(link.url);
+        }
+      }
+    }
+    const mapping = SECTION_ANCHOR_MAP[sectionId];
+    if (mapping && !seenAnchors.has(mapping.anchor)) {
+      actions.push({ label: mapping.label, url: mapping.anchor, kind: "section" });
+      seenAnchors.add(mapping.anchor);
+    }
+  }
+
+  if (accessedSectionIds.size === 0) {
+    const combined = `${userMessage} ${reply}`.toLowerCase();
+    for (const entry of SECTION_KEYWORD_MAP) {
+      if (entry.keywords.some((kw) => combined.includes(kw))) {
+        if (!seenAnchors.has(entry.anchor)) {
+          actions.push({ label: entry.label, url: entry.anchor, kind: "section" });
+          seenAnchors.add(entry.anchor);
+        }
+      }
+    }
+  }
+
+  return actions;
+}
+
 async function runAgentTool(
   name: string,
-  args?: Record<string, unknown>,
+  args: Record<string, unknown> | undefined,
+  portfolioMemory: Array<{ id: string; links?: Array<{ label: string; url: string }> }>,
+  accessedSectionIds: Set<string>,
 ): Promise<unknown> {
-  const portfolioMemory = await getPortfolioMemory(false);
-
   switch (name) {
     case "getPortfolioSnapshot":
       return portfolioMemory;
     case "getPortfolioSection": {
       const sectionId = typeof args?.sectionId === "string" ? args.sectionId : "";
+      if (sectionId) accessedSectionIds.add(sectionId);
       return portfolioMemory.find((section) => section.id === sectionId) ?? null;
     }
     case "getPortfolioContact":
+      accessedSectionIds.add("contact");
       return portfolioMemory.find((section) => section.id === "contact") ?? null;
     default:
       return { error: `Unknown tool: ${name}` };
@@ -283,6 +347,8 @@ export async function registerRoutes(
         { role: "user", parts: [{ text: message }] },
       ];
 
+      const accessedSectionIds = new Set<string>();
+
       for (let iteration = 0; iteration < 4; iteration += 1) {
         const geminiResponse = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
@@ -376,8 +442,15 @@ export async function registerRoutes(
               usage: consumption.usage,
             });
           }
+          const actions = buildChatActions(
+            accessedSectionIds,
+            activePortfolioMemory,
+            message,
+            reply,
+          );
           return res.json({
             reply,
+            actions,
             usage: consumption.usage,
           });
         }
@@ -393,7 +466,7 @@ export async function registerRoutes(
         });
 
         for (const call of functionCalls) {
-          const result = await runAgentTool(call.name, call.args);
+          const result = await runAgentTool(call.name, call.args, activePortfolioMemory, accessedSectionIds);
           contents.push({
             role: "user",
             parts: [

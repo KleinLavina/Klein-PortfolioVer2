@@ -9,13 +9,17 @@ import {
   UserRound,
   Sparkles,
   Cpu,
+  ExternalLink,
+  ArrowRight,
 } from "lucide-react";
-import { useAIChat } from "@/hooks/use-ai-chat";
+import type { ChatAction } from "@shared/schema";
 
 type Message = {
   id: number;
   from: "user" | "klein";
   text: string;
+  actions?: ChatAction[];
+  actionsReady?: boolean;
 };
 
 type ChatUsage = {
@@ -243,6 +247,7 @@ export function FloatingChat() {
       });
       const data = (await response.json()) as {
         reply?: string;
+        actions?: ChatAction[];
         message?: string;
         details?: string;
         usage?: ChatUsage;
@@ -255,6 +260,15 @@ export function FloatingChat() {
       setMessages((prev) => [...prev, { id: assistantMessageId, from: "klein", text: "" }]);
       setIsSending(false);
       await typewriterReply(assistantMessageId, data.reply);
+      if (data.actions && data.actions.length > 0) {
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantMessageId
+              ? { ...m, actions: data.actions, actionsReady: true }
+              : m,
+          ),
+        );
+      }
     } catch (error) {
       const errorText =
         error instanceof Error && error.message.trim()
@@ -357,27 +371,80 @@ export function FloatingChat() {
                     transition={{ duration: 0.16 }}
                     className={`flex items-end gap-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    {/* Bot avatar dot */}
-                    {msg.from === "klein" && (
-                      <div className="w-5 h-5 rounded-full shrink-0 flex items-center justify-center
-                                      bg-primary/15 border border-primary/25 text-primary
-                                      dark:bg-primary/20 dark:border-primary/30">
-                        <AvatarIcon size={10} />
+                    {msg.from === "klein" ? (
+                      <>
+                        {/* Bot avatar dot */}
+                        <div className="w-5 h-5 rounded-full shrink-0 self-start mt-0.5 flex items-center justify-center
+                                        bg-primary/15 border border-primary/25 text-primary
+                                        dark:bg-primary/20 dark:border-primary/30">
+                          <AvatarIcon size={10} />
+                        </div>
+                        <div className="flex flex-col gap-1.5 min-w-0 max-w-[80%]">
+                          {/* Bot text bubble */}
+                          <div className="px-3.5 py-2 rounded-2xl rounded-bl-[4px] border text-[13px] leading-relaxed
+                                          bg-white border-[#c8e2ce]/80 text-[#1a2e1e]
+                                          dark:bg-[#162219] dark:border-[#2a4530]/70 dark:text-[#d4edd9]">
+                            {msg.text}
+                          </div>
+                          {/* Action buttons — appear after typewriter finishes */}
+                          {msg.actionsReady && msg.actions && msg.actions.length > 0 && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.22, ease: "easeOut" }}
+                              className="flex flex-wrap gap-1.5"
+                            >
+                              {msg.actions.map((action) =>
+                                action.kind === "external" ? (
+                                  <a
+                                    key={action.url}
+                                    href={action.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold
+                                               bg-white border border-[#c0dcc6] text-[#2d5c38]
+                                               hover:bg-[#e8f5ec] hover:border-[#35d361]/60
+                                               dark:bg-[#162219] dark:border-[#2a4530] dark:text-[#a8d8b4]
+                                               dark:hover:bg-[#1e2e20] dark:hover:border-[#35d361]/40
+                                               transition-all duration-150 shadow-sm"
+                                    data-testid={`chat-action-external-${action.label.toLowerCase().replace(/\s+/g, "-")}`}
+                                  >
+                                    <ExternalLink size={10} className="shrink-0" />
+                                    {action.label}
+                                  </a>
+                                ) : (
+                                  <a
+                                    key={action.url}
+                                    href={action.url}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      const target = document.querySelector(action.url);
+                                      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold
+                                               bg-primary/10 border border-primary/25 text-primary
+                                               hover:bg-primary/20 hover:border-primary/40
+                                               dark:bg-primary/15 dark:border-primary/30 dark:text-primary
+                                               dark:hover:bg-primary/25 dark:hover:border-primary/50
+                                               transition-all duration-150 shadow-sm"
+                                    data-testid={`chat-action-section-${action.label.toLowerCase().replace(/\s+/g, "-")}`}
+                                  >
+                                    <ArrowRight size={10} className="shrink-0" />
+                                    {action.label}
+                                  </a>
+                                ),
+                              )}
+                            </motion.div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      /* User bubble */
+                      <div className="max-w-[80%] px-3.5 py-2 rounded-2xl rounded-br-[4px] text-[13px] leading-relaxed
+                                      bg-primary text-primary-foreground shadow-sm shadow-primary/20">
+                        {msg.text}
                       </div>
                     )}
-                    <div
-                      className={`max-w-[80%] px-3.5 py-2 rounded-2xl text-[13px] leading-relaxed ${
-                        msg.from === "user"
-                          ? /* user bubble — primary green in both modes */
-                            "bg-primary text-primary-foreground rounded-br-[4px] shadow-sm shadow-primary/20"
-                          : /* bot bubble — warm surface, green-tinted */
-                            "rounded-bl-[4px] border " +
-                            "bg-white border-[#c8e2ce]/80 text-[#1a2e1e] " +
-                            "dark:bg-[#162219] dark:border-[#2a4530]/70 dark:text-[#d4edd9]"
-                      }`}
-                    >
-                      {msg.text}
-                    </div>
                   </motion.div>
                 ))}
 

@@ -1,0 +1,45 @@
+Here’s a stronger prompt you can give your AI agent:
+
+Use this project context as the source of truth and do not hallucinate features, files, routes, data models, or UI behavior that are not already present in my codebase. First, study my existing chatbot, floating chat / AI container, chatbot responses, portfolio memory CMS, and AI scripts. Understand how responses are currently structured, how redirect links are rendered, how chatbot memory/scripts are managed, and how the current UI behaves before making changes. Keep the design language, component patterns, and overall visual identity consistent with my existing portfolio stack and styling.  
+
+Your task is to improve the chatbot response system and the CMS/script structure for responses that contain links or redirects. Right now, link-based responses should no longer appear only as plain text inside the same message bubble. Instead, whenever a chatbot response includes a redirect such as social links, project links, GitHub links, live demo links, contact links, or any other external/internal destination, separate the response into:
+
+1. a normal bubble text response for the explanation or conversational part, and
+2. a distinct wrapped button/link UI element rendered separately from the text bubble.
+
+Apply this behavior consistently to every chatbot response that contains redirect links, not just social links. This includes external URLs and internal navigation targets. The wrapped button/link should be visually clear, clickable, responsive, and styled to match my existing portfolio/chat UI. Do not mix raw URLs awkwardly inside paragraph text if they can be presented as action buttons instead.
+
+Also add support for redirecting users to specific sections of my portfolio when the chatbot response would benefit from showing more detail on-page. For example, if the chatbot is answering about my projects, skills, experience, timeline, contact details, or other portfolio content, allow the response to include a dedicated section-redirect action such as “View Projects,” “Go to Skills,” “See Timeline,” or similar. These section redirects should scroll or navigate only to the relevant portfolio section instead of sending the user somewhere unrelated. Use this only when it strengthens the answer and gives the user a clear next step.
+
+Requirements:
+
+* Do not invent new sections, routes, CMS entities, or APIs unless necessary for the implementation.
+* Reuse my current chatbot architecture, response flow, and existing portfolio sections where possible.
+* Preserve conversational responses, but enhance them with structured action links/buttons.
+* Make link actions reusable and data-driven so they can be managed through the CMS/scripts instead of hardcoded UI logic whenever possible.
+* Improve the response schema if needed so a single response can support text, multiple actions, and section redirects cleanly.
+* Ensure the CMS for chatbot memory/scripts can display and manage these action links/redirect metadata clearly.
+* Keep the UX clean: bubble text for message content, separate wrapped action buttons for redirects.
+* Support multiple action buttons in one response when appropriate.
+* Make sure the implementation works with my existing portfolio/chat container and does not break current behavior for plain text responses.
+* Keep accessibility, responsiveness, and dark/light theme compatibility in mind.
+
+Deliverables:
+
+* Refactor the chatbot response data structure so responses can support plain text plus structured action links.
+* Update the chat UI renderer so redirect links are displayed as separate wrapped buttons/links outside the message bubble text.
+* Apply this pattern to all existing hardcoded/scripted responses that contain redirects.
+* Add support for portfolio section redirects for responses where deeper on-page context is useful.
+* Update the CMS/script management so these links and section redirects can be created, edited, and maintained properly.
+* Keep the design aligned with my current portfolio UI and component patterns.
+
+Before finalizing, verify:
+
+* plain text responses still render normally,
+* link-based responses now render with separate action buttons,
+* social links use the new wrapped button behavior,
+* all redirect-based responses follow the same pattern,
+* section redirects correctly point to the appropriate portfolio sections,
+* no hardcoded raw-link behavior remains where structured actions should be used.
+
+If needed, I can also turn this into a stricter “implementation prompt” version that tells the agent exactly how to structure the response schema and UI components.

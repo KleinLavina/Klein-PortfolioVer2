@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export type ChatActionKind = "external" | "section";
+
+export type ChatAction = {
+  label: string;
+  url: string;
+  kind: ChatActionKind;
+};
+
 export const chatbotContentSchema = z.object({
   id: z.number().int(),
   category: z.string().min(1).max(64),

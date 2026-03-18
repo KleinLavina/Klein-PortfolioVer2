@@ -22,6 +22,8 @@ import {
   Loader2,
   AlertTriangle,
   Database,
+  ExternalLink,
+  ArrowRight,
 } from "lucide-react";
 
 const SESSION_KEY = "admin_token";
@@ -100,6 +102,17 @@ const CATEGORY_COLORS: Record<string, string> = {
   context_reply_project: "bg-accent/15 text-accent border-accent/30",
   context_reply_skills: "bg-orange-500/15 text-orange-400 border-orange-500/30",
   context_reply_contact: "bg-pink-500/15 text-pink-400 border-pink-500/30",
+};
+
+const SECTION_REDIRECT_MAP: Record<string, { anchor: string; label: string }> = {
+  identity: { anchor: "#home", label: "View Home" },
+  about: { anchor: "#about", label: "View About" },
+  values: { anchor: "#about", label: "View About" },
+  "technical-skills": { anchor: "#skills", label: "View Skills" },
+  "soft-skills": { anchor: "#skills", label: "View Skills" },
+  projects: { anchor: "#projects", label: "View Projects" },
+  timeline: { anchor: "#timeline", label: "View Timeline" },
+  contact: { anchor: "#contact", label: "View Contact" },
 };
 
 const MEMORY_ACCENTS: Record<
@@ -1165,7 +1178,10 @@ function PortfolioMemoryModal({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Links</label>
+            <label className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">
+              <ExternalLink size={11} />
+              Links — Chat Action Buttons
+            </label>
             <textarea
               value={form.linksText}
               onChange={(e) => set("linksText", e.target.value)}
@@ -1173,7 +1189,9 @@ function PortfolioMemoryModal({
               rows={4}
               className={`${inputCls} font-mono text-xs resize-none`}
             />
-            <p className="mt-1 text-[11px] text-muted-foreground">One link per line. Format: `Label | URL`</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              One link per line · Format: <code className="font-mono">Label | URL</code> · These appear as clickable action buttons in the chatbot when this section is referenced.
+            </p>
           </div>
 
           <AnimatePresence>
@@ -1420,24 +1438,40 @@ function MemorySectionCard({
         )}
 
         {(section.links ?? []).length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {(section.links ?? []).map((link) => (
-              <a
-                key={`${section.recordId}-${link.label}-${link.url}`}
-                href={link.url}
-                target="_blank"
-                rel="noreferrer"
-                className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-all hover:-translate-y-0.5 ${accent.chip}`}
-              >
-                {link.label}
-              </a>
-            ))}
+          <div className="mt-4">
+            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <ExternalLink size={10} />
+              Chat Action Buttons
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {(section.links ?? []).map((link) => (
+                <a
+                  key={`${section.recordId}-${link.label}-${link.url}`}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1.5 text-[11px] font-semibold transition-all hover:-translate-y-0.5
+                             bg-card/60 border-border/70 text-foreground hover:bg-muted"
+                >
+                  <ExternalLink size={9} className="shrink-0 text-muted-foreground" />
+                  {link.label}
+                </a>
+              ))}
+            </div>
           </div>
         )}
 
         <div className="mt-5 flex items-center justify-between gap-3 border-t border-border/40 pt-4">
-          <div className="text-[11px] text-muted-foreground">
-            {section.isActive ? "Active in chat memory" : "Inactive"}
+          <div className="flex flex-col gap-1">
+            <div className="text-[11px] text-muted-foreground">
+              {section.isActive ? "Active in chat memory" : "Inactive"}
+            </div>
+            {SECTION_REDIRECT_MAP[section.id] && (
+              <div className="inline-flex items-center gap-1 text-[10px] font-medium text-primary/70">
+                <ArrowRight size={9} />
+                Redirects to <span className="font-mono">{SECTION_REDIRECT_MAP[section.id].anchor}</span> in chat
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <button
