@@ -10,6 +10,7 @@ import {
   Sparkles,
   Cpu,
 } from "lucide-react";
+import { useAIChat } from "@/hooks/use-ai-chat";
 
 type Message = {
   id: number;

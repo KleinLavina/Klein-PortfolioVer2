@@ -1,6 +1,7 @@
 [build]
   publish = "dist/public"
   command = "npm run build:frontend"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "18"

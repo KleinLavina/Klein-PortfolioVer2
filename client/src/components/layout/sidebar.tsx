@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/components/theme-provider";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useDynamicTitle } from "@/hooks/use-dynamic-title";
 
 const navItems = [
   { title: "Home",     url: "#home",     icon: Home,       num: "01" },
@@ -27,6 +28,9 @@ export function AppSidebar() {
   const isDark = theme === "dark";
 
   const activeIndex = navItems.findIndex(i => i.url === `#${activeSection}`);
+
+  // Update browser title based on active section
+  useDynamicTitle(activeSection);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
