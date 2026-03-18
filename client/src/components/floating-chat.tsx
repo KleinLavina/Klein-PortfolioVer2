@@ -533,13 +533,27 @@ export function FloatingChat() {
           history: messages.map((m) => ({ from: m.from, text: m.text })),
         }),
       });
-      const data = (await response.json()) as {
+      const rawBody = await response.text();
+      let data: {
         reply?: string;
         actions?: ChatAction[];
         message?: string;
         details?: string;
         usage?: ChatUsage;
-      };
+      } = {};
+
+      if (rawBody.trim()) {
+        try {
+          data = JSON.parse(rawBody) as typeof data;
+        } catch {
+          if (!response.ok) {
+            throw new Error(rawBody.trim());
+          }
+
+          throw new Error("The AI service returned an invalid response.");
+        }
+      }
+
       if (data.usage) setUsage(data.usage);
       if (!response.ok || !data.reply) {
         throw new Error(data.message || data.details || "Failed to fetch AI response.");
