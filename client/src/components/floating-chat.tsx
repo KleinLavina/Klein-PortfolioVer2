@@ -556,7 +556,7 @@ export function FloatingChat() {
 
       if (data.usage) setUsage(data.usage);
       if (!response.ok || !data.reply) {
-        throw new Error(data.message || data.details || "Failed to fetch AI response.");
+        throw new Error(data.details || data.message || "Failed to fetch AI response.");
       }
       const assistantMessageId = Date.now() + 1;
       setMessages((prev) => [...prev, { id: assistantMessageId, from: "klein", text: "" }]);
