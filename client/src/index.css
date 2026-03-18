@@ -9,6 +9,26 @@
   *, *::before, *::after {
     cursor: none !important;
   }
+
+  html.admin-mode *,
+  html.admin-mode *::before,
+  html.admin-mode *::after {
+    cursor: auto !important;
+  }
+
+  html.admin-mode button,
+  html.admin-mode a,
+  html.admin-mode input,
+  html.admin-mode select,
+  html.admin-mode textarea,
+  html.admin-mode [role="button"] {
+    cursor: pointer !important;
+  }
+
+  html.admin-mode input,
+  html.admin-mode textarea {
+    cursor: text !important;
+  }
 }
 
 @layer base {

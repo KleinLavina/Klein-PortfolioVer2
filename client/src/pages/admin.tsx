@@ -89,6 +89,11 @@ export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
+    document.documentElement.classList.add("admin-mode");
+    return () => document.documentElement.classList.remove("admin-mode");
+  }, []);
+
+  useEffect(() => {
     const stored = sessionStorage.getItem(SESSION_KEY);
     if (!stored) return;
     apiFetch("/api/admin/verify", {}, stored)
