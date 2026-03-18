@@ -68,6 +68,22 @@ const CHAT_FORMATTER_INSTRUCTIONS = [
   "7. Avoid duplicating the same link or call to action in both the text and the action buttons.",
 ].join("\n");
 
+function isRecoverableChatStorageError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("not configured") ||
+    message.includes("relation") ||
+    message.includes("does not exist") ||
+    message.includes("function") ||
+    message.includes("schema cache") ||
+    message.includes("could not find the table") ||
+    message.includes("failed to consume chat daily usage") ||
+    message.includes("failed to load chat daily usage") ||
+    message.includes("failed to track unique lifetime visitor")
+  );
+}
+
 function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === "AbortError";
 }
@@ -109,21 +125,29 @@ function buildDailyUsageSummary(dateKey: string, used: number): DailyUsageSummar
 
 async function getChatDailyUsage(clientId: string): Promise<DailyUsageSummary> {
   const dateKey = getLocalDateKey(new Date());
-  const supabase = getServerSupabase();
-  const result = await supabase
-    .from("chat_daily_usage")
-    .select("used_count")
-    .eq("client_id", clientId)
-    .eq("date_key", dateKey)
-    .maybeSingle();
+  try {
+    const supabase = getServerSupabase();
+    const result = await supabase
+      .from("chat_daily_usage")
+      .select("used_count")
+      .eq("client_id", clientId)
+      .eq("date_key", dateKey)
+      .maybeSingle();
 
-  const row = unwrapSupabaseResult(
-    result.data as { used_count: number } | null,
-    result.error,
-    "Failed to load chat daily usage",
-  );
+    const row = unwrapSupabaseResult(
+      result.data as { used_count: number } | null,
+      result.error,
+      "Failed to load chat daily usage",
+    );
 
-  return buildDailyUsageSummary(dateKey, row?.used_count ?? 0);
+    return buildDailyUsageSummary(dateKey, row?.used_count ?? 0);
+  } catch (error) {
+    if (!isRecoverableChatStorageError(error)) {
+      throw error;
+    }
+
+    return buildDailyUsageSummary(dateKey, 0);
+  }
 }
 
 async function tryConsumeDailyMessage(clientId: string): Promise<{
@@ -131,39 +155,58 @@ async function tryConsumeDailyMessage(clientId: string): Promise<{
   usage: DailyUsageSummary;
 }> {
   const dateKey = getLocalDateKey(new Date());
-  const supabase = getServerSupabase();
-  const result = await supabase.rpc("consume_chat_daily_message", {
-    target_client_id: clientId,
-    date_key_input: dateKey,
-    daily_limit: DAILY_CHAT_LIMIT,
-  });
+  try {
+    const supabase = getServerSupabase();
+    const result = await supabase.rpc("consume_chat_daily_message", {
+      target_client_id: clientId,
+      date_key_input: dateKey,
+      daily_limit: DAILY_CHAT_LIMIT,
+    });
 
-  const row = unwrapSupabaseResult(
-    Array.isArray(result.data) ? result.data[0] : result.data,
-    result.error,
-    "Failed to consume chat daily usage",
-  ) as { allowed: boolean; used_count: number } | null;
+    const row = unwrapSupabaseResult(
+      Array.isArray(result.data) ? result.data[0] : result.data,
+      result.error,
+      "Failed to consume chat daily usage",
+    ) as { allowed: boolean; used_count: number } | null;
 
-  const used = row?.used_count ?? 0;
-  return {
-    allowed: row?.allowed ?? false,
-    usage: buildDailyUsageSummary(dateKey, used),
-  };
+    const used = row?.used_count ?? 0;
+    return {
+      allowed: row?.allowed ?? false,
+      usage: buildDailyUsageSummary(dateKey, used),
+    };
+  } catch (error) {
+    if (!isRecoverableChatStorageError(error)) {
+      throw error;
+    }
+
+    return {
+      allowed: true,
+      usage: buildDailyUsageSummary(dateKey, 0),
+    };
+  }
 }
 
 async function trackUniqueLifetimeVisitor(visitorId: string): Promise<number> {
-  const supabase = getServerSupabase();
-  const result = await supabase.rpc("track_unique_lifetime_visitor", {
-    target_visitor_id: visitorId,
-  });
+  try {
+    const supabase = getServerSupabase();
+    const result = await supabase.rpc("track_unique_lifetime_visitor", {
+      target_visitor_id: visitorId,
+    });
 
-  const total = unwrapSupabaseResult(
-    result.data,
-    result.error,
-    "Failed to track unique lifetime visitor",
-  );
+    const total = unwrapSupabaseResult(
+      result.data,
+      result.error,
+      "Failed to track unique lifetime visitor",
+    );
 
-  return typeof total === "number" ? total : Number(total ?? 0);
+    return typeof total === "number" ? total : Number(total ?? 0);
+  } catch (error) {
+    if (!isRecoverableChatStorageError(error)) {
+      throw error;
+    }
+
+    return 0;
+  }
 }
 
 function toGeminiHistory(history: ChatHistoryItem[]): GeminiContent[] {

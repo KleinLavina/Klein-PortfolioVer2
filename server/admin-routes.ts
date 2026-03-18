@@ -10,6 +10,8 @@ import { randomBytes } from "crypto";
 import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
+const FALLBACK_SYSTEM_PROMPT =
+  "You are Klein F. Lavina's portfolio AI assistant. Answer only about Klein's work, projects, skills, achievements, services, and contact process. When the user asks for portfolio facts, prefer calling tools instead of guessing. If data is unavailable, say so clearly.\n\nRESPONSE FORMAT RULES - follow these exactly:\n1. Write clean, well-structured prose. Separate distinct sections with a blank line. Keep sentences clear and professional.\n2. Never include raw URLs or hyperlinks in your text. Links are rendered automatically as separate action buttons below your reply. Instead, reference them naturally (e.g. \"You can check it below\" or \"See the links below for details\").\n3. For tech stacks, tools, or technologies - list each item using this exact marker syntax: [tech:Name]. Place all tech markers together on their own dedicated line, space-separated. Example line: [tech:React] [tech:TypeScript] [tech:Node.js]\n4. Keep responses concise - aim for 3 to 6 sentences unless a detailed breakdown is explicitly requested.\n5. Always use available portfolio tools when asked for specific facts.";
 
 function getAdminPassword(): string {
   const configured = process.env.ADMIN_PASSWORD?.trim();
@@ -389,26 +391,80 @@ function getSingleParam(value: string | string[] | undefined): string {
   return Array.isArray(value) ? value[0] ?? "" : value ?? "";
 }
 
-export async function getPortfolioMemory(includeInactive = false) {
-  const supabase = getServerSupabase();
-  let query = supabase
-    .from("portfolio_memory_entries")
-    .select("*")
-    .order("sort_order", { ascending: true })
-    .order("id", { ascending: true });
-
-  if (!includeInactive) {
-    query = query.eq("is_active", true);
-  }
-
-  const result = await query;
-  const rows = unwrapSupabaseResult(
-    (result.data ?? []) as PortfolioMemoryEntryRow[],
-    result.error,
-    "Failed to load portfolio memory",
+function isRecoverableChatbotStorageError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const message = error.message.toLowerCase();
+  return (
+    message.includes("not configured") ||
+    message.includes("relation") ||
+    message.includes("does not exist") ||
+    message.includes("function") ||
+    message.includes("schema cache") ||
+    message.includes("could not find the table") ||
+    message.includes("failed to load chatbot content") ||
+    message.includes("failed to load portfolio memory")
   );
+}
 
-  return rows.map(mapPortfolioMemoryRow);
+function getFallbackChatbotRows(): ChatbotContentRow[] {
+  const now = new Date().toISOString();
+  return SEED_CONTENT.map((item, index) => ({
+    id: index + 1,
+    category: item.category,
+    label: item.label,
+    content: item.content,
+    is_active: item.isActive,
+    sort_order: item.sortOrder,
+    created_at: now,
+    updated_at: now,
+  }));
+}
+
+export async function getPortfolioMemory(includeInactive = false) {
+  try {
+    const supabase = getServerSupabase();
+    let query = supabase
+      .from("portfolio_memory_entries")
+      .select("*")
+      .order("sort_order", { ascending: true })
+      .order("id", { ascending: true });
+
+    if (!includeInactive) {
+      query = query.eq("is_active", true);
+    }
+
+    const result = await query;
+    const rows = unwrapSupabaseResult(
+      (result.data ?? []) as PortfolioMemoryEntryRow[],
+      result.error,
+      "Failed to load portfolio memory",
+    );
+
+    return rows.map(mapPortfolioMemoryRow);
+  } catch (error) {
+    if (!isRecoverableChatbotStorageError(error)) {
+      throw error;
+    }
+
+    const fallbackRows = portfolioMemorySections.map((section, index) => ({
+      recordId: index + 1,
+      id: section.id,
+      order: section.order,
+      title: section.title,
+      eyebrow: section.eyebrow,
+      summary: section.summary,
+      context: section.context,
+      accent: section.accent,
+      facts: section.facts ?? [],
+      items: section.items ?? [],
+      links: section.links ?? [],
+      isActive: true,
+      createdAt: 0,
+      updatedAt: 0,
+    }));
+
+    return includeInactive ? fallbackRows : fallbackRows.filter((row) => row.isActive);
+  }
 }
 
 export async function requireAdmin(req: Request, res: Response, next: NextFunction) {
@@ -680,23 +736,35 @@ export function registerAdminRoutes(app: Express) {
 }
 
 async function getChatbotContentRows(): Promise<ChatbotContentRow[]> {
-  const supabase = getServerSupabase();
-  const result = await supabase
-    .from("chatbot_content")
-    .select("*")
-    .order("sort_order", { ascending: true })
-    .order("id", { ascending: true });
+  try {
+    const supabase = getServerSupabase();
+    const result = await supabase
+      .from("chatbot_content")
+      .select("*")
+      .order("sort_order", { ascending: true })
+      .order("id", { ascending: true });
 
-  return unwrapSupabaseResult(
-    (result.data ?? []) as ChatbotContentRow[],
-    result.error,
-    "Failed to load chatbot content rows",
-  );
+    return unwrapSupabaseResult(
+      (result.data ?? []) as ChatbotContentRow[],
+      result.error,
+      "Failed to load chatbot content rows",
+    );
+  } catch (error) {
+    if (!isRecoverableChatbotStorageError(error)) {
+      throw error;
+    }
+
+    return getFallbackChatbotRows();
+  }
 }
 
 export async function getActiveSystemPrompt(): Promise<string> {
   const rows = await getChatbotContentRows();
   const row = rows.find((item) => item.category === "system_prompt" && item.is_active);
+  if (row?.content) {
+    return row.content;
+  }
+  return FALLBACK_SYSTEM_PROMPT;
   return (
     row?.content ??
     "You are Klein F. Lavina's portfolio AI assistant. Answer only about Klein's work, projects, skills, achievements, services, and contact process. When the user asks for portfolio facts, prefer calling tools instead of guessing. If data is unavailable, say so clearly.\n\nRESPONSE FORMAT RULES — follow these exactly:\n1. Write clean, well-structured prose. Separate distinct sections with a blank line. Keep sentences clear and professional.\n2. Never include raw URLs or hyperlinks in your text. Links are rendered automatically as separate action buttons below your reply. Instead, reference them naturally (e.g. \"You can check it below\" or \"See the links below for details\").\n3. For tech stacks, tools, or technologies — list each item using this exact marker syntax: [tech:Name]. Place all tech markers together on their own dedicated line, space-separated. Example line: [tech:React] [tech:TypeScript] [tech:Node.js]\n4. Keep responses concise — aim for 3 to 6 sentences unless a detailed breakdown is explicitly requested.\n5. Always use available portfolio tools when asked for specific facts."
