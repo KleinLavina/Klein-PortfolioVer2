@@ -1,0 +1,48 @@
+Here’s a cleaner, smarter, and more precise version of your prompt for the AI agent:
+
+---
+
+Study my existing chatbot system, including how responses are structured, rendered, and how action buttons/links are already separated from the text bubble. Do not hallucinate new components or behaviors—only improve what currently exists.
+
+Your task is to enhance the **quality and structure of the chatbot’s text responses** while respecting the current UI pattern where links are already rendered as separate wrapped buttons.
+
+Requirements:
+
+* Improve the **text response content** so it reads like a clear, well-structured explanation.
+* Use proper formatting such as:
+
+  * logical sentence flow
+  * clean spacing and indentation (if supported)
+  * grouped ideas (short paragraphs or bullet-like clarity when needed)
+* The text should feel **informative, concise, and professional**, not repetitive or cluttered.
+
+Link Handling Rules:
+
+* **Do NOT repeat links inside the text bubble** if they are already provided as separate action buttons.
+* Remove raw URLs or redundant link mentions from the text response.
+* The text should **refer to actions naturally** (e.g., “You can check it below”) without embedding the actual link.
+
+Action Button Optimization:
+
+* Limit the number of action buttons/links per response to a **maximum of 5 only**.
+* If more than 5 links exist:
+
+  * Prioritize the most relevant and useful ones
+  * Group or omit less important links intelligently
+* Ensure the selected links align directly with the user’s intent.
+
+Behavior Guidelines:
+
+* Maintain consistency with the current chatbot UI and response system.
+* Do not break existing response rendering logic.
+* Do not introduce unnecessary complexity or new structures unless required.
+* Keep responses user-focused: clear explanation first, actions second.
+
+Goal:
+
+Transform chatbot responses into:
+
+* **Well-written explanations (text bubble)**
+* **Clean, minimal, high-value actions (separate buttons)**
+
+Avoid redundancy, improve readability, and make every response feel intentional and helpful.
