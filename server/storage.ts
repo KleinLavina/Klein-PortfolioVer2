@@ -5,7 +5,7 @@ import {
   type InsertProject,
   type Message,
   type Project,
-} from "@shared/schema";
+} from "../shared/schema.ts";
 import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
 
 type MessageRow = {

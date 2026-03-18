@@ -16,20 +16,23 @@ export function useAIChat() {
     setError(null);
     
     try {
-      // Use Netlify function instead of /api/chat
-      const response = await fetch('/.netlify/functions/chat', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: message.trim() })
+        body: JSON.stringify({
+          clientId: 'legacy-hook-client',
+          message: message.trim(),
+          history: [],
+        })
       });
       
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to get response');
+        throw new Error(data.details || data.message || data.error || 'Failed to get response');
       }
       
-      return data.response;
+      return data.reply || data.response || 'No response returned.';
       
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Connection error';

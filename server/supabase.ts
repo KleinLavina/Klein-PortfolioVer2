@@ -2,12 +2,21 @@ import { createClient, type PostgrestError, type SupabaseClient } from "@supabas
 
 let serverSupabase: SupabaseClient | null = null;
 
-function getEnvValue(name: string): string {
-  return process.env[name]?.trim() ?? "";
+function getEnvValue(...names: string[]): string {
+  for (const name of names) {
+    const value = process.env[name]?.trim();
+    if (value) {
+      return value;
+    }
+  }
+  return "";
 }
 
 export function isServerSupabaseConfigured(): boolean {
-  return Boolean(getEnvValue("VITE_SUPABASE_URL") && getEnvValue("SUPABASE_SERVICE_ROLE_KEY"));
+  return Boolean(
+    getEnvValue("SUPABASE_URL", "VITE_SUPABASE_URL") &&
+      getEnvValue("SUPABASE_SERVICE_ROLE_KEY"),
+  );
 }
 
 export function getServerSupabase(): SupabaseClient {
@@ -15,12 +24,12 @@ export function getServerSupabase(): SupabaseClient {
     return serverSupabase;
   }
 
-  const supabaseUrl = getEnvValue("VITE_SUPABASE_URL");
+  const supabaseUrl = getEnvValue("SUPABASE_URL", "VITE_SUPABASE_URL");
   const serviceRoleKey = getEnvValue("SUPABASE_SERVICE_ROLE_KEY");
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error(
-      "Supabase server storage is not configured. Set VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.",
+      "Supabase server storage is not configured. Set SUPABASE_URL (or VITE_SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY.",
     );
   }
 

@@ -3,14 +3,26 @@ import {
   type InsertChatbotContent,
   portfolioMemoryEntryInputSchema,
   updatePortfolioMemoryEntryInputSchema,
-} from "@shared/schema";
-import { portfolioMemorySections } from "@shared/portfolio-memory";
+} from "../shared/schema.ts";
+import { portfolioMemorySections } from "../shared/portfolio-memory.ts";
 import { z } from "zod";
 import { randomBytes } from "crypto";
 import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin";
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
+
+function getAdminPassword(): string {
+  const configured = process.env.ADMIN_PASSWORD?.trim();
+  if (configured) {
+    return configured;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_PASSWORD is required in production.");
+  }
+
+  return "admin";
+}
 
 type ChatbotContentRow = {
   id: number;
@@ -424,12 +436,15 @@ export function registerAdminRoutes(app: Express) {
   app.post("/api/admin/login", async (req, res) => {
     try {
       const { password } = loginSchema.parse(req.body);
-      if (password !== ADMIN_PASSWORD) {
+      if (password !== getAdminPassword()) {
         return res.status(401).json({ message: "Incorrect password." });
       }
       const token = await createSession();
       return res.json({ token });
     } catch (err) {
+      if (err instanceof Error && err.message.includes("ADMIN_PASSWORD is required")) {
+        return res.status(503).json({ message: err.message });
+      }
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
       }

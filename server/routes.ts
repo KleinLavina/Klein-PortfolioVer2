@@ -1,12 +1,12 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage.ts";
-import { api } from "@shared/routes";
+import { api } from "../shared/routes.ts";
 import {
   buildPortfolioMemoryPrompt,
-} from "@shared/portfolio-memory";
+} from "../shared/portfolio-memory.ts";
 import { z } from "zod";
-import type { ChatAction } from "@shared/schema";
+import type { ChatAction } from "../shared/schema.ts";
 import {
   registerAdminRoutes,
   seedChatbotContent,
@@ -55,6 +55,8 @@ type GeminiGenerateResponse = {
 };
 
 const DAILY_CHAT_LIMIT = 8;
+const GITHUB_FETCH_TIMEOUT_MS = 8000;
+const GEMINI_FETCH_TIMEOUT_MS = 20000;
 const CHAT_FORMATTER_INSTRUCTIONS = [
   "RESPONSE FORMAT RULES — follow these exactly:",
   "1. Write clean, well-structured explanations with natural sentence flow.",
@@ -65,6 +67,28 @@ const CHAT_FORMATTER_INSTRUCTIONS = [
   "6. For tech stacks, tools, or technologies, place them on their own line using [tech:Name] markers so the UI can render them cleanly with icons.",
   "7. Avoid duplicating the same link or call to action in both the text and the action buttons.",
 ].join("\n");
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof Error && error.name === "AbortError";
+}
+
+async function fetchWithTimeout(
+  input: string | URL,
+  init: RequestInit,
+  timeoutMs: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 function getLocalDateKey(now: Date): string {
   const year = now.getFullYear();
@@ -420,7 +444,16 @@ export async function registerRoutes(
     try {
       const { username } = req.params;
 
-      const response = await fetch(`https://api.github.com/users/${username}`);
+      const response = await fetchWithTimeout(
+        `https://api.github.com/users/${username}`,
+        {
+          headers: {
+            "User-Agent": "klein-portfolio-vercel",
+            "Accept": "application/vnd.github+json",
+          },
+        },
+        GITHUB_FETCH_TIMEOUT_MS,
+      );
       
       if (!response.ok) {
         throw new Error(`GitHub API error: ${response.statusText}`);
@@ -442,6 +475,12 @@ export async function registerRoutes(
 
     } catch (error) {
       console.error("Error fetching GitHub stats:", error);
+      if (isAbortError(error)) {
+        return res.status(504).json({
+          error: "GitHub request timed out",
+          message: "The GitHub API took too long to respond.",
+        });
+      }
       res.status(500).json({ 
         error: "Failed to fetch user stats",
         message: error instanceof Error ? error.message : "Unknown error"
@@ -481,7 +520,7 @@ export async function registerRoutes(
       const accessedSectionIds = new Set<string>();
 
       for (let iteration = 0; iteration < 4; iteration += 1) {
-        const geminiResponse = await fetch(
+        const geminiResponse = await fetchWithTimeout(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
           {
             method: "POST",
@@ -539,6 +578,7 @@ export async function registerRoutes(
               },
             }),
           },
+          GEMINI_FETCH_TIMEOUT_MS,
         );
 
         if (!geminiResponse.ok) {
@@ -625,6 +665,11 @@ export async function registerRoutes(
         usage: consumption.usage,
       });
     } catch (err) {
+      if (isAbortError(err)) {
+        return res.status(504).json({
+          message: "Gemini request timed out.",
+        });
+      }
       if (err instanceof z.ZodError) {
         return res.status(400).json({
           message: err.errors[0].message,
