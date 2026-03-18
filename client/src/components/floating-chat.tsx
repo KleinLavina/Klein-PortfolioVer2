@@ -48,22 +48,18 @@ const DEFAULT_SUGGESTED_REPLIES = [
 const AVATAR_ICONS = [Bot, UserRound, Sparkles, Cpu];
 
 function pickRandomWelcomeMessage(): string {
-  const index = Math.floor(Math.random() * WELCOME_MESSAGES.length);
-  return WELCOME_MESSAGES[index];
+  return WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)];
 }
 
 function pickRandomAvatarIcon() {
-  const index = Math.floor(Math.random() * AVATAR_ICONS.length);
-  return AVATAR_ICONS[index];
+  return AVATAR_ICONS[Math.floor(Math.random() * AVATAR_ICONS.length)];
 }
 
 function getOrCreateClientId(): string {
   if (typeof window === "undefined") return "client-server";
-
   const key = "portfolio_chat_client_id";
   const existing = window.localStorage.getItem(key);
   if (existing) return existing;
-
   const generated = `client-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   window.localStorage.setItem(key, generated);
   return generated;
@@ -74,10 +70,7 @@ function buildSuggestedReplies(messages: Message[]): string[] {
   if (!latest) return DEFAULT_SUGGESTED_REPLIES;
 
   const latestText = latest.text.toLowerCase();
-  const recentText = messages
-    .slice(-5)
-    .map((message) => message.text.toLowerCase())
-    .join(" ");
+  const recentText = messages.slice(-5).map((m) => m.text.toLowerCase()).join(" ");
 
   if (recentText.includes("project")) {
     return [
@@ -87,12 +80,7 @@ function buildSuggestedReplies(messages: Message[]): string[] {
       "Can you share a GitHub repo?",
     ];
   }
-
-  if (
-    recentText.includes("skill") ||
-    recentText.includes("stack") ||
-    recentText.includes("technology")
-  ) {
+  if (recentText.includes("skill") || recentText.includes("stack") || recentText.includes("technology")) {
     return [
       "What is Klein strongest at?",
       "Any backend experience?",
@@ -100,12 +88,7 @@ function buildSuggestedReplies(messages: Message[]): string[] {
       "What tools does Klein use daily?",
     ];
   }
-
-  if (
-    recentText.includes("contact") ||
-    recentText.includes("email") ||
-    recentText.includes("hire")
-  ) {
+  if (recentText.includes("contact") || recentText.includes("email") || recentText.includes("hire")) {
     return [
       "What is the best way to reach Klein?",
       "Can I send a project inquiry?",
@@ -113,7 +96,6 @@ function buildSuggestedReplies(messages: Message[]): string[] {
       "How quickly does Klein reply?",
     ];
   }
-
   if (latest.from === "user") {
     return [
       "Can you give more detail?",
@@ -122,7 +104,6 @@ function buildSuggestedReplies(messages: Message[]): string[] {
       "Do you have examples for this?",
     ];
   }
-
   if (latestText.includes("unknown") || latestText.includes("not sure")) {
     return [
       "How can I verify that info?",
@@ -131,7 +112,6 @@ function buildSuggestedReplies(messages: Message[]): string[] {
       "What do we know for sure?",
     ];
   }
-
   return DEFAULT_SUGGESTED_REPLIES;
 }
 
@@ -140,11 +120,7 @@ export function FloatingChat() {
   const [AvatarIcon] = useState(() => pickRandomAvatarIcon());
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => [
-    {
-      id: 0,
-      from: "klein",
-      text: pickRandomWelcomeMessage(),
-    },
+    { id: 0, from: "klein", text: pickRandomWelcomeMessage() },
   ]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -154,9 +130,7 @@ export function FloatingChat() {
     remaining: DAILY_MESSAGE_LIMIT,
     limit: DAILY_MESSAGE_LIMIT,
   });
-  const [suggestedReplies, setSuggestedReplies] = useState<string[]>(
-    DEFAULT_SUGGESTED_REPLIES,
-  );
+  const [suggestedReplies, setSuggestedReplies] = useState<string[]>(DEFAULT_SUGGESTED_REPLIES);
   const bottomRef = useRef<HTMLDivElement>(null);
   const suggestedRepliesRef = useRef<HTMLDivElement>(null);
 
@@ -171,9 +145,7 @@ export function FloatingChat() {
   useEffect(() => {
     const loadUsage = async () => {
       try {
-        const response = await fetch(
-          `/api/chat/usage?clientId=${encodeURIComponent(clientId)}`,
-        );
+        const response = await fetch(`/api/chat/usage?clientId=${encodeURIComponent(clientId)}`);
         if (!response.ok) return;
         const data = (await response.json()) as { usage?: ChatUsage };
         if (data.usage) setUsage(data.usage);
@@ -181,35 +153,23 @@ export function FloatingChat() {
         // Keep default usage state when usage lookup fails.
       }
     };
-
-    if (open) {
-      void loadUsage();
-    }
+    if (open) void loadUsage();
   }, [clientId, open]);
 
   const isAtDailyLimit = usage.remaining <= 0;
   const isNearDailyLimit = usage.used >= 6 && !isAtDailyLimit;
 
-  const sleep = (ms: number) =>
-    new Promise<void>((resolve) => {
-      setTimeout(resolve, ms);
-    });
+  const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
   const typewriterReply = async (messageId: number, fullText: string) => {
-    for (let index = TYPEWRITER_STEP; index <= fullText.length; index += TYPEWRITER_STEP) {
-      const nextText = fullText.slice(0, index);
+    for (let i = TYPEWRITER_STEP; i <= fullText.length; i += TYPEWRITER_STEP) {
       setMessages((prev) =>
-        prev.map((message) =>
-          message.id === messageId ? { ...message, text: nextText } : message,
-        ),
+        prev.map((m) => (m.id === messageId ? { ...m, text: fullText.slice(0, i) } : m))
       );
       await sleep(TYPEWRITER_DELAY_MS);
     }
-
     setMessages((prev) =>
-      prev.map((message) =>
-        message.id === messageId ? { ...message, text: fullText } : message,
-      ),
+      prev.map((m) => (m.id === messageId ? { ...m, text: fullText } : m))
     );
   };
 
@@ -218,65 +178,40 @@ export function FloatingChat() {
     if (!trimmed || isSending || isAtDailyLimit) return;
 
     const userMessage: Message = { id: Date.now(), from: "user", text: trimmed };
-    const nextMessages = [...messages, userMessage];
-
-    setMessages(nextMessages);
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsSending(true);
 
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clientId,
           message: trimmed,
-          history: messages.map((msg) => ({ from: msg.from, text: msg.text })),
+          history: messages.map((m) => ({ from: m.from, text: m.text })),
         }),
       });
-
       const data = (await response.json()) as {
         reply?: string;
         message?: string;
         details?: string;
         usage?: ChatUsage;
       };
-      if (data.usage) {
-        setUsage(data.usage);
-      }
+      if (data.usage) setUsage(data.usage);
       if (!response.ok || !data.reply) {
         throw new Error(data.message || data.details || "Failed to fetch AI response.");
       }
-      const reply = data.reply;
       const assistantMessageId = Date.now() + 1;
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: assistantMessageId,
-          from: "klein",
-          text: "",
-        },
-      ]);
+      setMessages((prev) => [...prev, { id: assistantMessageId, from: "klein", text: "" }]);
       setIsSending(false);
-      await typewriterReply(assistantMessageId, reply);
+      await typewriterReply(assistantMessageId, data.reply);
     } catch (error) {
-      const fallbackError = "I could not connect to the AI service right now. Please try again.";
       const errorText =
         error instanceof Error && error.message.trim()
           ? `AI service error: ${error.message}`
-          : fallbackError;
-
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          from: "klein",
-          text: errorText,
-        },
-      ]);
+          : "I could not connect to the AI service right now. Please try again.";
+      setMessages((prev) => [...prev, { id: Date.now() + 1, from: "klein", text: errorText }]);
     } finally {
       setIsSending(false);
     }
@@ -293,6 +228,7 @@ export function FloatingChat() {
       <AnimatePresence>
         {open && (
           <>
+            {/* Backdrop */}
             <motion.button
               key="chat-backdrop"
               type="button"
@@ -304,190 +240,192 @@ export function FloatingChat() {
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
             />
+
+            {/* Chat panel — size unchanged: 340/380px wide, 400px max-height */}
             <motion.div
               key="chat-panel"
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="fixed bottom-24 right-5 sm:right-8 z-50 w-[340px] sm:w-[380px] flex flex-col rounded-2xl border border-border/40 bg-card/80 backdrop-blur-2xl shadow-2xl overflow-hidden"
+              className="fixed bottom-24 right-5 sm:right-8 z-50 w-[340px] sm:w-[380px] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-border/30 bg-card dark:bg-card"
               style={{ maxHeight: "400px" }}
               onClick={(e) => {
                 if (!showSuggestedReplies) return;
-                const target = e.target as Node;
-                if (suggestedRepliesRef.current?.contains(target)) return;
+                if (suggestedRepliesRef.current?.contains(e.target as Node)) return;
                 setShowSuggestedReplies(false);
               }}
             >
-            <div
-              className="flex items-center justify-between px-5 py-3.5 border-b border-primary/35 bg-primary shrink-0"
-              style={{ boxShadow: "0 8px 20px hsl(var(--primary) / 0.25)" }}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary-foreground/15 border border-primary-foreground/35 flex items-center justify-center text-primary-foreground">
-                  <AvatarIcon size={18} />
-                </div>
-                <div>
-                  <p className="text-[12px] font-medium text-primary-foreground/80 leading-tight">
-                    Chat with
-                  </p>
-                  <p className="text-base font-bold text-primary-foreground leading-tight">
-                    Klein's Chatbot
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setOpen(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/15 transition-colors"
-                aria-label="Close chat"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 custom-scrollbar bg-white/95">
-              {messages.map((msg) => (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className={`flex items-end gap-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  {msg.from === "klein" && (
-                    <div className="w-7 h-7 rounded-full bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
-                      <AvatarIcon size={14} />
-                    </div>
-                  )}
-                  <div
-                    className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                      msg.from === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-sm"
-                        : "bg-muted/60 text-foreground border border-border/20 rounded-bl-sm"
-                    }`}
-                  >
-                    {msg.text}
+              {/* ── Header ── */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-primary/20 bg-primary shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-white/15 border border-white/25 flex items-center justify-center text-primary-foreground">
+                    <AvatarIcon size={16} />
                   </div>
-                </motion.div>
-              ))}
-              {isSending && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex justify-start"
-                >
-                  <div className="max-w-[80%] px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted/60 text-foreground border border-border/20">
-                    <div className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/80 animate-pulse" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/80 animate-pulse [animation-delay:120ms]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/80 animate-pulse [animation-delay:240ms]" />
-                    </div>
+                  <div>
+                    <p className="text-[11px] font-medium text-primary-foreground/75 leading-none mb-0.5">Chat with</p>
+                    <p className="text-sm font-bold text-primary-foreground leading-none">Klein's Chatbot</p>
                   </div>
-                </motion.div>
-              )}
-              <div ref={bottomRef} />
-            </div>
-
-            <div className="shrink-0 px-4 py-3 border-t border-border/30 bg-slate-50/95 backdrop-blur-md">
-              <div ref={suggestedRepliesRef}>
-              <div className="mb-2">
+                </div>
                 <button
-                  onClick={() => setShowSuggestedReplies((value) => !value)}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                  aria-label="Toggle suggested replies"
+                  onClick={() => setOpen(false)}
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/15 transition-all duration-150"
+                  aria-label="Close chat"
                 >
-                  <motion.span
-                    initial={false}
-                    animate={{ rotate: showSuggestedReplies ? 0 : 180 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center"
-                  >
-                    <ChevronUp size={14} />
-                  </motion.span>
-                  Suggested replies
+                  <X size={15} />
                 </button>
               </div>
-              <AnimatePresence initial={false}>
-                {showSuggestedReplies && (
+
+              {/* ── Messages ── */}
+              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-background dark:bg-background/80 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                {messages.map((msg) => (
                   <motion.div
-                    key="suggested-replies"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="overflow-hidden"
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.18 }}
+                    className={`flex items-end gap-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
                   >
-                    <div className="mb-2.5 flex flex-wrap gap-2">
-                      {suggestedReplies.map((reply) => (
-                        <button
-                          key={reply}
-                          onClick={() => applySuggestedReply(reply)}
-                          disabled={isSending || isAtDailyLimit}
-                          className="rounded-full border border-border/40 bg-muted/40 px-3 py-1.5 text-xs text-foreground hover:bg-muted/70 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                          {reply}
-                        </button>
-                      ))}
+                    {msg.from === "klein" && (
+                      <div className="w-6 h-6 rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 flex items-center justify-center text-primary shrink-0">
+                        <AvatarIcon size={12} />
+                      </div>
+                    )}
+                    <div
+                      className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                        msg.from === "user"
+                          ? "bg-primary text-primary-foreground rounded-br-sm"
+                          : "bg-muted dark:bg-muted/60 text-foreground border border-border/30 dark:border-border/20 rounded-bl-sm"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* Typing indicator */}
+                {isSending && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.18 }}
+                    className="flex justify-start"
+                  >
+                    <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-muted dark:bg-muted/60 border border-border/30 dark:border-border/20 shadow-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:0ms]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:120ms]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/60 animate-bounce [animation-delay:240ms]" />
+                      </div>
                     </div>
                   </motion.div>
                 )}
-              </AnimatePresence>
-              <div className="mb-2 flex items-center justify-between text-xs">
-                <p className="font-medium text-foreground">
-                  {usage.remaining}/{usage.limit} messages left today
-                </p>
-                <p className="text-muted-foreground">
-                  {input.length}/{MESSAGE_CHAR_LIMIT}
-                </p>
+                <div ref={bottomRef} />
               </div>
-              {isNearDailyLimit && (
-                <p className="mb-2 text-xs text-amber-600">
-                  Warning: You are close to your daily chat limit.
-                </p>
-              )}
-              {isAtDailyLimit && (
-                <p className="mb-2 text-xs text-red-600">{DAILY_LIMIT_MESSAGE}</p>
-              )}
+
+              {/* ── Footer / Input area ── */}
+              <div className="shrink-0 px-4 py-3 border-t border-border/40 bg-card dark:bg-card/90 backdrop-blur-md">
+                {/* Suggested replies */}
+                <div ref={suggestedRepliesRef}>
+                  <div className="mb-2">
+                    <button
+                      onClick={() => setShowSuggestedReplies((v) => !v)}
+                      className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label="Toggle suggested replies"
+                    >
+                      <motion.span
+                        initial={false}
+                        animate={{ rotate: showSuggestedReplies ? 0 : 180 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex items-center"
+                      >
+                        <ChevronUp size={13} />
+                      </motion.span>
+                      Suggested replies
+                    </button>
+                  </div>
+
+                  <AnimatePresence initial={false}>
+                    {showSuggestedReplies && (
+                      <motion.div
+                        key="suggested-replies"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="mb-2.5 flex flex-wrap gap-1.5">
+                          {suggestedReplies.map((reply) => (
+                            <button
+                              key={reply}
+                              onClick={() => applySuggestedReply(reply)}
+                              disabled={isSending || isAtDailyLimit}
+                              className="rounded-full border border-border/50 bg-muted/50 dark:bg-muted/30 px-2.5 py-1 text-[11px] text-foreground hover:bg-muted dark:hover:bg-muted/60 hover:border-border disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-150"
+                            >
+                              {reply}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Usage + char count */}
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-[11px] font-medium text-muted-foreground">
+                      {usage.remaining}/{usage.limit} messages left today
+                    </p>
+                    <p className="text-[11px] text-muted-foreground/60">
+                      {input.length}/{MESSAGE_CHAR_LIMIT}
+                    </p>
+                  </div>
+
+                  {isNearDailyLimit && (
+                    <p className="mb-2 text-[11px] text-amber-500 dark:text-amber-400">
+                      You're close to your daily message limit.
+                    </p>
+                  )}
+                  {isAtDailyLimit && (
+                    <p className="mb-2 text-[11px] text-red-500 dark:text-red-400">{DAILY_LIMIT_MESSAGE}</p>
+                  )}
+                </div>
+
+                {/* Input row */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value.slice(0, MESSAGE_CHAR_LIMIT))}
+                    onKeyDown={(e) => e.key === "Enter" && send()}
+                    placeholder={
+                      isAtDailyLimit ? "Daily limit reached" : isSending ? "Thinking..." : "Type a message..."
+                    }
+                    disabled={isSending || isAtDailyLimit}
+                    maxLength={MESSAGE_CHAR_LIMIT}
+                    className="flex-1 bg-muted/40 dark:bg-muted/20 border border-border/40 rounded-xl px-3.5 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/50 focus:bg-muted/60 dark:focus:bg-muted/30 disabled:opacity-50 transition-all duration-150"
+                  />
+                  <button
+                    onClick={send}
+                    disabled={!input.trim() || isSending || isAtDailyLimit}
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/85 active:scale-95 disabled:opacity-35 disabled:cursor-not-allowed transition-all duration-150 shrink-0"
+                    aria-label="Send message"
+                  >
+                    <Send size={14} />
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) =>
-                    setInput(e.target.value.slice(0, MESSAGE_CHAR_LIMIT))
-                  }
-                  onKeyDown={(e) => e.key === "Enter" && send()}
-                  placeholder={
-                    isAtDailyLimit
-                      ? "Daily limit reached"
-                      : isSending
-                        ? "Thinking..."
-                        : "Type a message..."
-                  }
-                  disabled={isSending || isAtDailyLimit}
-                  maxLength={MESSAGE_CHAR_LIMIT}
-                  className="flex-1 bg-muted/40 border border-border/30 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-muted/60 transition-colors"
-                />
-                <button
-                  onClick={send}
-                  disabled={!input.trim() || isSending || isAtDailyLimit}
-                  className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground hover:bg-primary/80 disabled:opacity-40 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5 shrink-0"
-                >
-                  <Send size={15} />
-                </button>
-              </div>
-            </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
+      {/* ── Floating trigger button ── */}
       <motion.button
         onClick={() => setOpen((v) => !v)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-5 right-5 sm:right-8 z-50 flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-sm shadow-lg hover:bg-primary/90 transition-colors"
+        className="fixed bottom-5 right-5 sm:right-8 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground font-bold text-sm shadow-lg hover:bg-primary/90 transition-colors"
         style={{ boxShadow: "0 4px 24px hsl(var(--primary) / 0.4)" }}
       >
         <AnimatePresence mode="wait">
@@ -499,7 +437,7 @@ export function FloatingChat() {
               exit={{ rotate: 90, opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              <X size={17} />
+              <X size={16} />
             </motion.span>
           ) : (
             <motion.span
@@ -509,7 +447,7 @@ export function FloatingChat() {
               exit={{ rotate: -90, opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              <MessageCircle size={17} />
+              <MessageCircle size={16} />
             </motion.span>
           )}
         </AnimatePresence>

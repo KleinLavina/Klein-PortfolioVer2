@@ -1,0 +1,83 @@
+Task: Integrate Dark/Light Theme Support and Improve Chatbot UI Design
+
+Objective:
+Update the existing chat container chatbot so that it fully supports the application's current theme system (light and dark mode), and enhance the overall UI/UX design without changing the container’s size or height.
+
+Context:
+
+* The project already has an existing theme switcher (light/dark).
+* The chatbot UI is already implemented inside the application.
+* The stack uses React + Tailwind CSS.
+* The chatbot must follow the same theme state as the rest of the app.
+
+Requirements:
+
+1. Theme Integration (Strict)
+
+* Do NOT create a new theme system.
+* Reuse the existing theme state, context, or class (e.g., `dark` class or ThemeProvider).
+* Detect how theme is implemented (class-based, context, or localStorage) and adapt accordingly.
+* Ensure real-time switching without page reload.
+
+2. UI Consistency (Required)
+   Ensure all chatbot elements follow light/dark mode:
+
+* Chat container background
+* Message bubbles (user and bot)
+* Input field
+* Buttons and icons
+* Borders, shadows, and divider lines
+* Scrollbar (if styled)
+
+3. Tailwind Implementation
+
+* Use Tailwind `dark:` variants properly.
+* Avoid hardcoded colors that break theme switching.
+* Follow existing design tokens or color palette if present.
+
+4. Design Enhancement (Important)
+
+* Improve the overall visual design and user experience of the chat container.
+* Make it modern, clean, and professional (ChatGPT-level quality).
+* Add subtle enhancements such as:
+
+  * Improved spacing and padding
+  * Better typography hierarchy
+  * Refined message bubble styles
+  * Smooth hover/focus states
+  * Subtle shadows and depth
+  * Micro-interactions (e.g., input focus, button hover)
+* Maintain accessibility and readability in both themes.
+
+5. Size Constraint (Strict)
+
+* Do NOT change the width, height, or overall layout size of the chat container.
+* Do NOT affect its positioning in the layout.
+
+6. Preserve Functionality
+
+* Do NOT break:
+
+  * Message sending
+  * Rendering logic
+  * Animations
+  * API calls or chatbot logic
+
+7. Code Quality
+
+* Do NOT duplicate theme logic or styles unnecessarily.
+* Follow existing component structure and conventions.
+* Keep changes scoped only to chatbot-related components.
+
+8. Scope Limitation
+
+* ONLY modify the chatbot container and its child components.
+* Do NOT refactor unrelated parts of the application.
+
+Output:
+
+* Updated chatbot component(s) with:
+
+  * Proper light/dark theme support
+  * Improved UI design
+* Brief explanation of what was improved and why
