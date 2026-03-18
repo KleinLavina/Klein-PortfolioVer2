@@ -1,5 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+
+const philnitsLink = "";
+
+const philnitsProofImages = [
+  "/90359102-3375-4a92-a4e9-d2420c6775d6.jpg",
+  "/82b4fe4e-8f92-4ff0-be52-a917a55affdb.jpg",
+  "/1cf3141b-27d8-4d68-bfb2-6c7c97d5abeb.jpg",
+] as const;
 
 const timelineData = [
   {
@@ -7,50 +15,53 @@ const timelineData = [
     phase: "Chapter 01",
     title: "The First Line",
     subtitle: "Where curiosity became code.",
-    highlight: "Enrolled in BSIT at Saint Joseph College and took my first real steps into web development — learning HTML, CSS, and JavaScript from scratch.",
+    highlight:
+      "Enrolled in BSIT at Saint Joseph College and took my first real steps into web development, learning HTML, CSS, and JavaScript from scratch.",
     achievements: [
-      { label: "Wrote first Java program", note: "\"Hello World\" in Notepad++" },
+      { label: "Wrote first Java program", note: '"Hello World" in Notepad++' },
       { label: "Built first static web pages", note: "HTML + CSS from scratch" },
       { label: "Mastered CSS Flexbox & Grid", note: "Responsive layouts" },
       { label: "Dean's List", note: "First Semester" },
     ],
     learningHighlights: [
-      "First steps in programming via Java & OOP fundamentals",
-      "Responsive layouts & design fundamentals",
+      "First steps in programming via Java and OOP fundamentals",
+      "Responsive layouts and design fundamentals",
       "W3Schools, tutorials, and real practice",
     ],
     techStack: ["HTML", "CSS", "JavaScript", "Java"],
     accent: "emerald",
     proofImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=900&q=80",
-    proofLabel: "Dean's List Certificate · First Web Pages",
+    proofLabel: "Dean's List Certificate and first web pages",
   },
   {
     year: "2023",
     phase: "Chapter 02",
     title: "The Architect Phase",
     subtitle: "Learning to think in systems.",
-    highlight: "Shifted from writing code to designing data. Studied how systems are modeled, how data flows, and how relational databases are built from the ground up.",
+    highlight:
+      "Shifted from writing code to designing data. Studied how systems are modeled, how data flows, and how relational databases are built from the ground up.",
     achievements: [
       { label: "Designed normalized relational databases", note: "3NF compliance" },
       { label: "Modeled systems using DFDs", note: "Data flow diagrams" },
-      { label: "Built & managed full MySQL databases", note: "Queries & schema" },
+      { label: "Built and managed full MySQL databases", note: "Queries and schema" },
     ],
     learningHighlights: [
-      "Data Flow Diagrams & system modeling",
-      "Database normalization & architecture",
-      "Digital ethics & responsible computing",
+      "Data Flow Diagrams and system modeling",
+      "Database normalization and architecture",
+      "Digital ethics and responsible computing",
     ],
     techStack: ["MySQL", "DFD", "Database Design", "System Modeling"],
     accent: "blue",
     proofImage: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=900&q=80",
-    proofLabel: "Database Schema · DFD Diagrams",
+    proofLabel: "Database schema and DFD diagrams",
   },
   {
     year: "2024",
     phase: "Chapter 03",
     title: "Building Real Things",
     subtitle: "Code that actually shipped.",
-    highlight: "Went from theory to product — built two live e-commerce websites, launched paid work for classmates, and deployed projects to real hosting.",
+    highlight:
+      "Went from theory to product, built two live e-commerce websites, launched paid work for classmates, and deployed projects to real hosting.",
     achievements: [
       { label: "Launched Cracken Furniture", note: "Live e-commerce site" },
       { label: "Delivered CrackenGearFits", note: "Paid client project" },
@@ -59,49 +70,73 @@ const timelineData = [
     ],
     learningHighlights: [
       "PHP + XAMPP dynamic web apps",
-      "Auth, CAPTCHA & SQL injection protection",
-      "Git version control & GitHub collaboration",
+      "Auth, CAPTCHA, and SQL injection protection",
+      "Git version control and GitHub collaboration",
       "Introduced to Python and R language",
     ],
     techStack: ["PHP", "XAMPP", "MySQL", "Python", "R", "Git", "GitHub"],
     accent: "violet",
     proofImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80",
-    proofLabel: "Cracken Furniture · Live Deployment Screenshot",
+    proofLabel: "Cracken Furniture live deployment screenshot",
   },
   {
     year: "2025",
     phase: "Chapter 04",
     title: "The Modern Stack",
     subtitle: "Full-stack, frontend-first.",
-    highlight: "Crossed into modern web development — React, Vite, and Django. Built production chatbots, capstone systems, and a school announcement platform. Capped it with a national IT certification.",
+    highlight:
+      "Crossed into modern web development with React, Vite, and Django. Built production chatbots, capstone systems, and a school announcement platform.",
     achievements: [
       { label: "Built J-Gear chatbot", note: "FAQ bot for office use" },
       { label: "Delivered RDFS capstone", note: "Real-time dispatch system" },
       { label: "Designed Tag-os School Site", note: "CMS for announcements" },
-      { label: "Passed PhilNITS IT Passport", note: "National certification" },
     ],
     learningHighlights: [
-      "React JSX + keyword-based chat logic",
-      "Django web framework & HTML templates",
-      "Proposed & architected real-world systems",
+      "React JSX and keyword-based chat logic",
+      "Django web framework and HTML templates",
+      "Proposed and architected real-world systems",
     ],
     techStack: ["React", "Vite", "Django", "JSX", "Python"],
     accent: "orange",
     proofImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&q=80",
-    proofLabel: "J-Gear Chatbot · RDFS Capstone System",
-    certification: {
-      name: "Certified PhilNITS Passer",
-      examineeNo: "IP4500348",
-      registeredName: "Laviña, Klein F.",
-      url: "https://philnits.org/passers-ip/",
-    },
+    proofLabel: "J-Gear Chatbot and RDFS capstone system",
   },
-];
+  {
+    year: "2025",
+    phase: "Certification",
+    title: "PhilNITS Certification",
+    subtitle: "Independent proof of core IT knowledge.",
+    highlight:
+      "Passed the PhilNITS IT Passport examination, adding a formal certification milestone to the portfolio's development timeline.",
+    achievements: [
+      { label: "Passed PhilNITS IT Passport", note: "National certification milestone" },
+      { label: "Certification proof archived", note: "Three official supporting images" },
+    ],
+    learningHighlights: [
+      "Validated core IT concepts through formal testing",
+      "Added verifiable proof to the portfolio timeline",
+    ],
+    techStack: ["PhilNITS", "IT Passport"],
+    accent: "orange",
+    proofImages: [...philnitsProofImages],
+    proofLabel: "PhilNITS certification proof gallery",
+    certificationLink: philnitsLink,
+  },
+] as const;
 
-const palette: Record<string, {
-  text: string; bg: string; border: string; glow: string;
-  badge: string; pill: string; dot: string; line: string;
-}> = {
+const palette: Record<
+  string,
+  {
+    text: string;
+    bg: string;
+    border: string;
+    glow: string;
+    badge: string;
+    pill: string;
+    dot: string;
+    line: string;
+  }
+> = {
   emerald: {
     text: "text-emerald-400",
     bg: "bg-emerald-500/8",
@@ -144,57 +179,131 @@ const palette: Record<string, {
   },
 };
 
-type ChapterItem = typeof timelineData[0];
+type ChapterItem = (typeof timelineData)[number];
+
+function getProofImages(item: ChapterItem) {
+  if ("proofImages" in item && item.proofImages) {
+    return item.proofImages;
+  }
+
+  if ("proofImage" in item) {
+    return [item.proofImage];
+  }
+
+  return [];
+}
 
 function ProofModal({ item, onClose }: { item: ChapterItem; onClose: () => void }) {
   const c = palette[item.accent];
+  const proofImages = getProofImages(item);
+  const certificationLink = "certificationLink" in item ? item.certificationLink : "";
+
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", handler);
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+    return () => {
+      document.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
   }, [onClose]);
 
   return (
     <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] overflow-y-auto"
       onClick={onClose}
     >
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.92, y: 20 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-2xl rounded-2xl overflow-hidden border border-white/10 bg-[#0e0e10] shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/5">
-          <div className="flex items-center gap-3">
-            <span className={`text-[10px] font-black uppercase tracking-widest ${c.text}`}>{item.phase}</span>
-            <span className="text-white/20">·</span>
-            <span className="text-xs font-semibold text-foreground/70">{item.title}</span>
+      <div className="relative z-10 flex min-h-dvh items-center justify-center p-3 sm:p-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.92, y: 20 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="my-auto flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e10] shadow-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-5rem)]"
+          onClick={(e) => e.stopPropagation()}
+        >
+        <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-5">
+          <div>
+            <div className={`text-[10px] font-black uppercase tracking-[0.2em] ${c.text}`}>{item.phase}</div>
+            <div className="mt-1 text-sm font-semibold text-foreground">{item.title}</div>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors text-lg">×</button>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+          >
+            ×
+          </button>
         </div>
-        <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
-          <img src={item.proofImage} alt={item.proofLabel} className="w-full h-full object-cover" />
+
+        <div className="space-y-5 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5">
+          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{item.highlight}</p>
+
+          <div className="-mx-1 overflow-x-auto overscroll-x-contain pb-1">
+            <div className="grid min-w-[720px] grid-cols-3 gap-4 px-1 md:min-w-0 md:grid-cols-2 xl:grid-cols-3">
+            {proofImages.map((imageSrc, index) => (
+              <motion.a
+                key={imageSrc}
+                href={imageSrc}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.28, delay: index * 0.06 }}
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]"
+              >
+                <div className="aspect-[4/3] overflow-hidden bg-black/20">
+                  <img
+                    src={imageSrc}
+                    alt={`${item.title} proof ${index + 1}`}
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03] group-hover:opacity-90"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3 px-4 py-3">
+                  <span className="text-xs text-muted-foreground">Proof image {index + 1}</span>
+                  <span className={`text-[10px] font-black uppercase tracking-[0.16em] ${c.text}`}>Open</span>
+                </div>
+              </motion.a>
+            ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
+            <p className="text-xs text-muted-foreground">{item.proofLabel}</p>
+            {certificationLink ? (
+              <a
+                href={certificationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 ${c.pill}`}
+              >
+                View Certification
+              </a>
+            ) : null}
+          </div>
         </div>
-        <div className="px-5 py-4 flex items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">{item.proofLabel}</p>
-          <a href={item.proofImage} target="_blank" rel="noopener noreferrer"
-            className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border transition-colors ${c.pill}`}>
-            Open full ↗
-          </a>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </motion.div>
   );
 }
 
-function Chapter({ item, index, onViewProof }: { item: ChapterItem; index: number; onViewProof: (i: ChapterItem) => void }) {
+function Chapter({
+  item,
+  index,
+  onViewProof,
+}: {
+  item: ChapterItem;
+  index: number;
+  onViewProof: (i: ChapterItem) => void;
+}) {
   const c = palette[item.accent];
+  const certificationLink = "certificationLink" in item ? item.certificationLink : "";
 
   return (
     <motion.div
@@ -204,31 +313,27 @@ function Chapter({ item, index, onViewProof }: { item: ChapterItem; index: numbe
       transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
       className="relative"
     >
-      {/* ── CHAPTER HEADER ─────────────────────────────── */}
       <div className="relative mb-8 overflow-hidden">
-        {/* Ghost year watermark */}
         <div
-          className="absolute -top-6 right-0 font-black leading-none select-none pointer-events-none text-[7rem] sm:text-[10rem]"
+          className="pointer-events-none absolute -top-6 right-0 select-none text-[7rem] font-black leading-none sm:text-[10rem]"
           style={{ color: "transparent", WebkitTextStroke: "1.5px hsl(var(--foreground) / 0.05)" }}
         >
           {item.year}
         </div>
 
         <div className="relative z-10">
-          {/* Phase badge */}
-          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-[0.2em] mb-3 ${c.badge}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+          <div className={`mb-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] ${c.badge}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
             {item.phase} · {item.year}
           </div>
 
-          <h3 className="text-3xl sm:text-4xl font-black text-foreground leading-none mb-1">{item.title}</h3>
-          <p className={`text-sm italic mb-4 ${c.text} opacity-80`}>{item.subtitle}</p>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">{item.highlight}</p>
+          <h3 className="mb-1 text-3xl font-black leading-none text-foreground sm:text-4xl">{item.title}</h3>
+          <p className={`mb-4 text-sm italic opacity-80 ${c.text}`}>{item.subtitle}</p>
+          <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{item.highlight}</p>
         </div>
       </div>
 
-      {/* ── ACHIEVEMENT CARDS ──────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {item.achievements.map((ach, ai) => (
           <motion.div
             key={ach.label}
@@ -236,99 +341,78 @@ function Chapter({ item, index, onViewProof }: { item: ChapterItem; index: numbe
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: ai * 0.07 }}
-            className={`group relative rounded-xl border p-4 bg-card/40 backdrop-blur-sm hover:-translate-y-1 hover:${c.glow} transition-all duration-300 cursor-default overflow-hidden ${c.border}`}
+            className={`group relative cursor-default overflow-hidden rounded-xl border bg-card/40 p-4 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 ${c.border} ${c.glow}`}
           >
-            {/* Corner accent */}
-            <div className={`absolute top-0 right-0 w-10 h-10 ${c.bg} rounded-bl-2xl rounded-tr-xl pointer-events-none`} />
-            <div className={`text-[10px] font-black uppercase tracking-widest mb-2 ${c.text}`}>✦</div>
-            <p className="text-xs font-bold text-foreground leading-snug mb-1">{ach.label}</p>
-            <p className="text-[10px] text-muted-foreground leading-snug">{ach.note}</p>
+            <div className={`pointer-events-none absolute right-0 top-0 h-10 w-10 rounded-bl-2xl rounded-tr-xl ${c.bg}`} />
+            <div className={`mb-2 text-[10px] font-black uppercase tracking-widest ${c.text}`}>✦</div>
+            <p className="mb-1 text-xs font-bold leading-snug text-foreground">{ach.label}</p>
+            <p className="text-[10px] leading-snug text-muted-foreground">{ach.note}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* ── LEARNING HIGHLIGHTS + TECH ──────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-        {/* Learning highlights */}
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <motion.div
           initial={{ opacity: 0, x: -16 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45, delay: 0.1 }}
-          className={`rounded-xl border p-4 bg-card/30 backdrop-blur-sm ${c.border}`}
+          className={`rounded-xl border bg-card/30 p-4 backdrop-blur-sm ${c.border}`}
         >
-          <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">What I Learned</div>
+          <div className="mb-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">What I Learned</div>
           <ul className="space-y-2">
             {item.learningHighlights.map((hl, li) => (
               <li key={li} className="flex items-start gap-2.5">
                 <span className={`mt-0.5 text-xs font-black ${c.text}`}>→</span>
-                <span className="text-xs text-muted-foreground leading-relaxed">{hl}</span>
+                <span className="text-xs leading-relaxed text-muted-foreground">{hl}</span>
               </li>
             ))}
           </ul>
         </motion.div>
 
-        {/* Tech stack + proof */}
         <motion.div
           initial={{ opacity: 0, x: 16 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45, delay: 0.15 }}
-          className={`rounded-xl border p-4 bg-card/30 backdrop-blur-sm flex flex-col justify-between gap-4 ${c.border}`}
+          className={`flex flex-col justify-between gap-4 rounded-xl border bg-card/30 p-4 backdrop-blur-sm ${c.border}`}
         >
           <div>
-            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">Tech Used</div>
+            <div className="mb-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tech Used</div>
             <div className="flex flex-wrap gap-1.5">
               {item.techStack.map((tech) => (
-                <span key={tech} className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${c.pill}`}>
+                <span key={tech} className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${c.pill}`}>
                   {tech}
                 </span>
               ))}
             </div>
           </div>
-          <button
-            onClick={() => onViewProof(item)}
-            className={`self-start flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all hover:-translate-y-0.5 ${c.pill}`}
-          >
-            View Proof ↗
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => onViewProof(item)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 ${c.pill}`}
+            >
+              View Proof
+            </button>
+            {certificationLink ? (
+              <a
+                href={certificationLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 ${c.pill}`}
+              >
+                View Certification
+              </a>
+            ) : null}
+          </div>
         </motion.div>
       </div>
 
-      {/* ── CERTIFICATION (if any) ──────────────────────── */}
-      {"certification" in item && item.certification && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          <a
-            href={item.certification.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`group flex items-start gap-4 rounded-xl border p-4 bg-card/30 backdrop-blur-sm hover:${c.bg} transition-all duration-300 ${c.border}`}
-          >
-            <div className={`shrink-0 w-9 h-9 rounded-lg ${c.bg} border ${c.border} flex items-center justify-center text-base`}>🏅</div>
-            <div className="flex-1 min-w-0">
-              <div className={`text-[9px] font-black uppercase tracking-widest mb-0.5 ${c.text}`}>Certification</div>
-              <div className="text-xs font-bold text-foreground">{item.certification.name}</div>
-              <div className="flex flex-wrap gap-x-4 mt-1">
-                <span className="text-[10px] text-muted-foreground">No. <span className="font-mono font-semibold text-foreground/70">{item.certification.examineeNo}</span></span>
-                <span className="text-[10px] text-muted-foreground">Name <span className="font-semibold text-foreground/70">{item.certification.registeredName}</span></span>
-              </div>
-            </div>
-            <span className={`text-xs mt-0.5 ${c.text} opacity-40 group-hover:opacity-100 transition-opacity`}>↗</span>
-          </a>
-        </motion.div>
-      )}
-
-      {/* ── SEPARATOR (not after last) ─────────────────── */}
       {index < timelineData.length - 1 && (
-        <div className="mt-14 mb-2 flex items-center gap-4">
-          <div className={`flex-1 h-px bg-gradient-to-r ${c.line}`} />
-          <div className={`w-2 h-2 rounded-full ${c.dot} opacity-50`} />
-          <div className={`flex-1 h-px bg-gradient-to-l ${palette[timelineData[index + 1].accent].line}`} />
+        <div className="mb-2 mt-14 flex items-center gap-4">
+          <div className={`h-px flex-1 bg-gradient-to-r ${c.line}`} />
+          <div className={`h-2 w-2 rounded-full ${c.dot} opacity-50`} />
+          <div className={`h-px flex-1 bg-gradient-to-l ${palette[timelineData[index + 1].accent].line}`} />
         </div>
       )}
     </motion.div>
@@ -341,17 +425,14 @@ export function DeveloperTimeline() {
   return (
     <>
       <AnimatePresence>
-        {activeProof && (
-          <ProofModal key="proof-modal" item={activeProof} onClose={() => setActiveProof(null)} />
-        )}
+        {activeProof ? <ProofModal key="proof-modal" item={activeProof} onClose={() => setActiveProof(null)} /> : null}
       </AnimatePresence>
 
-      <div className="relative max-w-4xl mx-auto space-y-14">
+      <div className="relative mx-auto max-w-4xl space-y-14">
         {timelineData.map((item, i) => (
-          <Chapter key={i} item={item} index={i} onViewProof={setActiveProof} />
+          <Chapter key={`${item.year}-${item.title}`} item={item} index={i} onViewProof={setActiveProof} />
         ))}
 
-        {/* Bottom cap */}
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -359,7 +440,7 @@ export function DeveloperTimeline() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="flex flex-col items-center gap-3 pt-6"
         >
-          <div className="w-px h-10 bg-gradient-to-b from-white/10 to-transparent" />
+          <div className="h-10 w-px bg-gradient-to-b from-white/10 to-transparent" />
           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">Still writing...</span>
         </motion.div>
       </div>
