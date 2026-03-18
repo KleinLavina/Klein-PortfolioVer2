@@ -1,15 +1,46 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { sqlite } from "./db";
-import { db } from "./db";
-import { chatbotContent } from "@shared/schema";
-import { eq, asc } from "drizzle-orm";
+import {
+  type InsertChatbotContent,
+  portfolioMemoryEntryInputSchema,
+  updatePortfolioMemoryEntryInputSchema,
+} from "@shared/schema";
+import { portfolioMemorySections } from "@shared/portfolio-memory";
 import { z } from "zod";
 import { randomBytes } from "crypto";
+import { getServerSupabase, unwrapSupabaseResult } from "./supabase";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin";
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
 
-const SEED_CONTENT = [
+type ChatbotContentRow = {
+  id: number;
+  category: string;
+  label: string;
+  content: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+type PortfolioMemoryEntryRow = {
+  id: number;
+  section_key: string;
+  title: string;
+  eyebrow: string;
+  summary: string;
+  context: string;
+  accent: "primary" | "secondary" | "accent";
+  facts: Array<{ label: string; value: string }>;
+  items: string[];
+  links: Array<{ label: string; url: string }>;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+const SEED_CONTENT: InsertChatbotContent[] = [
   {
     category: "system_prompt",
     label: "Main system prompt",
@@ -167,45 +198,215 @@ const SEED_CONTENT = [
   },
 ];
 
+function mapChatbotContentRow(row: ChatbotContentRow) {
+  return {
+    id: row.id,
+    category: row.category,
+    label: row.label,
+    content: row.content,
+    isActive: row.is_active,
+    sortOrder: row.sort_order,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function mapPortfolioMemoryRow(row: PortfolioMemoryEntryRow) {
+  return {
+    recordId: row.id,
+    id: row.section_key,
+    order: row.sort_order,
+    title: row.title,
+    eyebrow: row.eyebrow,
+    summary: row.summary,
+    context: row.context,
+    accent: row.accent,
+    facts: Array.isArray(row.facts) ? row.facts : [],
+    items: Array.isArray(row.items) ? row.items : [],
+    links: Array.isArray(row.links) ? row.links : [],
+    isActive: row.is_active,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toChatbotContentInsert(input: InsertChatbotContent) {
+  return {
+    category: input.category,
+    label: input.label,
+    content: input.content,
+    is_active: input.isActive,
+    sort_order: input.sortOrder,
+  };
+}
+
+function toPortfolioMemoryInsert(
+  input: z.infer<typeof portfolioMemoryEntryInputSchema>,
+) {
+  return {
+    section_key: input.sectionId,
+    title: input.title,
+    eyebrow: input.eyebrow,
+    summary: input.summary,
+    context: input.context,
+    accent: input.accent,
+    facts: input.facts,
+    items: input.items,
+    links: input.links,
+    is_active: input.isActive,
+    sort_order: input.sortOrder,
+  };
+}
+
 export async function seedChatbotContent() {
-  const existing = await db.select().from(chatbotContent).limit(1);
-  if (existing.length > 0) return;
-  await db.insert(chatbotContent).values(SEED_CONTENT);
+  const supabase = getServerSupabase();
+  const existingResult = await supabase
+    .from("chatbot_content")
+    .select("id")
+    .limit(1);
+  const existing = unwrapSupabaseResult(
+    existingResult.data ?? [],
+    existingResult.error,
+    "Failed to check chatbot content seed",
+  );
+
+  if (existing.length > 0) {
+    return;
+  }
+
+  const insertResult = await supabase
+    .from("chatbot_content")
+    .insert(SEED_CONTENT.map(toChatbotContentInsert));
+  unwrapSupabaseResult(insertResult.data, insertResult.error, "Failed to seed chatbot content");
   console.log(`[admin] Seeded ${SEED_CONTENT.length} chatbot content entries.`);
 }
 
-function createSession(): string {
+export async function seedPortfolioMemory() {
+  const supabase = getServerSupabase();
+  const existingResult = await supabase
+    .from("portfolio_memory_entries")
+    .select("id")
+    .limit(1);
+  const existing = unwrapSupabaseResult(
+    existingResult.data ?? [],
+    existingResult.error,
+    "Failed to check portfolio memory seed",
+  );
+
+  if (existing.length > 0) {
+    return;
+  }
+
+  const insertResult = await supabase
+    .from("portfolio_memory_entries")
+    .insert(
+      portfolioMemorySections.map((section) => ({
+        section_key: section.id,
+        title: section.title,
+        eyebrow: section.eyebrow,
+        summary: section.summary,
+        context: section.context,
+        accent: section.accent,
+        facts: section.facts ?? [],
+        items: section.items ?? [],
+        links: section.links ?? [],
+        is_active: true,
+        sort_order: section.order,
+      })),
+    );
+  unwrapSupabaseResult(insertResult.data, insertResult.error, "Failed to seed portfolio memory");
+  console.log(`[admin] Seeded ${portfolioMemorySections.length} portfolio memory sections.`);
+}
+
+async function createSession(): Promise<string> {
+  const supabase = getServerSupabase();
   const token = randomBytes(32).toString("hex");
-  const now = Math.floor(Date.now() / 1000);
-  sqlite
-    .prepare(
-      "INSERT INTO admin_sessions (token, created_at, expires_at) VALUES (?, ?, ?)",
-    )
-    .run(token, now, now + SESSION_TTL_SECONDS);
+  const expiresAt = new Date(Date.now() + SESSION_TTL_SECONDS * 1000).toISOString();
+
+  const result = await supabase
+    .from("admin_sessions")
+    .insert({
+      token,
+      expires_at: expiresAt,
+    });
+
+  unwrapSupabaseResult(result.data, result.error, "Failed to create admin session");
   return token;
 }
 
-function validateSession(token: string): boolean {
-  const now = Math.floor(Date.now() / 1000);
-  sqlite
-    .prepare("DELETE FROM admin_sessions WHERE expires_at < ?")
-    .run(now);
-  const row = sqlite
-    .prepare("SELECT token FROM admin_sessions WHERE token = ? AND expires_at >= ?")
-    .get(token, now) as { token: string } | undefined;
-  return Boolean(row);
+async function validateSession(token: string): Promise<boolean> {
+  const supabase = getServerSupabase();
+  const now = new Date().toISOString();
+
+  const deleteExpiredResult = await supabase
+    .from("admin_sessions")
+    .delete()
+    .lt("expires_at", now);
+  unwrapSupabaseResult(
+    deleteExpiredResult.data,
+    deleteExpiredResult.error,
+    "Failed to prune expired admin sessions",
+  );
+
+  const sessionResult = await supabase
+    .from("admin_sessions")
+    .select("token")
+    .eq("token", token)
+    .gte("expires_at", now)
+    .maybeSingle();
+
+  const row = unwrapSupabaseResult(
+    sessionResult.data,
+    sessionResult.error,
+    "Failed to validate admin session",
+  );
+
+  return Boolean(row?.token);
 }
 
-function destroySession(token: string): void {
-  sqlite.prepare("DELETE FROM admin_sessions WHERE token = ?").run(token);
+async function destroySession(token: string): Promise<void> {
+  const supabase = getServerSupabase();
+  const result = await supabase
+    .from("admin_sessions")
+    .delete()
+    .eq("token", token);
+  unwrapSupabaseResult(result.data, result.error, "Failed to destroy admin session");
 }
 
-export function requireAdmin(req: Request, res: Response, next: NextFunction) {
+function getSingleParam(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+export async function getPortfolioMemory(includeInactive = false) {
+  const supabase = getServerSupabase();
+  let query = supabase
+    .from("portfolio_memory_entries")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+
+  if (!includeInactive) {
+    query = query.eq("is_active", true);
+  }
+
+  const result = await query;
+  const rows = unwrapSupabaseResult(
+    (result.data ?? []) as PortfolioMemoryEntryRow[],
+    result.error,
+    "Failed to load portfolio memory",
+  );
+
+  return rows.map(mapPortfolioMemoryRow);
+}
+
+export async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   const auth = req.headers.authorization ?? "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (!token || !validateSession(token)) {
+
+  if (!token || !(await validateSession(token))) {
     return res.status(401).json({ message: "Unauthorized." });
   }
+
   next();
 }
 
@@ -220,13 +421,13 @@ const createSchema = z.object({
 const updateSchema = createSchema.partial();
 
 export function registerAdminRoutes(app: Express) {
-  app.post("/api/admin/login", (req, res) => {
+  app.post("/api/admin/login", async (req, res) => {
     try {
       const { password } = loginSchema.parse(req.body);
       if (password !== ADMIN_PASSWORD) {
         return res.status(401).json({ message: "Incorrect password." });
       }
-      const token = createSession();
+      const token = await createSession();
       return res.json({ token });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -236,10 +437,10 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  app.post("/api/admin/logout", requireAdmin, (req, res) => {
+  app.post("/api/admin/logout", requireAdmin, async (req, res) => {
     const auth = req.headers.authorization ?? "";
     const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-    destroySession(token);
+    await destroySession(token);
     return res.json({ ok: true });
   });
 
@@ -248,21 +449,138 @@ export function registerAdminRoutes(app: Express) {
   });
 
   app.get("/api/admin/chatbot-content", requireAdmin, async (_req, res) => {
-    const rows = await db
-      .select()
-      .from(chatbotContent)
-      .orderBy(asc(chatbotContent.category), asc(chatbotContent.sortOrder));
-    return res.json(rows);
+    const supabase = getServerSupabase();
+    const result = await supabase
+      .from("chatbot_content")
+      .select("*")
+      .order("category", { ascending: true })
+      .order("sort_order", { ascending: true });
+
+    const rows = unwrapSupabaseResult(
+      (result.data ?? []) as ChatbotContentRow[],
+      result.error,
+      "Failed to load chatbot content",
+    );
+
+    return res.json(rows.map(mapChatbotContentRow));
+  });
+
+  app.get("/api/admin/portfolio-memory", requireAdmin, (_req, res) => {
+    return getPortfolioMemory(true).then((rows) => res.json(rows));
+  });
+
+  app.post("/api/admin/portfolio-memory", requireAdmin, async (req, res) => {
+    try {
+      const supabase = getServerSupabase();
+      const data = portfolioMemoryEntryInputSchema.parse(req.body);
+      const result = await supabase
+        .from("portfolio_memory_entries")
+        .insert(toPortfolioMemoryInsert(data))
+        .select("*")
+        .single();
+
+      const row = unwrapSupabaseResult(
+        result.data as PortfolioMemoryEntryRow | null,
+        result.error,
+        "Failed to create portfolio memory entry",
+      );
+      if (!row) {
+        throw new Error("Failed to create portfolio memory entry: Supabase returned no row.");
+      }
+
+      return res.status(201).json(mapPortfolioMemoryRow(row));
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.put("/api/admin/portfolio-memory/:id", requireAdmin, async (req, res) => {
+    try {
+      const supabase = getServerSupabase();
+      const id = parseInt(getSingleParam(req.params.id), 10);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid id." });
+      }
+
+      const data = updatePortfolioMemoryEntryInputSchema.parse(req.body);
+      const updatePayload = {
+        ...(data.sectionId !== undefined ? { section_key: data.sectionId } : {}),
+        ...(data.title !== undefined ? { title: data.title } : {}),
+        ...(data.eyebrow !== undefined ? { eyebrow: data.eyebrow } : {}),
+        ...(data.summary !== undefined ? { summary: data.summary } : {}),
+        ...(data.context !== undefined ? { context: data.context } : {}),
+        ...(data.accent !== undefined ? { accent: data.accent } : {}),
+        ...(data.facts !== undefined ? { facts: data.facts } : {}),
+        ...(data.items !== undefined ? { items: data.items } : {}),
+        ...(data.links !== undefined ? { links: data.links } : {}),
+        ...(data.isActive !== undefined ? { is_active: data.isActive } : {}),
+        ...(data.sortOrder !== undefined ? { sort_order: data.sortOrder } : {}),
+      };
+
+      const result = await supabase
+        .from("portfolio_memory_entries")
+        .update(updatePayload)
+        .eq("id", id)
+        .select("*")
+        .maybeSingle();
+
+      const row = unwrapSupabaseResult(
+        result.data as PortfolioMemoryEntryRow | null,
+        result.error,
+        "Failed to update portfolio memory entry",
+      );
+
+      if (!row) {
+        return res.status(404).json({ message: "Not found." });
+      }
+
+      return res.json(mapPortfolioMemoryRow(row));
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.delete("/api/admin/portfolio-memory/:id", requireAdmin, async (req, res) => {
+    const supabase = getServerSupabase();
+    const id = parseInt(getSingleParam(req.params.id), 10);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid id." });
+    }
+
+    const result = await supabase
+      .from("portfolio_memory_entries")
+      .delete()
+      .eq("id", id);
+    unwrapSupabaseResult(result.data, result.error, "Failed to delete portfolio memory entry");
+    return res.json({ ok: true });
   });
 
   app.post("/api/admin/chatbot-content", requireAdmin, async (req, res) => {
     try {
+      const supabase = getServerSupabase();
       const data = createSchema.parse(req.body);
-      const [row] = await db
-        .insert(chatbotContent)
-        .values(data)
-        .returning();
-      return res.status(201).json(row);
+      const result = await supabase
+        .from("chatbot_content")
+        .insert(toChatbotContentInsert(data))
+        .select("*")
+        .single();
+
+      const row = unwrapSupabaseResult(
+        result.data as ChatbotContentRow | null,
+        result.error,
+        "Failed to create chatbot content",
+      );
+      if (!row) {
+        throw new Error("Failed to create chatbot content: Supabase returned no row.");
+      }
+
+      return res.status(201).json(mapChatbotContentRow(row));
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
@@ -273,16 +591,39 @@ export function registerAdminRoutes(app: Express) {
 
   app.put("/api/admin/chatbot-content/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id, 10);
-      if (isNaN(id)) return res.status(400).json({ message: "Invalid id." });
+      const supabase = getServerSupabase();
+      const id = parseInt(getSingleParam(req.params.id), 10);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid id." });
+      }
+
       const data = updateSchema.parse(req.body);
-      const [row] = await db
-        .update(chatbotContent)
-        .set({ ...data, updatedAt: new Date() })
-        .where(eq(chatbotContent.id, id))
-        .returning();
-      if (!row) return res.status(404).json({ message: "Not found." });
-      return res.json(row);
+      const updatePayload = {
+        ...(data.category !== undefined ? { category: data.category } : {}),
+        ...(data.label !== undefined ? { label: data.label } : {}),
+        ...(data.content !== undefined ? { content: data.content } : {}),
+        ...(data.isActive !== undefined ? { is_active: data.isActive } : {}),
+        ...(data.sortOrder !== undefined ? { sort_order: data.sortOrder } : {}),
+      };
+
+      const result = await supabase
+        .from("chatbot_content")
+        .update(updatePayload)
+        .eq("id", id)
+        .select("*")
+        .maybeSingle();
+
+      const row = unwrapSupabaseResult(
+        result.data as ChatbotContentRow | null,
+        result.error,
+        "Failed to update chatbot content",
+      );
+
+      if (!row) {
+        return res.status(404).json({ message: "Not found." });
+      }
+
+      return res.json(mapChatbotContentRow(row));
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
@@ -292,38 +633,55 @@ export function registerAdminRoutes(app: Express) {
   });
 
   app.delete("/api/admin/chatbot-content/:id", requireAdmin, async (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.status(400).json({ message: "Invalid id." });
-    await db.delete(chatbotContent).where(eq(chatbotContent.id, id));
+    const supabase = getServerSupabase();
+    const id = parseInt(getSingleParam(req.params.id), 10);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid id." });
+    }
+
+    const result = await supabase
+      .from("chatbot_content")
+      .delete()
+      .eq("id", id);
+    unwrapSupabaseResult(result.data, result.error, "Failed to delete chatbot content");
     return res.json({ ok: true });
   });
 
   app.get("/api/chatbot/quick-replies", async (_req, res) => {
-    const rows = await db
-      .select()
-      .from(chatbotContent)
-      .orderBy(asc(chatbotContent.sortOrder));
+    const rows = await getChatbotContentRows();
     const replies = rows
-      .filter((r) => r.category === "quick_reply" && r.isActive)
-      .map((r) => r.content);
+      .filter((row) => row.category === "quick_reply" && row.is_active)
+      .map((row) => row.content);
     return res.json(replies);
   });
 
   app.get("/api/chatbot/welcome-messages", async (_req, res) => {
-    const rows = await db
-      .select()
-      .from(chatbotContent)
-      .orderBy(asc(chatbotContent.sortOrder));
-    const msgs = rows
-      .filter((r) => r.category === "welcome_message" && r.isActive)
-      .map((r) => r.content);
-    return res.json(msgs);
+    const rows = await getChatbotContentRows();
+    const messages = rows
+      .filter((row) => row.category === "welcome_message" && row.is_active)
+      .map((row) => row.content);
+    return res.json(messages);
   });
 }
 
+async function getChatbotContentRows(): Promise<ChatbotContentRow[]> {
+  const supabase = getServerSupabase();
+  const result = await supabase
+    .from("chatbot_content")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("id", { ascending: true });
+
+  return unwrapSupabaseResult(
+    (result.data ?? []) as ChatbotContentRow[],
+    result.error,
+    "Failed to load chatbot content rows",
+  );
+}
+
 export async function getActiveSystemPrompt(): Promise<string> {
-  const rows = await db.select().from(chatbotContent);
-  const row = rows.find((r) => r.category === "system_prompt" && r.isActive);
+  const rows = await getChatbotContentRows();
+  const row = rows.find((item) => item.category === "system_prompt" && item.is_active);
   return (
     row?.content ??
     "You are Klein's portfolio AI assistant. Answer only about Klein's work, projects, skills, achievements, services, and contact process. When the user asks for portfolio facts, prefer calling tools instead of guessing. If data is unavailable, say so clearly and keep the response concise."
@@ -331,8 +689,8 @@ export async function getActiveSystemPrompt(): Promise<string> {
 }
 
 export async function getContextReplies(context: string): Promise<string[]> {
-  const rows = await db.select().from(chatbotContent).orderBy(asc(chatbotContent.sortOrder));
+  const rows = await getChatbotContentRows();
   return rows
-    .filter((r) => r.category === `context_reply_${context}` && r.isActive)
-    .map((r) => r.content);
+    .filter((row) => row.category === `context_reply_${context}` && row.is_active)
+    .map((row) => row.content);
 }

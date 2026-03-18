@@ -1,10 +1,19 @@
 import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
-import { sqlite } from "./db";
 import { api } from "@shared/routes";
+import {
+  buildPortfolioMemoryPrompt,
+} from "@shared/portfolio-memory";
 import { z } from "zod";
-import { registerAdminRoutes, seedChatbotContent, getActiveSystemPrompt } from "./admin-routes";
+import {
+  registerAdminRoutes,
+  seedChatbotContent,
+  seedPortfolioMemory,
+  getActiveSystemPrompt,
+  getPortfolioMemory,
+} from "./admin-routes";
+import { getServerSupabase, unwrapSupabaseResult } from "./supabase";
 
 type ChatHistoryItem = {
   from: "user" | "klein";
@@ -63,91 +72,63 @@ function buildDailyUsageSummary(dateKey: string, used: number): DailyUsageSummar
   };
 }
 
-function getChatDailyUsage(clientId: string): DailyUsageSummary {
+async function getChatDailyUsage(clientId: string): Promise<DailyUsageSummary> {
   const dateKey = getLocalDateKey(new Date());
-  const row = sqlite
-    .prepare(
-      `
-        SELECT used_count AS used
-        FROM chat_daily_usage
-        WHERE client_id = ? AND date_key = ?
-      `,
-    )
-    .get(clientId, dateKey) as { used: number } | undefined;
+  const supabase = getServerSupabase();
+  const result = await supabase
+    .from("chat_daily_usage")
+    .select("used_count")
+    .eq("client_id", clientId)
+    .eq("date_key", dateKey)
+    .maybeSingle();
 
-  return buildDailyUsageSummary(dateKey, row?.used ?? 0);
+  const row = unwrapSupabaseResult(
+    result.data as { used_count: number } | null,
+    result.error,
+    "Failed to load chat daily usage",
+  );
+
+  return buildDailyUsageSummary(dateKey, row?.used_count ?? 0);
 }
 
-function tryConsumeDailyMessage(clientId: string): {
+async function tryConsumeDailyMessage(clientId: string): Promise<{
   allowed: boolean;
   usage: DailyUsageSummary;
-} {
+}> {
   const dateKey = getLocalDateKey(new Date());
-
-  const transaction = sqlite.transaction((targetClientId: string) => {
-    const current = sqlite
-      .prepare(
-        `
-          SELECT used_count AS used
-          FROM chat_daily_usage
-          WHERE client_id = ? AND date_key = ?
-        `,
-      )
-      .get(targetClientId, dateKey) as { used: number } | undefined;
-
-    const used = current?.used ?? 0;
-    if (used >= DAILY_CHAT_LIMIT) {
-      return {
-        allowed: false,
-        usage: buildDailyUsageSummary(dateKey, used),
-      };
-    }
-
-    sqlite
-      .prepare(
-        `
-          INSERT INTO chat_daily_usage (client_id, date_key, used_count, updated_at)
-          VALUES (?, ?, 1, unixepoch())
-          ON CONFLICT(client_id, date_key)
-          DO UPDATE SET
-            used_count = used_count + 1,
-            updated_at = unixepoch()
-        `,
-      )
-      .run(targetClientId, dateKey);
-
-    const next = sqlite
-      .prepare(
-        `
-          SELECT used_count AS used
-          FROM chat_daily_usage
-          WHERE client_id = ? AND date_key = ?
-        `,
-      )
-      .get(targetClientId, dateKey) as { used: number };
-
-    return {
-      allowed: true,
-      usage: buildDailyUsageSummary(dateKey, next.used),
-    };
+  const supabase = getServerSupabase();
+  const result = await supabase.rpc("consume_chat_daily_message", {
+    target_client_id: clientId,
+    date_key_input: dateKey,
+    daily_limit: DAILY_CHAT_LIMIT,
   });
 
-  return transaction(clientId);
+  const row = unwrapSupabaseResult(
+    Array.isArray(result.data) ? result.data[0] : result.data,
+    result.error,
+    "Failed to consume chat daily usage",
+  ) as { allowed: boolean; used_count: number } | null;
+
+  const used = row?.used_count ?? 0;
+  return {
+    allowed: row?.allowed ?? false,
+    usage: buildDailyUsageSummary(dateKey, used),
+  };
 }
 
-function trackUniqueLifetimeVisitor(visitorId: string): number {
-  const insertStatement = sqlite.prepare(`
-    INSERT OR IGNORE INTO visitor_lifetime (visitor_id)
-    VALUES (?)
-  `);
-  insertStatement.run(visitorId);
+async function trackUniqueLifetimeVisitor(visitorId: string): Promise<number> {
+  const supabase = getServerSupabase();
+  const result = await supabase.rpc("track_unique_lifetime_visitor", {
+    target_visitor_id: visitorId,
+  });
 
-  const countStatement = sqlite.prepare(`
-    SELECT COUNT(*) AS total
-    FROM visitor_lifetime
-  `);
-  const result = countStatement.get() as { total: number };
-  return result.total;
+  const total = unwrapSupabaseResult(
+    result.data,
+    result.error,
+    "Failed to track unique lifetime visitor",
+  );
+
+  return typeof total === "number" ? total : Number(total ?? 0);
 }
 
 function toGeminiHistory(history: ChatHistoryItem[]): GeminiContent[] {
@@ -168,32 +149,17 @@ async function runAgentTool(
   name: string,
   args?: Record<string, unknown>,
 ): Promise<unknown> {
+  const portfolioMemory = await getPortfolioMemory(false);
+
   switch (name) {
-    case "getProjects": {
-      const limit = parsePositiveLimit(args?.limit, 3);
-      const projects = await storage.getProjects();
-      return projects.slice(0, limit).map((project) => ({
-        title: project.title,
-        description: project.description,
-        techStack: project.techStack,
-        liveUrl: project.liveUrl,
-        githubUrl: project.githubUrl,
-      }));
+    case "getPortfolioSnapshot":
+      return portfolioMemory;
+    case "getPortfolioSection": {
+      const sectionId = typeof args?.sectionId === "string" ? args.sectionId : "";
+      return portfolioMemory.find((section) => section.id === sectionId) ?? null;
     }
-    case "getAchievements": {
-      const limit = parsePositiveLimit(args?.limit, 5);
-      const achievements = await storage.getAchievements();
-      return achievements.slice(0, limit).map((achievement) => ({
-        title: achievement.title,
-        description: achievement.description,
-        date: achievement.date,
-      }));
-    }
-    case "getContactInfo":
-      return {
-        contactRoute: "/api/messages",
-        note: "Use the contact form and Klein will reply by email.",
-      };
+    case "getPortfolioContact":
+      return portfolioMemory.find((section) => section.id === "contact") ?? null;
     default:
       return { error: `Unknown tool: ${name}` };
   }
@@ -300,7 +266,7 @@ export async function registerRoutes(
       }
 
       const { clientId, message, history = [] } = chatInputSchema.parse(req.body);
-      const consumption = tryConsumeDailyMessage(clientId);
+      const consumption = await tryConsumeDailyMessage(clientId);
       if (!consumption.allowed) {
         return res.status(429).json({
           message: "You've reached your daily limit. Please come back tomorrow.",
@@ -309,6 +275,8 @@ export async function registerRoutes(
       }
 
       const systemPrompt = await getActiveSystemPrompt();
+      const activePortfolioMemory = await getPortfolioMemory(false);
+      const portfolioMemoryPrompt = buildPortfolioMemoryPrompt(activePortfolioMemory);
 
       const contents: GeminiContent[] = [
         ...toGeminiHistory(history),
@@ -325,41 +293,41 @@ export async function registerRoutes(
             },
             body: JSON.stringify({
               systemInstruction: {
-                parts: [{ text: systemPrompt }],
+                parts: [
+                  {
+                    text: `${systemPrompt}\n\nAuthoritative portfolio memory:\n${portfolioMemoryPrompt}\n\nUse this memory as the primary source for Klein Lavina's details. Do not invent portfolio facts outside it.`,
+                  },
+                ],
               },
               contents,
               tools: [
                 {
                   functionDeclarations: [
                     {
-                      name: "getProjects",
-                      description: "Get Klein's portfolio projects.",
+                      name: "getPortfolioSnapshot",
+                      description: "Get the ordered portfolio memory sections for Klein Lavina.",
                       parameters: {
                         type: "OBJECT",
-                        properties: {
-                          limit: {
-                            type: "INTEGER",
-                            description: "How many projects to return (1 to 10).",
-                          },
-                        },
+                        properties: {},
                       },
                     },
                     {
-                      name: "getAchievements",
-                      description: "Get Klein's achievements and credentials.",
+                      name: "getPortfolioSection",
+                      description: "Get a specific ordered portfolio memory section by section id.",
                       parameters: {
                         type: "OBJECT",
                         properties: {
-                          limit: {
-                            type: "INTEGER",
-                            description: "How many achievements to return (1 to 10).",
+                          sectionId: {
+                            type: "STRING",
+                            description: "The memory section id such as identity, about, values, technical-skills, projects, timeline, or contact.",
                           },
                         },
+                        required: ["sectionId"],
                       },
                     },
                     {
-                      name: "getContactInfo",
-                      description: "Get contact instructions for reaching Klein.",
+                      name: "getPortfolioContact",
+                      description: "Get contact instructions and links for reaching Klein Lavina.",
                       parameters: {
                         type: "OBJECT",
                         properties: {},
@@ -455,10 +423,10 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/chat/usage", (req, res) => {
+  app.get("/api/chat/usage", async (req, res) => {
     try {
       const { clientId } = chatUsageQuerySchema.parse(req.query);
-      const usage = getChatDailyUsage(clientId);
+      const usage = await getChatDailyUsage(clientId);
       return res.json({ usage });
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -471,10 +439,10 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/visitors/track", (req, res) => {
+  app.post("/api/visitors/track", async (req, res) => {
     try {
       const { visitorId } = visitorTrackSchema.parse(req.body);
-      const count = trackUniqueLifetimeVisitor(visitorId);
+      const count = await trackUniqueLifetimeVisitor(visitorId);
       return res.json({
         count,
       });
@@ -577,8 +545,13 @@ export async function registerRoutes(
   }
 
   // Call seed functions
-  seedDatabase();
-  seedChatbotContent();
+  void seedDatabase();
+  void seedChatbotContent().catch((error) => {
+    console.error("Error seeding chatbot content", error);
+  });
+  void seedPortfolioMemory().catch((error) => {
+    console.error("Error seeding portfolio memory", error);
+  });
 
   return httpServer;
 }

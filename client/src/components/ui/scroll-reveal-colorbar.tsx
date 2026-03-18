@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -34,15 +34,15 @@ export function ScrollRevealColorBarSection({ headline, highlightPhrases = [], c
   const hintOpacity = useTransform(progressMV, [0, 0.12, 0.88, 1], [0.8, 0.3, 0.3, 0]);
 
   // Function to render text with highlighted phrases - ensuring identical structure
-  const renderTextWithHighlights = (text: string, isColored: boolean = false) => {
+  const renderTextWithHighlights = (text: string, isColored: boolean = false): ReactNode => {
     if (highlightPhrases.length === 0) {
       return <span>{text}</span>;
     }
 
-    let parts = [text];
+    let parts: ReactNode[] = [text];
     
     highlightPhrases.forEach((phrase) => {
-      const newParts: (string | JSX.Element)[] = [];
+      const newParts: ReactNode[] = [];
       parts.forEach((part, index) => {
         if (typeof part === 'string') {
           const splitParts = part.split(new RegExp(`(${phrase})`, 'gi'));
@@ -76,7 +76,7 @@ export function ScrollRevealColorBarSection({ headline, highlightPhrases = [], c
       className={cn("relative w-full", className)}
       style={{ height: "220vh" }}
     >
-      <style jsx>{`
+      <style>{`
         .highlight-base {
           color: hsl(var(--primary));
           font-weight: 700;

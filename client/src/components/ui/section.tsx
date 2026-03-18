@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, type CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -6,9 +6,10 @@ interface SectionProps {
   id: string;
   className?: string;
   children: ReactNode;
+  style?: CSSProperties;
 }
 
-export function Section({ id, className, children }: SectionProps) {
+export function Section({ id, className, children, style }: SectionProps) {
   return (
     <motion.section
       id={id}
@@ -17,6 +18,7 @@ export function Section({ id, className, children }: SectionProps) {
       viewport={{ once: true, amount: 0.1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className={cn("min-h-screen py-20 flex flex-col justify-center", className)}
+      style={style}
     >
       {children}
     </motion.section>

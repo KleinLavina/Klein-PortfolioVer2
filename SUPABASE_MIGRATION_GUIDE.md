@@ -1,5 +1,12 @@
 # Supabase Migration Guide
 
+## Current Repo State
+The active server-side CMS migration now uses:
+- `server/supabase.ts` for the server service-role client
+- `server/storage.ts` for messages/projects/achievements
+- `server/admin-routes.ts` for portfolio memory, AI scripts, sessions, and chatbot helpers
+- `supabase/cms-schema.sql` as the SQL bootstrap file to run in the Supabase SQL editor
+
 ## Overview
 Migrate from SQLite + Drizzle to Supabase PostgreSQL for better deployment and features.
 

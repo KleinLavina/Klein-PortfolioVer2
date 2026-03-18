@@ -40,7 +40,8 @@ React 18 + TypeScript + Vite
 ### Backend Architecture
 ```
 Node.js + Express.js + TypeScript
-├── Database: SQLite + Drizzle ORM
+├── Database: Supabase PostgreSQL
+├── Server Data Access: Supabase service-role client + RPC
 ├── Authentication: Passport.js + Express Session
 ├── Session Storage: MemoryStore
 ├── Real-time: WebSockets (ws)
@@ -279,11 +280,11 @@ Klein-PortfolioVer2/
 │   │   └── furniture.png           # Cracken Furniture screenshot
 │   └── index.html                   # HTML entry point
 ├── server/                          # Backend Express application
-│   ├── db.ts                       # Database connection
 │   ├── index.ts                    # Server entry point
 │   ├── routes.ts                   # API routes
 │   ├── static.ts                   # Static file serving
 │   ├── storage.ts                  # Database operations
+│   ├── supabase.ts                 # Server Supabase client
 │   └── vite.ts                     # Vite integration
 ├── shared/                          # Shared types and schemas
 │   ├── routes.ts                   # API route definitions
@@ -294,9 +295,9 @@ Klein-PortfolioVer2/
 ├── tsconfig.json                   # TypeScript configuration
 ├── vite.config.ts                  # Vite configuration
 ├── tailwind.config.ts              # Tailwind CSS configuration
-├── drizzle.config.ts               # Database ORM configuration
+├── supabase/                       # Supabase SQL/bootstrap files
 ├── netlify.toml                    # Netlify deployment configuration
-└── local.db                        # SQLite database file
+└── package-lock.json               # npm lockfile
 ```
 
 ---
@@ -471,13 +472,15 @@ npm run build  # Production build
 npm run build:frontend  # Frontend-only build for static hosting
 
 # Database
-npm run db:push  # Push schema changes to database
+Run supabase/cms-schema.sql in the Supabase SQL editor
 ```
 
 ### Environment Variables
 ```env
 NODE_ENV=development
-DATABASE_URL=./local.db
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 SESSION_SECRET=your_session_secret
 ```
 
@@ -496,9 +499,9 @@ SESSION_SECRET=your_session_secret
 - **Current State**: Using solid icons for consistency
 
 ### Database Dependencies
-- **Issue**: SQLite not suitable for static hosting
-- **Solution**: Removed database features for Netlify deployment
-- **Alternative**: Use external APIs or serverless functions
+- **Current State**: CMS/admin and chat support now use Supabase PostgreSQL
+- **Requirement**: `SUPABASE_SERVICE_ROLE_KEY` must be configured for server-side CRUD
+- **Bootstrap**: Run `supabase/cms-schema.sql` in the Supabase SQL editor
 
 ### Build Configuration
 - **Issue**: Vite build output location

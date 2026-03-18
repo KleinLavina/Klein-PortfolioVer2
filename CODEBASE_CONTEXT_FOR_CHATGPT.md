@@ -19,8 +19,8 @@ This is a **full-stack developer portfolio** for Klein F. Lavina, a fresh BSIT g
 ### **Backend**
 - **Runtime**: Node.js with Express 5.0.1
 - **Language**: TypeScript with TSX execution
-- **Database**: SQLite with Better-SQLite3 11.0.0
-- **ORM**: Drizzle ORM 0.39.3 + Drizzle Kit
+- **Database**: Supabase PostgreSQL
+- **Server Data Access**: Supabase service-role client + PostgREST/RPC
 - **Authentication**: Passport.js with local strategy
 - **Session Management**: Express-session with MemoryStore
 - **WebSockets**: ws 8.18.0 for real-time features
@@ -87,16 +87,20 @@ Klein-portfolioVer2/
 
 ### **3. Technical Implementation Details**
 
-#### **Database Schema** (SQLite + Drizzle)
+#### **Database Schema** (Supabase PostgreSQL)
 ```typescript
-// Messages table (for contact form - currently unused)
+// Messages table
 messages: { id, name, email, message, createdAt }
 
-// Projects table (for dynamic projects - currently using hardcoded data)
+// Projects table
 projects: { id, title, description, thumbnail, techStack, liveUrl, githubUrl }
 
-// Achievements table (for dynamic achievements - currently unused)
+// Achievements table
 achievements: { id, title, description, date }
+
+// CMS tables
+chatbot_content: { id, category, label, content, isActive, sortOrder, createdAt, updatedAt }
+portfolio_memory_entries: { id, sectionKey, title, eyebrow, summary, context, accent, facts, items, links, isActive, sortOrder, createdAt, updatedAt }
 ```
 
 #### **Current Project Data** (Hardcoded in home.tsx)
@@ -195,17 +199,15 @@ The floating chat component is currently a template. Plans include:
 - `npm run build:frontend`: Frontend-only build (for static hosting)
 - `npm run start`: Production server
 - `npm run check`: TypeScript checking
-- `npm run db:push`: Database schema push
-
 ### **Environment Variables**
-- Database and session configurations
+- Supabase URL, anon key, and service-role key
 - API keys for external services
 - Development/production environment flags
 
 ### **Deployment Considerations**
 - **Full-stack**: Requires Node.js server (Render, Railway, Vercel)
 - **Static**: Frontend-only deployment possible (Netlify, Vercel)
-- **Database**: SQLite for development, PostgreSQL recommended for production
+- **Database**: Supabase PostgreSQL for local and deployed CMS data
 
 ## Code Quality & Patterns
 

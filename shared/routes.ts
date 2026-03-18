@@ -1,5 +1,10 @@
-import { z } from 'zod';
-import { insertMessageSchema, messages, projects, achievements } from './schema';
+import { z } from "zod";
+import {
+  achievementSchema,
+  insertMessageSchema,
+  messageSchema,
+  projectSchema,
+} from "./schema";
 
 export const errorSchemas = {
   validation: z.object({
@@ -17,37 +22,37 @@ export const errorSchemas = {
 export const api = {
   messages: {
     list: {
-      method: 'GET' as const,
-      path: '/api/messages' as const,
+      method: "GET" as const,
+      path: "/api/messages" as const,
       responses: {
-        200: z.array(z.custom<typeof messages.$inferSelect>()),
+        200: z.array(messageSchema),
       },
     },
     create: {
-      method: 'POST' as const,
-      path: '/api/messages' as const,
+      method: "POST" as const,
+      path: "/api/messages" as const,
       input: insertMessageSchema,
       responses: {
-        201: z.custom<typeof messages.$inferSelect>(),
+        201: messageSchema,
         400: errorSchemas.validation,
       },
     },
   },
   projects: {
     list: {
-      method: 'GET' as const,
-      path: '/api/projects' as const,
+      method: "GET" as const,
+      path: "/api/projects" as const,
       responses: {
-        200: z.array(z.custom<typeof projects.$inferSelect>()),
+        200: z.array(projectSchema),
       },
     },
   },
   achievements: {
     list: {
-      method: 'GET' as const,
-      path: '/api/achievements' as const,
+      method: "GET" as const,
+      path: "/api/achievements" as const,
       responses: {
-        200: z.array(z.custom<typeof achievements.$inferSelect>()),
+        200: z.array(achievementSchema),
       },
     },
   },
