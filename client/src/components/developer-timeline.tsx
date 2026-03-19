@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { Expand, FolderOpen } from "lucide-react";
 
 const philnitsLink = "";
 
@@ -21,7 +22,6 @@ const timelineData = [
       { label: "Wrote first Java program", note: '"Hello World" in Notepad++' },
       { label: "Built first static web pages", note: "HTML + CSS from scratch" },
       { label: "Mastered CSS Flexbox & Grid", note: "Responsive layouts" },
-      { label: "Dean's List", note: "First Semester" },
     ],
     learningHighlights: [
       "First steps in programming via Java and OOP fundamentals",
@@ -30,8 +30,7 @@ const timelineData = [
     ],
     techStack: ["HTML", "CSS", "JavaScript", "Java"],
     accent: "emerald",
-    proofImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=900&q=80",
-    proofLabel: "Dean's List Certificate and first web pages",
+    projectHref: "#projects",
   },
   {
     year: "2023",
@@ -52,8 +51,7 @@ const timelineData = [
     ],
     techStack: ["MySQL", "DFD", "Database Design", "System Modeling"],
     accent: "blue",
-    proofImage: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=900&q=80",
-    proofLabel: "Database schema and DFD diagrams",
+    projectHref: "#projects",
   },
   {
     year: "2024",
@@ -64,7 +62,7 @@ const timelineData = [
       "Went from theory to product, built two live e-commerce websites, launched paid work for classmates, and deployed projects to real hosting.",
     achievements: [
       { label: "Launched Cracken Furniture", note: "Live e-commerce site" },
-      { label: "Delivered CrackenGearFits", note: "Paid client project" },
+      { label: "Built CrackenGearFits", note: "Variant of Cracken Furniture" },
       { label: "Deployed to InfinityFree", note: "First live hosting" },
       { label: "Completed Python exercises", note: "Expanded language skills" },
     ],
@@ -76,8 +74,7 @@ const timelineData = [
     ],
     techStack: ["PHP", "XAMPP", "MySQL", "Python", "R", "Git", "GitHub"],
     accent: "violet",
-    proofImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80",
-    proofLabel: "Cracken Furniture live deployment screenshot",
+    projectHref: "#projects",
   },
   {
     year: "2025",
@@ -98,8 +95,7 @@ const timelineData = [
     ],
     techStack: ["React", "Vite", "Django", "JSX", "Python"],
     accent: "orange",
-    proofImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=900&q=80",
-    proofLabel: "J-Gear Chatbot and RDFS capstone system",
+    projectHref: "#projects",
   },
   {
     year: "2025",
@@ -181,12 +177,12 @@ const palette: Record<
 
 type ChapterItem = (typeof timelineData)[number];
 
-function getProofImages(item: ChapterItem) {
-  if ("proofImages" in item && item.proofImages) {
-    return item.proofImages;
+function getProofImages(item: ChapterItem): string[] {
+  if ("proofImages" in item && Array.isArray(item.proofImages)) {
+    return [...item.proofImages];
   }
 
-  if ("proofImage" in item) {
+  if ("proofImage" in item && typeof item.proofImage === "string") {
     return [item.proofImage];
   }
 
@@ -197,6 +193,7 @@ function ProofModal({ item, onClose }: { item: ChapterItem; onClose: () => void 
   const c = palette[item.accent];
   const proofImages = getProofImages(item);
   const certificationLink = "certificationLink" in item ? item.certificationLink : "";
+  const proofLabel = "proofLabel" in item ? item.proofLabel : "Proof gallery";
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -274,7 +271,7 @@ function ProofModal({ item, onClose }: { item: ChapterItem; onClose: () => void 
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
-            <p className="text-xs text-muted-foreground">{item.proofLabel}</p>
+            <p className="text-xs text-muted-foreground">{proofLabel}</p>
             {certificationLink ? (
               <a
                 href={certificationLink}
@@ -304,6 +301,8 @@ function Chapter({
 }) {
   const c = palette[item.accent];
   const certificationLink = "certificationLink" in item ? item.certificationLink : "";
+  const projectHref = "projectHref" in item ? item.projectHref : "";
+  const hasProof = getProofImages(item).length > 0;
 
   return (
     <motion.div
@@ -388,12 +387,24 @@ function Chapter({
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => onViewProof(item)}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 ${c.pill}`}
-            >
-              View Proof
-            </button>
+            {hasProof ? (
+              <button
+                onClick={() => onViewProof(item)}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 ${c.pill}`}
+              >
+                <Expand size={12} />
+                View Proof
+              </button>
+            ) : null}
+            {projectHref ? (
+              <a
+                href={projectHref}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 ${c.pill}`}
+              >
+                <FolderOpen size={12} />
+                View Projects
+              </a>
+            ) : null}
             {certificationLink ? (
               <a
                 href={certificationLink}

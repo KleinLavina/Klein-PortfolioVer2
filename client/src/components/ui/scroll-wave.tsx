@@ -51,12 +51,6 @@ export function ScrollWave() {
       const W = window.innerWidth;
       const H = window.innerHeight;
 
-      /* Fade out when deep in the page (after ~3 screens) */
-      const maxScroll = scrollContainer ? scrollContainer.scrollHeight - scrollContainer.clientHeight : document.body.scrollHeight - window.innerHeight;
-      const progress  = maxScroll > 0 ? scrollY / maxScroll : 0;
-      const opacity   = Math.max(0, 1 - progress * 1.6);
-      if (svgRef.current) svgRef.current.style.opacity = String(opacity);
-
       waves.forEach((wave, i) => {
         const el = pathRefs.current[i];
         if (el) el.setAttribute("d", buildPath(W, H, wave, phase));
@@ -77,7 +71,7 @@ export function ScrollWave() {
     <svg
       ref={svgRef}
       className="fixed inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 4 }}
+      style={{ zIndex: 4, opacity: "var(--ambient-bg-opacity, 1)", transition: "opacity 500ms ease-out" }}
       aria-hidden="true"
     >
       <defs>

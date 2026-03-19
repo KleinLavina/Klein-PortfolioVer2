@@ -23,7 +23,7 @@ import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { GithubContributions } from "@/components/github-contributions";
 import { DeveloperTimeline } from "@/components/developer-timeline";
 import { FloatingChat } from "@/components/floating-chat";
-import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Loader2, Github, Code, Database, MonitorSmartphone,
@@ -197,29 +197,6 @@ export default function Home() {
   const [visitorLoading, setVisitorLoading] = useState(true);
   const mag1 = useMagnetic(0.3);
   const mag2 = useMagnetic(0.3);
-  const bubbleOpacity = useMotionValue(1);
-  const smoothOpacity = useSpring(bubbleOpacity, { stiffness: 60, damping: 20 });
-
-  useEffect(() => {
-    const timelineSection = document.getElementById("timeline");
-    if (!timelineSection) return;
-    const scrollContainer = document.querySelector("main.flex-1");
-    if (!scrollContainer) return;
-
-    const handleScroll = () => {
-      const rect = timelineSection.getBoundingClientRect();
-      const containerRect = scrollContainer.getBoundingClientRect();
-      const containerHeight = containerRect.height;
-      const sectionMid = rect.top + rect.height / 2;
-      const fadeStart = containerRect.top + containerHeight * 0.6;
-      const fadeEnd = containerRect.top + containerHeight / 2;
-      const progress = Math.min(1, Math.max(0, (fadeStart - sectionMid) / (fadeStart - fadeEnd)));
-      bubbleOpacity.set(1 - progress);
-    };
-
-    scrollContainer.addEventListener("scroll", handleScroll, { passive: true });
-    return () => scrollContainer.removeEventListener("scroll", handleScroll);
-  }, [bubbleOpacity]);
 
   useEffect(() => {
     const trackVisitor = async () => {
@@ -251,9 +228,12 @@ export default function Home() {
 
   return (
     <Shell>
-      <motion.div className="fixed inset-0 z-0" style={{ opacity: smoothOpacity }}>
+      <div
+        className="fixed inset-0 z-0 transition-opacity duration-500 ease-out"
+        style={{ opacity: "var(--ambient-bg-opacity, 1)" }}
+      >
         <BubbleBackground interactive className="w-full h-full" />
-      </motion.div>
+      </div>
 
       <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative z-10">
 

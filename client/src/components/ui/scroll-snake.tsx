@@ -14,23 +14,6 @@ export function ScrollSnake() {
     const onScroll = () => { scrollRef.current = (scrollContainer as HTMLElement).scrollTop; };
     scrollContainer.addEventListener("scroll", onScroll, { passive: true });
 
-    const getTimelineOpacity = (): number => {
-      const timeline = document.getElementById("timeline");
-      const el = scrollContainer as HTMLElement;
-      if (!timeline) return 1;
-      const H = el.clientHeight;
-      // The scroll value at which timeline's midpoint is centered in viewport
-      const timelineMid = timeline.offsetTop + timeline.offsetHeight / 2;
-      const scrollAtMid = timelineMid - H / 2;
-      // Start fading half a viewport before the midpoint is centered
-      const fadeStart = scrollAtMid - H * 0.5;
-      const fadeEnd = scrollAtMid;
-      const scroll = scrollRef.current;
-      if (scroll < fadeStart) return 1;
-      if (scroll >= fadeEnd) return 0;
-      return 1 - (scroll - fadeStart) / (fadeEnd - fadeStart);
-    };
-
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
     const tick = () => {
@@ -49,9 +32,8 @@ export function ScrollSnake() {
       const d1 = `M ${W * 0.08} 0 C ${cx} ${H * 0.35}, ${oppCx} ${H * 0.65}, ${W * 0.92} ${H}`;
       const d2 = `M ${W * 0.08} 0 C ${cx + 24} ${H * 0.3}, ${oppCx - 24} ${H * 0.7}, ${W * 0.92} ${H}`;
 
-      const base = getTimelineOpacity();
-      const op1 = base * 0.13;
-      const op2 = base * 0.06;
+      const op1 = 0.13;
+      const op2 = 0.06;
 
       if (path1Ref.current) {
         path1Ref.current.setAttribute("d", d1);
@@ -76,7 +58,7 @@ export function ScrollSnake() {
   return (
     <svg
       className="fixed inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 4 }}
+      style={{ zIndex: 4, opacity: "var(--ambient-bg-opacity, 1)", transition: "opacity 500ms ease-out" }}
       aria-hidden="true"
     >
       <defs>

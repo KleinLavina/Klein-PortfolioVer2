@@ -32,6 +32,10 @@ export function ScrollTextFill() {
     const section = containerRef.current;
     if (!scrollEl || !section) return;
 
+    const setAmbientOpacity = (value: number) => {
+      document.documentElement.style.setProperty("--ambient-bg-opacity", value.toFixed(3));
+    };
+
     const onScroll = () => {
       const scrollTop = scrollEl.scrollTop;
       const sectionTop = section.offsetTop;
@@ -40,12 +44,21 @@ export function ScrollTextFill() {
       const start = sectionTop;
       const end = sectionTop + sectionH - viewH;
       const raw = (scrollTop - start) / Math.max(end - start, 1);
-      progress.set(Math.min(1, Math.max(0, raw)));
+      const normalized = Math.min(1, Math.max(0, raw));
+      progress.set(normalized);
+
+      const fadeStart = 0.34;
+      const fadeEnd = 0.56;
+      const fadeProgress = Math.min(1, Math.max(0, (normalized - fadeStart) / (fadeEnd - fadeStart)));
+      setAmbientOpacity(1 - fadeProgress);
     };
 
     scrollEl.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-    return () => scrollEl.removeEventListener("scroll", onScroll);
+    return () => {
+      scrollEl.removeEventListener("scroll", onScroll);
+      setAmbientOpacity(1);
+    };
   }, [progress]);
 
   return (
