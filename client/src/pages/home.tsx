@@ -220,8 +220,36 @@ export default function Home() {
   const [showAllProjects, setShowAllProjects] = useState(false);
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [visitorLoading, setVisitorLoading] = useState(true);
+  const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const mag1 = useMagnetic(0.3);
   const mag2 = useMagnetic(0.3);
+
+  // Function to toggle project description expansion
+  const toggleProjectExpansion = (projectId: number) => {
+    setExpandedProjects(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(projectId)) {
+        newSet.delete(projectId);
+      } else {
+        newSet.add(projectId);
+      }
+      return newSet;
+    });
+  };
+
+  // Function to check if description should be truncated (more than 120 characters)
+  const shouldTruncateDescription = (description: string) => {
+    return description.length > 120;
+  };
+
+  // Function to get truncated description
+  const getTruncatedDescription = (description: string) => {
+    if (description.length <= 120) return description;
+    // Find the last space before the 120 character limit to avoid cutting words
+    const truncateAt = description.lastIndexOf(' ', 120);
+    const cutPoint = truncateAt > 80 ? truncateAt : 120;
+    return description.substring(0, cutPoint) + "...";
+  };
 
   useEffect(() => {
     const trackVisitor = async () => {
@@ -640,23 +668,8 @@ export default function Home() {
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.55, ease: "easeOut", delay: i < 3 ? i * 0.05 : (i - 3) * 0.08 }}
                       className="group relative"
-                      onMouseMove={(e) => {
-                        const card = e.currentTarget;
-                        const rect = card.getBoundingClientRect();
-                        const x = (e.clientX - rect.left) / rect.width - 0.5;
-                        const y = (e.clientY - rect.top) / rect.height - 0.5;
-                        card.style.transform = `perspective(1000px) rotateX(${-y * 6}deg) rotateY(${x * 6}deg) translateZ(8px)`;
-                        card.style.transition = "transform 0.08s ease-out";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)";
-                        e.currentTarget.style.transition = "transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)";
-                      }}
                     >
-                      {/* Glow behind card on hover */}
-                      <div className="absolute -inset-px rounded-2xl bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10 from-primary/20 via-secondary/10 to-accent/20" />
-
-                      <div className="relative rounded-2xl border border-border/25 bg-card/50 backdrop-blur-xl overflow-hidden shadow-2xl group-hover:border-primary/25 transition-colors duration-500">
+                      <div className="relative rounded-2xl border border-border/25 bg-card/50 backdrop-blur-xl overflow-hidden shadow-2xl">
 
                         {/* Left accent stripe */}
                         <div className={`absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b ${accentColors[i % accentColors.length]}`} />
@@ -682,10 +695,10 @@ export default function Home() {
                             <img
                               src={project.thumbnail}
                               alt={project.title}
-                              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                              className="absolute inset-0 w-full h-full object-cover"
                             />
-                            {/* Backdrop that fades out on hover */}
-                            <div className="absolute inset-0 bg-black/60 opacity-100 group-hover:opacity-0 transition-opacity duration-700 ease-in-out" />
+                            {/* Enhanced glassmorphism backdrop that fades out on hover */}
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] backdrop-saturate-150 backdrop-brightness-90 opacity-100 group-hover:opacity-0 transition-all duration-700 ease-in-out" />
                           </div>
 
                           {/* Content panel */}
@@ -698,13 +711,61 @@ export default function Home() {
                                 </span>
                               </div>
 
-                              <h3 className="text-2xl md:text-3xl font-black text-foreground leading-tight mb-4 group-hover:text-primary transition-colors duration-300">
+                              <h3 className="text-2xl md:text-3xl font-black text-foreground leading-tight mb-4 transition-colors duration-300">
                                 {project.title}
                               </h3>
 
-                              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-5">
-                                {project.description}
-                              </p>
+                              {/* Description with expand/collapse functionality */}
+                              <div className="mb-5">
+                                <AnimatePresence mode="wait">
+                                  <motion.div
+                                    key={expandedProjects.has(project.id) ? 'expanded' : 'collapsed'}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                  >
+                                    <p className="text-sm text-muted-foreground leading-relaxed">
+                                      {expandedProjects.has(project.id) 
+                                        ? project.description 
+                                        : shouldTruncateDescription(project.description)
+                                          ? getTruncatedDescription(project.description)
+                                          : project.description
+                                      }
+                                    </p>
+                                  </motion.div>
+                                </AnimatePresence>
+                                {shouldTruncateDescription(project.description) && (
+                                  <motion.button
+                                    onClick={() => toggleProjectExpansion(project.id)}
+                                    className="mt-3 text-xs font-semibold text-primary hover:text-primary/80 transition-colors duration-200 flex items-center gap-1.5 group/btn bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                  >
+                                    {expandedProjects.has(project.id) ? (
+                                      <>
+                                        <span>See Less</span>
+                                        <motion.div
+                                          animate={{ rotate: -90 }}
+                                          transition={{ duration: 0.2 }}
+                                        >
+                                          <ChevronRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform duration-200" />
+                                        </motion.div>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span>See More</span>
+                                        <motion.div
+                                          animate={{ rotate: 0 }}
+                                          transition={{ duration: 0.2 }}
+                                        >
+                                          <ChevronRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform duration-200" />
+                                        </motion.div>
+                                      </>
+                                    )}
+                                  </motion.button>
+                                )}
+                              </div>
 
                               {/* Tech pills with actual tech logos */}
                               <div className="flex flex-wrap gap-2">
