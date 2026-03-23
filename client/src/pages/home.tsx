@@ -5,17 +5,42 @@ import {
   faRocket, 
   faBookOpen, 
   faArrowsRotate,
-  faCode,
-  faDatabase,
-  faCloud,
-  faServer,
-  faEnvelope,
-  faGear,
-  faCog,
-  faFile,
-  faFileCode,
   faEye
 } from "@fortawesome/free-solid-svg-icons";
+// Using reliable FontAwesome icons primarily
+import {
+  SiHtml5,
+  SiJavascript,
+  SiTypescript,
+  SiReact,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiBootstrap,
+  SiDjango,
+  SiPhp,
+  SiMysql,
+  SiPostgresql,
+  SiPython,
+  SiGit,
+  SiGithub,
+  SiFigma,
+  SiVite,
+  SiNetlify
+} from "react-icons/si";
+import { 
+  FaCode, 
+  FaJava, 
+  FaServer, 
+  FaEnvelope,
+  FaCss3Alt,
+  FaDatabase,
+  FaTools,
+  FaGitAlt,
+  FaGithub,
+  FaFigma,
+  FaCloud,
+  FaPalette
+} from "react-icons/fa";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
@@ -36,38 +61,38 @@ import { useMagnetic } from "@/hooks/use-magnetic";
 
 const SKILLS = {
   "Frontend": [
-    { name: "HTML", icon: Code, color: "text-orange-500", level: 4 as const },
-    { name: "CSS", icon: Layers, color: "text-blue-500", level: 4 as const },
-    { name: "JavaScript", icon: TerminalSquare, color: "text-yellow-400", level: 3 as const },
-    { name: "TypeScript", icon: TerminalSquare, color: "text-blue-600", level: 2 as const },
-    { name: "React", icon: MonitorSmartphone, color: "text-cyan-500", level: 2 as const },
-    { name: "Next.js", icon: MonitorSmartphone, color: "text-foreground", level: 2 as const },
-    { name: "Tailwind", icon: Layers, color: "text-cyan-400", level: 2 as const },
-    { name: "Bootstrap", icon: Layers, color: "text-purple-500", level: 2 as const },
+    { name: "HTML", icon: SiHtml5, color: "text-orange-500", level: 4 as const },
+    { name: "CSS", icon: FaCss3Alt, color: "text-blue-500", level: 4 as const },
+    { name: "JavaScript", icon: SiJavascript, color: "text-yellow-400", level: 3 as const },
+    { name: "TypeScript", icon: SiTypescript, color: "text-blue-600", level: 2 as const },
+    { name: "React", icon: SiReact, color: "text-cyan-500", level: 2 as const },
+    { name: "Next.js", icon: SiNextdotjs, color: "text-foreground", level: 2 as const },
+    { name: "Tailwind", icon: SiTailwindcss, color: "text-cyan-400", level: 2 as const },
+    { name: "Bootstrap", icon: SiBootstrap, color: "text-purple-500", level: 2 as const },
   ],
   "Backend": [
-    { name: "Django", icon: Server, color: "text-green-600", level: 3 as const },
-    { name: "PHP", icon: Server, color: "text-indigo-400", level: 3 as const },
+    { name: "Django", icon: SiDjango, color: "text-green-600", level: 3 as const },
+    { name: "PHP", icon: SiPhp, color: "text-indigo-400", level: 3 as const },
   ],
   "Databases": [
-    { name: "MySQL", icon: Database, color: "text-blue-500", level: 3 as const },
-    { name: "PostgreSQL", icon: Database, color: "text-blue-400", level: 3 as const },
+    { name: "MySQL", icon: SiMysql, color: "text-blue-500", level: 3 as const },
+    { name: "PostgreSQL", icon: SiPostgresql, color: "text-blue-400", level: 3 as const },
   ],
   "Languages": [
-    { name: "Java", icon: Code, color: "text-red-500", level: 1 as const },
-    { name: "Python", icon: Code, color: "text-blue-400", level: 3 as const },
-    { name: "R", icon: Code, color: "text-blue-600", level: 1 as const },
+    { name: "Java", icon: FaJava, color: "text-red-500", level: 1 as const },
+    { name: "Python", icon: SiPython, color: "text-blue-400", level: 3 as const },
+    { name: "R", icon: FaCode, color: "text-blue-600", level: 1 as const },
   ],
   "Tools": [
-    { name: "VS Code", icon: Code, color: "text-blue-500", level: 3 as const },
-    { name: "Git", icon: FolderGit2, color: "text-orange-600", level: 3 as const },
-    { name: "GitHub", icon: FolderGit2, color: "text-foreground", level: 3 as const },
-    { name: "Figma", icon: Layers, color: "text-pink-500", level: 2 as const },
-    { name: "Postman", icon: Layers, color: "text-orange-500", level: 1 as const },
-    { name: "Cloudinary", icon: Layers, color: "text-blue-600", level: 1 as const },
-    { name: "Replit", icon: Code, color: "text-orange-500", level: 2 as const },
-    { name: "Render", icon: Server, color: "text-purple-600", level: 2 as const },
-    { name: "Canva", icon: Layers, color: "text-cyan-500", level: 2 as const },
+    { name: "VS Code", icon: FaCode, color: "text-blue-500", level: 3 as const },
+    { name: "Git", icon: SiGit, color: "text-orange-600", level: 3 as const },
+    { name: "GitHub", icon: SiGithub, color: "text-foreground", level: 3 as const },
+    { name: "Figma", icon: SiFigma, color: "text-pink-500", level: 2 as const },
+    { name: "Postman", icon: FaTools, color: "text-orange-500", level: 1 as const },
+    { name: "Cloudinary", icon: FaCloud, color: "text-blue-600", level: 1 as const },
+    { name: "Replit", icon: FaCode, color: "text-orange-500", level: 2 as const },
+    { name: "Render", icon: FaServer, color: "text-purple-600", level: 2 as const },
+    { name: "Canva", icon: FaPalette, color: "text-cyan-500", level: 2 as const },
   ],
 };
 
@@ -139,34 +164,34 @@ const PROJECTS = [
 
 const TECH_PILLS = ["React", "TypeScript", "Node.js", "Django", "PostgreSQL", "Python", "Next.js", "Tailwind"];
 
-// Tech stack icon mapping
+// Tech stack icon mapping for projects - using reliable icons
 const getTechIcon = (tech: string) => {
   const iconMap: { [key: string]: any } = {
-    "JavaScript": faFileCode,
-    "TypeScript": faFileCode,
-    "React": faCode,
-    "HTML": faFile,
-    "CSS": faFile,
-    "Python": faCode,
-    "PHP": faCode,
-    "Bootstrap": faCode,
-    "Git": faCode,
-    "GitHub": faCode,
-    "Node.js": faCode,
-    "Django": faCode,
-    "PostgreSQL": faDatabase,
-    "MySQL": faDatabase,
-    "Vite": faGear,
-    "Next.js": faCode,
-    "Tailwind": faCode,
-    "Cloudinary": faCloud,
-    "Netlify": faCloud,
-    "OnRender": faServer,
-    "Render": faServer,
-    "Brevo SMTP": faEnvelope,
-    "InfinityFree": faServer,
+    "JavaScript": SiJavascript,
+    "TypeScript": SiTypescript,
+    "React": SiReact,
+    "HTML": SiHtml5,
+    "CSS": FaCss3Alt,
+    "Python": SiPython,
+    "PHP": SiPhp,
+    "Bootstrap": SiBootstrap,
+    "Git": SiGit,
+    "GitHub": SiGithub,
+    "Node.js": SiNextdotjs, // Using Next.js icon as Node.js alternative
+    "Django": SiDjango,
+    "PostgreSQL": SiPostgresql,
+    "MySQL": SiMysql,
+    "Vite": SiVite,
+    "Next.js": SiNextdotjs,
+    "Tailwind": SiTailwindcss,
+    "Cloudinary": FaCloud,
+    "Netlify": SiNetlify,
+    "OnRender": FaServer,
+    "Render": FaServer,
+    "Brevo SMTP": FaEnvelope, // Using envelope icon for SMTP
+    "InfinityFree": FaServer, // Using server icon for hosting
   };
-  return iconMap[tech] || faCode;
+  return iconMap[tech] || FaCode; // Default fallback to generic code icon
 };
 
 function SectionLabel({ num, label }: { num: string; label: string }) {
@@ -681,17 +706,20 @@ export default function Home() {
                                 {project.description}
                               </p>
 
-                              {/* Tech pills with FA icons */}
+                              {/* Tech pills with actual tech logos */}
                               <div className="flex flex-wrap gap-2">
-                                {project.techStack.map(tech => (
-                                  <span
-                                    key={tech}
-                                    className="flex items-center gap-1.5 font-mono text-[11px] px-3 py-1 rounded-full border border-primary/20 text-primary/80 bg-primary/5 hover:bg-primary/10 transition-colors"
-                                  >
-                                    <FontAwesomeIcon icon={getTechIcon(tech)} className="text-[10px]" />
-                                    {tech}
-                                  </span>
-                                ))}
+                                {project.techStack.map(tech => {
+                                  const IconComponent = getTechIcon(tech);
+                                  return (
+                                    <span
+                                      key={tech}
+                                      className="flex items-center gap-1.5 font-mono text-[11px] px-3 py-1 rounded-full border border-primary/20 text-primary/80 bg-primary/5 hover:bg-primary/10 transition-colors"
+                                    >
+                                      <IconComponent className="text-[10px]" />
+                                      {tech}
+                                    </span>
+                                  );
+                                })}
                               </div>
                             </div>
 

@@ -1,6 +1,33 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Expand, FolderOpen } from "lucide-react";
+// Technology logos from react-icons - same as home page
+import {
+  SiHtml5,
+  SiJavascript,
+  SiTypescript,
+  SiReact,
+  SiNextdotjs,
+  SiTailwindcss,
+  SiBootstrap,
+  SiDjango,
+  SiPhp,
+  SiMysql,
+  SiPostgresql,
+  SiPython,
+  SiGit,
+  SiGithub,
+  SiVite,
+} from "react-icons/si";
+import { 
+  FaCode, 
+  FaJava, 
+  FaServer, 
+  FaCss3Alt,
+  FaDatabase,
+  FaTools,
+  FaCertificate
+} from "react-icons/fa";
 
 const philnitsLink = "";
 
@@ -176,6 +203,35 @@ const palette: Record<
 };
 
 type ChapterItem = (typeof timelineData)[number];
+
+// Tech stack icon mapping for timeline
+const getTimelineTechIcon = (tech: string) => {
+  const iconMap: { [key: string]: any } = {
+    "HTML": SiHtml5,
+    "CSS": FaCss3Alt,
+    "JavaScript": SiJavascript,
+    "TypeScript": SiTypescript,
+    "Java": FaJava,
+    "Python": SiPython,
+    "PHP": SiPhp,
+    "React": SiReact,
+    "Vite": SiVite,
+    "Django": SiDjango,
+    "MySQL": SiMysql,
+    "PostgreSQL": SiPostgresql,
+    "Git": SiGit,
+    "GitHub": SiGithub,
+    "JSX": SiReact, // Using React icon for JSX
+    "XAMPP": FaServer,
+    "R": FaCode,
+    "DFD": FaTools,
+    "Database Design": FaDatabase,
+    "System Modeling": FaTools,
+    "PhilNITS": FaCertificate,
+    "IT Passport": FaCertificate,
+  };
+  return iconMap[tech] || FaCode; // Default fallback to generic code icon
+};
 
 function getProofImages(item: ChapterItem): string[] {
   if ("proofImages" in item && Array.isArray(item.proofImages)) {
@@ -379,11 +435,15 @@ function Chapter({
           <div>
             <div className="mb-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tech Used</div>
             <div className="flex flex-wrap gap-1.5">
-              {item.techStack.map((tech) => (
-                <span key={tech} className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold ${c.pill}`}>
-                  {tech}
-                </span>
-              ))}
+              {item.techStack.map((tech) => {
+                const IconComponent = getTimelineTechIcon(tech);
+                return (
+                  <span key={tech} className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-semibold ${c.pill}`}>
+                    <IconComponent className="text-[9px]" />
+                    {tech}
+                  </span>
+                );
+              })}
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
