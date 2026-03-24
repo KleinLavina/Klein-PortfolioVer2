@@ -112,7 +112,6 @@ const PROJECTS = [
     description: "A real-time dispatch and finance system featuring QR code–based driver queuing, live vehicle tracking, and automated fare validation for the Maasin City Terminal, developed as our capstone project.",
     techStack: ["JavaScript", "Django", "HTML", "CSS", "PostgreSQL", "Bootstrap", "Cloudinary", "OnRender"],
     liveUrl: "https://rdfsmaasin.onrender.com",
-    githubUrl: "https://github.com/KleinLavina/RDFS",
     thumbnail: "/rdfs.png",
   },
   {
@@ -121,7 +120,6 @@ const PROJECTS = [
     description: "A document tracking system built around the actual workflow of PENRO offices — handling document submission, routing between departments, status monitoring, and deadline tracking. Designed to match how PENRO staff submit and process documents day-to-day, with role-based access for different office levels.",
     techStack: ["Django", "PostgreSQL", "HTML", "CSS", "JavaScript", "Cloudinary", "OnRender", "Brevo SMTP"],
     liveUrl: "https://r8penrowise.onrender.com",
-    githubUrl: "https://github.com/KleinLavina/WISE-PENRO",
     thumbnail: "/wise-penro.png",
   },
   {
@@ -909,7 +907,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-xs text-white/50 font-mono uppercase tracking-wider">Email</p>
-                    <p className="text-sm font-semibold text-white">kleinlavina@gmail.com</p>
+                    <p className="text-sm font-semibold text-white">fklein.lavina09@gmail.com</p>
                   </div>
                 </div>
 
@@ -918,13 +916,13 @@ export default function Home() {
                   {[
                     { href: "https://github.com/KleinLavina", icon: Github, label: "GitHub" },
                     {
-                      href: "https://www.facebook.com/klein.lavina.12",
+                      href: "https://www.linkedin.com/in/klein-lavina-353aba360",
                       icon: () => (
                         <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                         </svg>
                       ),
-                      label: "Facebook"
+                      label: "LinkedIn"
                     },
                   ].map(({ href, icon: Icon, label }) => (
                     <a
@@ -956,19 +954,29 @@ export default function Home() {
                   
                   {/* QR Code */}
                   <div className="p-6 bg-white rounded-2xl shadow-2xl">
-                    <div className="w-48 h-48 bg-white flex items-center justify-center">
+                    <div className="w-48 h-48 bg-white flex items-center justify-center relative">
                       <img 
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=192x192&data=${encodeURIComponent(`BEGIN:VCARD
 VERSION:3.0
 FN:Klein F. Lavina
 TEL:+639380734878
-EMAIL:kleinlav7@gmail.com
+EMAIL:fklein.lavina09@gmail.com
 URL:https://github.com/KleinLavina
-URL:https://www.facebook.com/klein.lavina.12
+URL:https://linkedin.com/in/klein-lavina-353aba360
 END:VCARD`)}`}
                         alt="Contact QR Code"
                         className="w-full h-full"
                       />
+                      {/* Logo overlay in center */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                          <img 
+                            src="/Gemini_Generated_Image_enc1uoenc1uoenc1-removebg-preview.png"
+                            alt="Klein Logo"
+                            className="w-10 h-10 object-contain"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
                   
@@ -991,9 +999,9 @@ END:VCARD`)}`}
                       </div>
                       <div className="flex items-center gap-1">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                         </svg>
-                        <span>Facebook</span>
+                        <span>LinkedIn</span>
                       </div>
                     </div>
                   </div>

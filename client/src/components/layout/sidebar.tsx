@@ -34,10 +34,33 @@ export function AppSidebar() {
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) setActiveSection(e.target.id); }),
-      { threshold: 0.3 }
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Only update for sections that are in the navigation
+            const sectionId = entry.target.id;
+            const isNavSection = navItems.some(item => item.url === `#${sectionId}`);
+            if (isNavSection) {
+              setActiveSection(sectionId);
+            }
+          }
+        });
+      },
+      { 
+        threshold: 0.1, // Lower threshold for better detection
+        rootMargin: "-20% 0px -20% 0px" // Adjusted margin to trigger when section is more centered
+      }
     );
-    document.querySelectorAll("section[id]").forEach((s) => observer.observe(s));
+    
+    // Only observe sections that are in the navigation
+    navItems.forEach(item => {
+      const sectionId = item.url.replace('#', '');
+      const element = document.getElementById(sectionId);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+    
     return () => observer.disconnect();
   }, []);
 
