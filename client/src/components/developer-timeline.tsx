@@ -6,9 +6,6 @@ import {
   SiJavascript,
   SiTypescript,
   SiReact,
-  SiNextdotjs,
-  SiTailwindcss,
-  SiBootstrap,
   SiDjango,
   SiPhp,
   SiMysql,
@@ -146,7 +143,27 @@ const timelineData = [
   },
 ] as const;
 
-const reversedTimelineData = [...timelineData].reverse();
+type ChapterItem = (typeof timelineData)[number];
+
+type YearGroup = {
+  year: string;
+  accent: string;
+  entries: ChapterItem[];
+};
+
+function groupByYear(data: readonly ChapterItem[]): YearGroup[] {
+  const reversed = [...data].reverse();
+  const map = new Map<string, YearGroup>();
+  for (const item of reversed) {
+    if (!map.has(item.year)) {
+      map.set(item.year, { year: item.year, accent: item.accent, entries: [] });
+    }
+    map.get(item.year)!.entries.push(item);
+  }
+  return Array.from(map.values());
+}
+
+const yearGroups = groupByYear(timelineData);
 
 const palette: Record<
   string,
@@ -159,6 +176,7 @@ const palette: Record<
     pill: string;
     dot: string;
     line: string;
+    divider: string;
   }
 > = {
   emerald: {
@@ -170,6 +188,7 @@ const palette: Record<
     pill: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
     dot: "bg-emerald-400",
     line: "from-emerald-500/0 via-emerald-500/30 to-emerald-500/0",
+    divider: "via-emerald-500/20",
   },
   blue: {
     text: "text-blue-400",
@@ -180,6 +199,7 @@ const palette: Record<
     pill: "bg-blue-500/10 text-blue-400 border-blue-500/20",
     dot: "bg-blue-400",
     line: "from-blue-500/0 via-blue-500/30 to-blue-500/0",
+    divider: "via-blue-500/20",
   },
   violet: {
     text: "text-violet-400",
@@ -190,6 +210,7 @@ const palette: Record<
     pill: "bg-violet-500/10 text-violet-400 border-violet-500/20",
     dot: "bg-violet-400",
     line: "from-violet-500/0 via-violet-500/30 to-violet-500/0",
+    divider: "via-violet-500/20",
   },
   orange: {
     text: "text-orange-400",
@@ -200,10 +221,9 @@ const palette: Record<
     pill: "bg-orange-500/10 text-orange-400 border-orange-500/20",
     dot: "bg-orange-400",
     line: "from-orange-500/0 via-orange-500/30 to-orange-500/0",
+    divider: "via-orange-500/20",
   },
 };
-
-type ChapterItem = (typeof timelineData)[number];
 
 const getTimelineTechIcon = (tech: string) => {
   const iconMap: { [key: string]: any } = {
@@ -344,56 +364,42 @@ function ProofModal({ item, onClose }: { item: ChapterItem; onClose: () => void 
   );
 }
 
-function Chapter({
+function Entry({
   item,
-  index,
-  totalVisible,
+  isLast,
   onViewProof,
 }: {
   item: ChapterItem;
-  index: number;
-  totalVisible: number;
+  isLast: boolean;
   onViewProof: (i: ChapterItem) => void;
 }) {
   const c = palette[item.accent];
   const certificationLink = "certificationLink" in item ? item.certificationLink : "";
   const projectHref = "projectHref" in item ? item.projectHref : "";
   const hasProof = getProofImages(item).length > 0;
+  const isSpecialPhase = !(item.phase as string).startsWith("Chapter");
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 32 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.08 }}
-      transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
+      viewport={{ once: true, amount: 0.06 }}
+      transition={{ duration: 0.55, ease: "easeOut" }}
       className="relative"
     >
-      <div className="relative mb-8 overflow-hidden">
-        <div
-          className="pointer-events-none absolute -top-6 right-0 select-none text-[7rem] font-black leading-none sm:text-[10rem]"
-          style={{ color: "transparent", WebkitTextStroke: "1.5px hsl(var(--foreground) / 0.05)" }}
-        >
-          {item.year}
+      {/* Phase badge — only for non-chapter entries like Certification */}
+      {isSpecialPhase && (
+        <div className="mb-3">
+          <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${c.badge}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
+            {item.phase}
+          </span>
         </div>
+      )}
 
-        <div className="relative z-10">
-          <div className="mb-4 flex items-center gap-3">
-            <span className={`text-5xl font-black leading-none tabular-nums sm:text-6xl ${c.text}`}>
-              {item.year}
-            </span>
-            {!(item.phase as string).startsWith("Chapter") && (
-              <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${c.badge}`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
-                {item.phase}
-              </span>
-            )}
-          </div>
-
-          <h3 className="mb-1 text-3xl font-black leading-none text-foreground sm:text-4xl">{item.title}</h3>
-          <p className={`mb-4 text-sm italic opacity-80 ${c.text}`}>{item.subtitle}</p>
-          <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{item.highlight}</p>
-        </div>
-      </div>
+      <h3 className="mb-1 text-3xl font-black leading-none text-foreground sm:text-4xl">{item.title}</h3>
+      <p className={`mb-4 text-sm italic opacity-80 ${c.text}`}>{item.subtitle}</p>
+      <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">{item.highlight}</p>
 
       <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {item.achievements.map((ach, ai) => (
@@ -486,11 +492,72 @@ function Chapter({
         </motion.div>
       </div>
 
-      {index < totalVisible - 1 && (
-        <div className="mb-2 mt-14 flex items-center gap-4">
+      {/* Divider between entries within the same year */}
+      {!isLast && (
+        <div className="my-10 flex items-center gap-4">
+          <div className={`h-px flex-1 bg-gradient-to-r from-transparent ${c.divider} to-transparent`} />
+          <div className={`h-1.5 w-1.5 rounded-full ${c.dot} opacity-40`} />
+          <div className={`h-px flex-1 bg-gradient-to-r from-transparent ${c.divider} to-transparent`} />
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+function YearBlock({
+  group,
+  isLast,
+  onViewProof,
+}: {
+  group: YearGroup;
+  isLast: boolean;
+  onViewProof: (i: ChapterItem) => void;
+}) {
+  const c = palette[group.accent];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.05 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative"
+    >
+      {/* Year heading */}
+      <div className="relative mb-8 overflow-hidden">
+        {/* Ghost watermark */}
+        <div
+          className="pointer-events-none absolute -top-4 right-0 select-none text-[7rem] font-black leading-none sm:text-[10rem]"
+          style={{ color: "transparent", WebkitTextStroke: "1.5px hsl(var(--foreground) / 0.04)" }}
+        >
+          {group.year}
+        </div>
+        <div className="relative z-10 flex items-center gap-4">
+          <span className={`text-6xl font-black leading-none tabular-nums sm:text-7xl ${c.text}`}>
+            {group.year}
+          </span>
+          <div className={`h-px flex-1 bg-gradient-to-r from-current to-transparent opacity-20 ${c.text}`} />
+        </div>
+      </div>
+
+      {/* Entries for this year */}
+      <div className="pl-0 sm:pl-4">
+        {group.entries.map((item, ei) => (
+          <Entry
+            key={`${item.year}-${item.title}`}
+            item={item}
+            isLast={ei === group.entries.length - 1}
+            onViewProof={onViewProof}
+          />
+        ))}
+      </div>
+
+      {/* Divider between year blocks */}
+      {!isLast && (
+        <div className="mb-2 mt-16 flex items-center gap-4">
           <div className={`h-px flex-1 bg-gradient-to-r ${c.line}`} />
-          <div className={`h-2 w-2 rounded-full ${c.dot} opacity-50`} />
-          <div className={`h-px flex-1 bg-gradient-to-l ${palette[reversedTimelineData[index + 1].accent].line}`} />
+          <div className={`h-2 w-2 rounded-full ${c.dot} opacity-40`} />
+          <div className={`h-px flex-1 bg-gradient-to-l ${c.line}`} />
         </div>
       )}
     </motion.div>
@@ -509,12 +576,11 @@ export function DeveloperTimeline() {
       </AnimatePresence>
 
       <div className="relative mx-auto max-w-4xl space-y-14">
-        {reversedTimelineData.map((item, i) => (
-          <Chapter
-            key={`${item.year}-${item.title}`}
-            item={item}
-            index={i}
-            totalVisible={reversedTimelineData.length}
+        {yearGroups.map((group, gi) => (
+          <YearBlock
+            key={group.year}
+            group={group}
+            isLast={gi === yearGroups.length - 1}
             onViewProof={setActiveProof}
           />
         ))}
@@ -527,7 +593,9 @@ export function DeveloperTimeline() {
           className="flex flex-col items-center gap-3 pt-6"
         >
           <div className="h-10 w-px bg-gradient-to-b from-white/10 to-transparent" />
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">Still writing...</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">
+            Still writing...
+          </span>
         </motion.div>
       </div>
     </>
