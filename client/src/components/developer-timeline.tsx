@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Expand, FolderOpen } from "lucide-react";
-// Technology logos from react-icons - same as home page
+import { Expand, FolderOpen, ChevronDown, ChevronUp } from "lucide-react";
 import {
   SiHtml5,
   SiJavascript,
@@ -19,14 +18,14 @@ import {
   SiGithub,
   SiVite,
 } from "react-icons/si";
-import { 
-  FaCode, 
-  FaJava, 
-  FaServer, 
+import {
+  FaCode,
+  FaJava,
+  FaServer,
   FaCss3Alt,
   FaDatabase,
   FaTools,
-  FaCertificate
+  FaCertificate,
 } from "react-icons/fa";
 
 const philnitsLink = "";
@@ -147,6 +146,10 @@ const timelineData = [
   },
 ] as const;
 
+const reversedTimelineData = [...timelineData].reverse();
+
+const COLLAPSED_COUNT = 2;
+
 const palette: Record<
   string,
   {
@@ -204,44 +207,41 @@ const palette: Record<
 
 type ChapterItem = (typeof timelineData)[number];
 
-// Tech stack icon mapping for timeline
 const getTimelineTechIcon = (tech: string) => {
   const iconMap: { [key: string]: any } = {
-    "HTML": SiHtml5,
-    "CSS": FaCss3Alt,
-    "JavaScript": SiJavascript,
-    "TypeScript": SiTypescript,
-    "Java": FaJava,
-    "Python": SiPython,
-    "PHP": SiPhp,
-    "React": SiReact,
-    "Vite": SiVite,
-    "Django": SiDjango,
-    "MySQL": SiMysql,
-    "PostgreSQL": SiPostgresql,
-    "Git": SiGit,
-    "GitHub": SiGithub,
-    "JSX": SiReact, // Using React icon for JSX
-    "XAMPP": FaServer,
-    "R": FaCode,
-    "DFD": FaTools,
+    HTML: SiHtml5,
+    CSS: FaCss3Alt,
+    JavaScript: SiJavascript,
+    TypeScript: SiTypescript,
+    Java: FaJava,
+    Python: SiPython,
+    PHP: SiPhp,
+    React: SiReact,
+    Vite: SiVite,
+    Django: SiDjango,
+    MySQL: SiMysql,
+    PostgreSQL: SiPostgresql,
+    Git: SiGit,
+    GitHub: SiGithub,
+    JSX: SiReact,
+    XAMPP: FaServer,
+    R: FaCode,
+    DFD: FaTools,
     "Database Design": FaDatabase,
     "System Modeling": FaTools,
-    "PhilNITS": FaCertificate,
+    PhilNITS: FaCertificate,
     "IT Passport": FaCertificate,
   };
-  return iconMap[tech] || FaCode; // Default fallback to generic code icon
+  return iconMap[tech] || FaCode;
 };
 
 function getProofImages(item: ChapterItem): string[] {
   if ("proofImages" in item && Array.isArray(item.proofImages)) {
     return [...item.proofImages];
   }
-
   if ("proofImage" in item && typeof item.proofImage === "string") {
     return [item.proofImage];
   }
-
   return [];
 }
 
@@ -281,65 +281,65 @@ function ProofModal({ item, onClose }: { item: ChapterItem; onClose: () => void 
           className="my-auto flex w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0e0e10] shadow-2xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-5rem)]"
           onClick={(e) => e.stopPropagation()}
         >
-        <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-5">
-          <div>
-            <div className={`text-[10px] font-black uppercase tracking-[0.2em] ${c.text}`}>{item.phase}</div>
-            <div className="mt-1 text-sm font-semibold text-foreground">{item.title}</div>
+          <div className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-5">
+            <div>
+              <div className={`text-[10px] font-black uppercase tracking-[0.2em] ${c.text}`}>{item.phase}</div>
+              <div className="mt-1 text-sm font-semibold text-foreground">{item.title}</div>
+            </div>
+            <button
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+            >
+              ×
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-lg text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
-          >
-            ×
-          </button>
-        </div>
 
-        <div className="space-y-5 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5">
-          <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{item.highlight}</p>
+          <div className="space-y-5 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5 sm:py-5">
+            <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">{item.highlight}</p>
 
-          <div className="-mx-1 overflow-x-auto overscroll-x-contain pb-1">
-            <div className="grid min-w-[720px] grid-cols-3 gap-4 px-1 md:min-w-0 md:grid-cols-2 xl:grid-cols-3">
-            {proofImages.map((imageSrc, index) => (
-              <motion.a
-                key={imageSrc}
-                href={imageSrc}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.28, delay: index * 0.06 }}
-                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]"
-              >
-                <div className="aspect-[4/3] overflow-hidden bg-black/20">
-                  <img
-                    src={imageSrc}
-                    alt={`${item.title} proof ${index + 1}`}
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03] group-hover:opacity-90"
-                  />
-                </div>
-                <div className="flex items-center justify-between gap-3 px-4 py-3">
-                  <span className="text-xs text-muted-foreground">Proof image {index + 1}</span>
-                  <span className={`text-[10px] font-black uppercase tracking-[0.16em] ${c.text}`}>Open</span>
-                </div>
-              </motion.a>
-            ))}
+            <div className="-mx-1 overflow-x-auto overscroll-x-contain pb-1">
+              <div className="grid min-w-[720px] grid-cols-3 gap-4 px-1 md:min-w-0 md:grid-cols-2 xl:grid-cols-3">
+                {proofImages.map((imageSrc, index) => (
+                  <motion.a
+                    key={imageSrc}
+                    href={imageSrc}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.28, delay: index * 0.06 }}
+                    className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden bg-black/20">
+                      <img
+                        src={imageSrc}
+                        alt={`${item.title} proof ${index + 1}`}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03] group-hover:opacity-90"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-3 px-4 py-3">
+                      <span className="text-xs text-muted-foreground">Proof image {index + 1}</span>
+                      <span className={`text-[10px] font-black uppercase tracking-[0.16em] ${c.text}`}>Open</span>
+                    </div>
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
+              <p className="text-xs text-muted-foreground">{proofLabel}</p>
+              {certificationLink ? (
+                <a
+                  href={certificationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 ${c.pill}`}
+                >
+                  View Certification
+                </a>
+              ) : null}
             </div>
           </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
-            <p className="text-xs text-muted-foreground">{proofLabel}</p>
-            {certificationLink ? (
-              <a
-                href={certificationLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5 ${c.pill}`}
-              >
-                View Certification
-              </a>
-            ) : null}
-          </div>
-        </div>
         </motion.div>
       </div>
     </motion.div>
@@ -349,10 +349,12 @@ function ProofModal({ item, onClose }: { item: ChapterItem; onClose: () => void 
 function Chapter({
   item,
   index,
+  totalVisible,
   onViewProof,
 }: {
   item: ChapterItem;
   index: number;
+  totalVisible: number;
   onViewProof: (i: ChapterItem) => void;
 }) {
   const c = palette[item.accent];
@@ -479,11 +481,11 @@ function Chapter({
         </motion.div>
       </div>
 
-      {index < timelineData.length - 1 && (
+      {index < totalVisible - 1 && (
         <div className="mb-2 mt-14 flex items-center gap-4">
           <div className={`h-px flex-1 bg-gradient-to-r ${c.line}`} />
           <div className={`h-2 w-2 rounded-full ${c.dot} opacity-50`} />
-          <div className={`h-px flex-1 bg-gradient-to-l ${palette[timelineData[index + 1].accent].line}`} />
+          <div className={`h-px flex-1 bg-gradient-to-l ${palette[reversedTimelineData[index + 1].accent].line}`} />
         </div>
       )}
     </motion.div>
@@ -492,27 +494,89 @@ function Chapter({
 
 export function DeveloperTimeline() {
   const [activeProof, setActiveProof] = useState<ChapterItem | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const visibleItems = isExpanded
+    ? reversedTimelineData
+    : reversedTimelineData.slice(0, COLLAPSED_COUNT);
+
+  const hiddenCount = reversedTimelineData.length - COLLAPSED_COUNT;
 
   return (
     <>
       <AnimatePresence>
-        {activeProof ? <ProofModal key="proof-modal" item={activeProof} onClose={() => setActiveProof(null)} /> : null}
+        {activeProof ? (
+          <ProofModal key="proof-modal" item={activeProof} onClose={() => setActiveProof(null)} />
+        ) : null}
       </AnimatePresence>
 
       <div className="relative mx-auto max-w-4xl space-y-14">
-        {timelineData.map((item, i) => (
-          <Chapter key={`${item.year}-${item.title}`} item={item} index={i} onViewProof={setActiveProof} />
-        ))}
+        <AnimatePresence initial={false}>
+          {visibleItems.map((item, i) => (
+            <motion.div
+              key={`${item.year}-${item.title}`}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.04 }}
+            >
+              <Chapter
+                item={item}
+                index={i}
+                totalVisible={visibleItems.length}
+                onViewProof={setActiveProof}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
 
+        {/* Expand / Collapse toggle */}
         <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex flex-col items-center gap-3 pt-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-col items-center gap-4 pt-2"
         >
-          <div className="h-10 w-px bg-gradient-to-b from-white/10 to-transparent" />
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">Still writing...</span>
+          {!isExpanded && hiddenCount > 0 && (
+            <>
+              {/* Fade hint showing more exists */}
+              <div className="pointer-events-none relative h-12 w-full">
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+              </div>
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="group flex items-center gap-2.5 rounded-full border border-white/10 bg-card/40 px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-card/60 hover:text-foreground"
+              >
+                <ChevronDown
+                  size={14}
+                  className="transition-transform duration-300 group-hover:translate-y-0.5"
+                />
+                Show {hiddenCount} earlier {hiddenCount === 1 ? "chapter" : "chapters"}
+              </button>
+            </>
+          )}
+
+          {isExpanded && (
+            <>
+              <div className="h-10 w-px bg-gradient-to-b from-white/10 to-transparent" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">
+                Still writing...
+              </span>
+              <button
+                onClick={() => {
+                  setIsExpanded(false);
+                  document.getElementById("timeline")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="group mt-2 flex items-center gap-2.5 rounded-full border border-white/10 bg-card/40 px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-card/60 hover:text-foreground"
+              >
+                <ChevronUp
+                  size={14}
+                  className="transition-transform duration-300 group-hover:-translate-y-0.5"
+                />
+                Collapse timeline
+              </button>
+            </>
+          )}
         </motion.div>
       </div>
     </>
