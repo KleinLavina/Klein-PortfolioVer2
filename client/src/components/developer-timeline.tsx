@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Expand, FolderOpen, ChevronDown, ChevronUp } from "lucide-react";
+import { Expand, FolderOpen } from "lucide-react";
 import {
   SiHtml5,
   SiJavascript,
@@ -147,8 +147,6 @@ const timelineData = [
 ] as const;
 
 const reversedTimelineData = [...timelineData].reverse();
-
-const COLLAPSED_COUNT = 2;
 
 const palette: Record<
   string,
@@ -379,9 +377,16 @@ function Chapter({
         </div>
 
         <div className="relative z-10">
-          <div className={`mb-3 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] ${c.badge}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
-            {item.phase} · {item.year}
+          <div className="mb-4 flex items-center gap-3">
+            <span className={`text-5xl font-black leading-none tabular-nums sm:text-6xl ${c.text}`}>
+              {item.year}
+            </span>
+            {!(item.phase as string).startsWith("Chapter") && (
+              <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${c.badge}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
+                {item.phase}
+              </span>
+            )}
           </div>
 
           <h3 className="mb-1 text-3xl font-black leading-none text-foreground sm:text-4xl">{item.title}</h3>
@@ -494,13 +499,6 @@ function Chapter({
 
 export function DeveloperTimeline() {
   const [activeProof, setActiveProof] = useState<ChapterItem | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const visibleItems = isExpanded
-    ? reversedTimelineData
-    : reversedTimelineData.slice(0, COLLAPSED_COUNT);
-
-  const hiddenCount = reversedTimelineData.length - COLLAPSED_COUNT;
 
   return (
     <>
@@ -511,72 +509,25 @@ export function DeveloperTimeline() {
       </AnimatePresence>
 
       <div className="relative mx-auto max-w-4xl space-y-14">
-        <AnimatePresence initial={false}>
-          {visibleItems.map((item, i) => (
-            <motion.div
-              key={`${item.year}-${item.title}`}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.45, ease: "easeOut", delay: i * 0.04 }}
-            >
-              <Chapter
-                item={item}
-                index={i}
-                totalVisible={visibleItems.length}
-                onViewProof={setActiveProof}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+        {reversedTimelineData.map((item, i) => (
+          <Chapter
+            key={`${item.year}-${item.title}`}
+            item={item}
+            index={i}
+            totalVisible={reversedTimelineData.length}
+            onViewProof={setActiveProof}
+          />
+        ))}
 
-        {/* Expand / Collapse toggle */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="flex flex-col items-center gap-4 pt-2"
+          initial={{ opacity: 0, scale: 0 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex flex-col items-center gap-3 pt-6"
         >
-          {!isExpanded && hiddenCount > 0 && (
-            <>
-              {/* Fade hint showing more exists */}
-              <div className="pointer-events-none relative h-12 w-full">
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-              </div>
-              <button
-                onClick={() => setIsExpanded(true)}
-                className="group flex items-center gap-2.5 rounded-full border border-white/10 bg-card/40 px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-card/60 hover:text-foreground"
-              >
-                <ChevronDown
-                  size={14}
-                  className="transition-transform duration-300 group-hover:translate-y-0.5"
-                />
-                Show {hiddenCount} earlier {hiddenCount === 1 ? "chapter" : "chapters"}
-              </button>
-            </>
-          )}
-
-          {isExpanded && (
-            <>
-              <div className="h-10 w-px bg-gradient-to-b from-white/10 to-transparent" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">
-                Still writing...
-              </span>
-              <button
-                onClick={() => {
-                  setIsExpanded(false);
-                  document.getElementById("timeline")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-                className="group mt-2 flex items-center gap-2.5 rounded-full border border-white/10 bg-card/40 px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-card/60 hover:text-foreground"
-              >
-                <ChevronUp
-                  size={14}
-                  className="transition-transform duration-300 group-hover:-translate-y-0.5"
-                />
-                Collapse timeline
-              </button>
-            </>
-          )}
+          <div className="h-10 w-px bg-gradient-to-b from-white/10 to-transparent" />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">Still writing...</span>
         </motion.div>
       </div>
     </>
