@@ -4,10 +4,10 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "set NODE_ENV=development&& tsx server/index.ts",
+    "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "tsx script/build.ts",
     "build:frontend": "vite build",
-    "start": "set NODE_ENV=production&& node dist/index.cjs",
+    "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc"
   },
   "dependencies": {
@@ -51,6 +51,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "dotenv": "^17.3.1",
+    "drizzle-orm": "^0.45.1",
     "embla-carousel-react": "^8.6.0",
     "express": "^5.0.1",
     "express-session": "^1.18.1",
@@ -62,6 +63,7 @@
     "next-themes": "^0.4.6",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
+    "pg": "^8.20.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",

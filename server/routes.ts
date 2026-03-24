@@ -14,7 +14,7 @@ import {
   getActiveSystemPrompt,
   getPortfolioMemory,
 } from "./admin-routes.ts";
-import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
+import { query, queryOne } from "./db.ts";
 
 type ChatHistoryItem = {
   from: "user" | "klein";
@@ -126,26 +126,15 @@ function buildDailyUsageSummary(dateKey: string, used: number): DailyUsageSummar
 async function getChatDailyUsage(clientId: string): Promise<DailyUsageSummary> {
   const dateKey = getLocalDateKey(new Date());
   try {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("chat_daily_usage")
-      .select("used_count")
-      .eq("client_id", clientId)
-      .eq("date_key", dateKey)
-      .maybeSingle();
-
-    const row = unwrapSupabaseResult(
-      result.data as { used_count: number } | null,
-      result.error,
-      "Failed to load chat daily usage",
+    const row = await queryOne<{ used_count: number }>(
+      `SELECT used_count FROM chat_daily_usage WHERE client_id = $1 AND date_key = $2`,
+      [clientId, dateKey],
     );
-
     return buildDailyUsageSummary(dateKey, row?.used_count ?? 0);
   } catch (error) {
     if (!isRecoverableChatStorageError(error)) {
       throw error;
     }
-
     return buildDailyUsageSummary(dateKey, 0);
   }
 }
@@ -156,19 +145,10 @@ async function tryConsumeDailyMessage(clientId: string): Promise<{
 }> {
   const dateKey = getLocalDateKey(new Date());
   try {
-    const supabase = getServerSupabase();
-    const result = await supabase.rpc("consume_chat_daily_message", {
-      target_client_id: clientId,
-      date_key_input: dateKey,
-      daily_limit: DAILY_CHAT_LIMIT,
-    });
-
-    const row = unwrapSupabaseResult(
-      Array.isArray(result.data) ? result.data[0] : result.data,
-      result.error,
-      "Failed to consume chat daily usage",
-    ) as { allowed: boolean; used_count: number } | null;
-
+    const row = await queryOne<{ allowed: boolean; used_count: number }>(
+      `SELECT * FROM consume_chat_daily_message($1, $2, $3)`,
+      [clientId, dateKey, DAILY_CHAT_LIMIT],
+    );
     const used = row?.used_count ?? 0;
     return {
       allowed: row?.allowed ?? false,
@@ -178,7 +158,6 @@ async function tryConsumeDailyMessage(clientId: string): Promise<{
     if (!isRecoverableChatStorageError(error)) {
       throw error;
     }
-
     return {
       allowed: true,
       usage: buildDailyUsageSummary(dateKey, 0),
@@ -188,23 +167,16 @@ async function tryConsumeDailyMessage(clientId: string): Promise<{
 
 async function trackUniqueLifetimeVisitor(visitorId: string): Promise<number> {
   try {
-    const supabase = getServerSupabase();
-    const result = await supabase.rpc("track_unique_lifetime_visitor", {
-      target_visitor_id: visitorId,
-    });
-
-    const total = unwrapSupabaseResult(
-      result.data,
-      result.error,
-      "Failed to track unique lifetime visitor",
+    const row = await queryOne<{ track_unique_lifetime_visitor: number }>(
+      `SELECT track_unique_lifetime_visitor($1)`,
+      [visitorId],
     );
-
+    const total = row?.track_unique_lifetime_visitor ?? 0;
     return typeof total === "number" ? total : Number(total ?? 0);
   } catch (error) {
     if (!isRecoverableChatStorageError(error)) {
       throw error;
     }
-
     return 0;
   }
 }
