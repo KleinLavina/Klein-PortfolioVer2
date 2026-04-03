@@ -42,6 +42,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import type { ChatAction } from "@shared/schema";
+import { cn } from "@/lib/utils";
 
 type TechEntry = { icon: IconDefinition; color: string };
 
@@ -449,6 +450,7 @@ export function FloatingChat() {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showSuggestedReplies, setShowSuggestedReplies] = useState(true);
+  const [isOnContactSection, setIsOnContactSection] = useState(false);
   const [usage, setUsage] = useState<ChatUsage>({
     used: 0,
     remaining: DAILY_MESSAGE_LIMIT,
@@ -496,6 +498,30 @@ export function FloatingChat() {
     };
     if (open) void loadUsage();
   }, [clientId, open]);
+
+  useEffect(() => {
+    const root = document.querySelector("main.flex-1");
+    const contactSection = document.getElementById("contact");
+
+    if (!(root instanceof HTMLElement) || !contactSection) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) {
+          setIsOnContactSection(entry.isIntersecting);
+        }
+      },
+      {
+        root,
+        threshold: 0.2,
+      },
+    );
+
+    observer.observe(contactSection);
+
+    return () => observer.disconnect();
+  }, []);
 
   const isAtDailyLimit = usage.remaining <= 0;
   const isNearDailyLimit = usage.used >= 6 && !isAtDailyLimit;
@@ -912,10 +938,17 @@ export function FloatingChat() {
         onClick={() => setOpen((v) => !v)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-5 right-5 sm:right-8 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl
-                   bg-primary text-primary-foreground font-bold text-sm
-                   hover:bg-primary/90 transition-colors"
-        style={{ boxShadow: "0 4px 24px hsl(var(--primary) / 0.45)" }}
+        className={cn(
+          "fixed bottom-5 right-5 sm:right-8 z-50 flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold transition-colors border",
+          isOnContactSection
+            ? "bg-card text-primary border-card-border hover:bg-card dark:bg-card dark:text-primary dark:border-card-border"
+            : "bg-primary text-primary-foreground border-primary/30 hover:bg-primary/90",
+        )}
+        style={{
+          boxShadow: isOnContactSection
+            ? "0 8px 28px hsl(var(--foreground) / 0.18)"
+            : "0 4px 24px hsl(var(--primary) / 0.45)",
+        }}
       >
         <AnimatePresence mode="wait">
           {open ? (
