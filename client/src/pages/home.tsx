@@ -355,10 +355,10 @@ export default function Home() {
         <BubbleBackground interactive className="w-full h-full" />
       </div>
 
-      <div className="max-w-6xl mx-auto p-4 sm:p-8 lg:p-12 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 pb-4 sm:px-8 sm:pb-8 lg:px-12 lg:pb-12 relative z-10">
 
         {/* ─── HERO ─────────────────────────────────────────────────────── */}
-        <Section id="home" className="justify-center min-h-screen py-0 pt-0">
+        <Section id="home" className="justify-center min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-7rem)] py-0 pt-0">
           <div className="w-full flex flex-col justify-center">
 
             {/* Main hero content — centered layout */}
@@ -714,7 +714,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="hidden lg:grid lg:grid-cols-[200px_minmax(0,1.05fr)_minmax(0,0.95fr)] gap-6 px-5 pb-4 border-b border-border/40">
+            <div className="hidden lg:grid lg:grid-cols-[240px_minmax(0,1.35fr)_minmax(0,0.85fr)] gap-6 px-5 pb-4 border-b border-border/40">
               <div className="text-[10px] font-mono font-bold uppercase tracking-[0.35em] text-muted-foreground/65">
                 Service
               </div>
@@ -735,7 +735,7 @@ export default function Home() {
                   viewport={{ once: true, amount: 0.12 }}
                   transition={{ duration: 0.45, delay: index * 0.06 }}
                   className={[
-                    "group relative grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1.05fr)_minmax(0,0.95fr)] gap-5 lg:gap-6 px-4 sm:px-5 py-6 sm:py-7 border-b border-transparent transition-all duration-300",
+                    "group relative grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1.35fr)_minmax(0,0.85fr)] gap-5 lg:gap-6 px-4 sm:px-5 py-6 sm:py-7 border-b border-transparent transition-all duration-300",
                     capability.featured
                       ? "bg-muted/28 hover:bg-muted/42"
                       : "hover:bg-card/30",
@@ -765,7 +765,7 @@ export default function Home() {
                         Service
                       </div>
                       <h4 className={[
-                        "text-[1.45rem] sm:text-[1.9rem] font-black uppercase leading-[0.9] tracking-[-0.035em]",
+                        "text-[1.2rem] sm:text-[1.55rem] font-black uppercase leading-[0.92] tracking-[-0.03em]",
                         capability.featured ? "text-primary" : "text-foreground",
                       ].join(" ")}>
                         {capability.service.split(" ").map((word, wordIndex) => (
@@ -782,7 +782,7 @@ export default function Home() {
                       Description
                     </div>
                     <p className={[
-                      "text-base sm:text-[1.15rem] leading-[1.7] max-w-2xl",
+                      "text-sm sm:text-[0.98rem] leading-[1.65] max-w-3xl",
                       capability.featured ? "text-foreground" : "text-muted-foreground",
                     ].join(" ")}>
                       {capability.description}

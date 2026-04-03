@@ -1,13 +1,15 @@
-import { ReactNode, useRef } from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./sidebar";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { ScrollWave } from "@/components/ui/scroll-wave";
 import { CustomCursor } from "@/components/ui/custom-cursor";
 import { ScrollSnake } from "@/components/ui/scroll-snake";
 import { motion, useScroll, useSpring } from "framer-motion";
+import { FloatingHeader } from "./floating-header";
+import { useDynamicTitle } from "@/hooks/use-dynamic-title";
 
 export function Shell({ children }: { children: ReactNode }) {
   const scrollRef = useRef<HTMLElement>(null);
+  const [activeSection, setActiveSection] = useState("home");
+  const [isScrolled, setIsScrolled] = useState(false);
   const { scrollYProgress } = useScroll({
     container: scrollRef
   });
@@ -17,32 +19,67 @@ export function Shell({ children }: { children: ReactNode }) {
     restDelta: 0.001
   });
 
+  useDynamicTitle(activeSection);
+
+  useEffect(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+
+    const trackedSectionIds = ["home", "about", "skills", "projects", "github", "contact"];
+    const sections = trackedSectionIds
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleSections = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visibleSections[0]) {
+          setActiveSection(visibleSections[0].target.id);
+        }
+      },
+      {
+        root,
+        threshold: [0.12, 0.24, 0.4, 0.65],
+        rootMargin: "-18% 0px -18% 0px",
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+
+    const onScroll = () => {
+      setIsScrolled(root.scrollTop > 18);
+    };
+
+    onScroll();
+    root.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      root.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
   return (
-    <SidebarProvider style={{ "--sidebar-width": "13.5rem" } as React.CSSProperties}>
-      <div className="flex h-screen w-full bg-background overflow-hidden relative">
-        {/* Scroll Progress Bar */}
-        <motion.div
-          className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-brand z-50 origin-left"
-          style={{ scaleX }}
-        />
-        
-        <CustomCursor />
-        <ScrollWave />
-        <ScrollSnake />
-        <AppSidebar />
-        
-        <div className="flex flex-col flex-1 relative h-full">
-          {/* Mobile Header with Trigger */}
-          <header className="md:hidden flex items-center p-4 border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0 z-40">
-            <SidebarTrigger className="hover-glow text-foreground" />
-            <span className="ml-4 font-bold text-lg text-gradient">Klein F. Lavina</span>
-          </header>
-          
-          <main ref={scrollRef} className="flex-1 overflow-y-auto scroll-smooth w-full relative">
-            {children}
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
+    <div className="flex h-screen w-full overflow-hidden bg-background relative">
+      <motion.div
+        className="fixed top-0 left-0 right-0 z-50 h-1.5 origin-left bg-gradient-brand"
+        style={{ scaleX }}
+      />
+
+      <CustomCursor />
+      <ScrollWave />
+      <ScrollSnake />
+      <FloatingHeader activeSection={activeSection} isScrolled={isScrolled} />
+
+      <main
+        ref={scrollRef}
+        className="relative flex-1 overflow-y-auto scroll-smooth scroll-pt-28 w-full pt-24 md:scroll-pt-32 md:pt-28"
+      >
+        {children}
+      </main>
+    </div>
   );
 }
