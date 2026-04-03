@@ -111,7 +111,6 @@ const SECTION_REDIRECT_MAP: Record<string, { anchor: string; label: string }> = 
   "technical-skills": { anchor: "#skills", label: "View Skills" },
   "soft-skills": { anchor: "#skills", label: "View Skills" },
   projects: { anchor: "#projects", label: "View Projects" },
-  timeline: { anchor: "#timeline", label: "View Timeline" },
   contact: { anchor: "#contact", label: "View Contact" },
 };
 
@@ -549,7 +548,7 @@ function DashboardView({ token, onLogout }: { token: string; onLogout: () => voi
                 </div>
                 <div>
                   <div className="text-sm font-bold text-foreground">Portfolio Memory</div>
-                  <div className="text-xs text-muted-foreground">Ordered context, identity, projects, timeline, and contact details.</div>
+                  <div className="text-xs text-muted-foreground">Ordered context, identity, projects, and contact details.</div>
                 </div>
               </div>
             </button>

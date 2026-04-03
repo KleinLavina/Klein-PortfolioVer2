@@ -39,16 +39,6 @@ export type PortfolioProject = {
   context: string;
 };
 
-export type PortfolioTimelineEntry = {
-  year: string;
-  phase: string;
-  title: string;
-  summary: string;
-  highlights: string[];
-  stack: string[];
-  certification?: string;
-};
-
 export const portfolioProjects: PortfolioProject[] = [
   {
     id: 1,
@@ -115,63 +105,6 @@ export const portfolioProjects: PortfolioProject[] = [
     githubUrl: "https://github.com/KleinLavina/CrackenFurnture",
     thumbnail: "/furniture.png",
     context: "A second variation of Klein's original e-commerce design, adapted for a classmate while retaining authorship.",
-  },
-];
-
-export const portfolioTimeline: PortfolioTimelineEntry[] = [
-  {
-    year: "2022",
-    phase: "Chapter 01",
-    title: "The First Line",
-    summary:
-      "Klein started BSIT at Saint Joseph College and began learning HTML, CSS, JavaScript, and basic Java programming.",
-    highlights: [
-      "Built first static web pages from scratch.",
-      "Learned responsive layout basics with Flexbox and Grid.",
-      "Reached the Dean's List in the first semester.",
-    ],
-    stack: ["HTML", "CSS", "JavaScript", "Java"],
-  },
-  {
-    year: "2023",
-    phase: "Chapter 02",
-    title: "The Architect Phase",
-    summary:
-      "The focus shifted from syntax to systems thinking through data flow diagrams, database design, and relational modeling.",
-    highlights: [
-      "Designed normalized relational databases.",
-      "Modeled systems through DFDs.",
-      "Built and managed MySQL schemas and queries.",
-    ],
-    stack: ["MySQL", "Database Design", "DFD", "System Modeling"],
-  },
-  {
-    year: "2024",
-    phase: "Chapter 03",
-    title: "Building Real Things",
-    summary:
-      "Theory turned into deployed work through live e-commerce builds, paid project delivery, and first hosting experience.",
-    highlights: [
-      "Launched Cracken Furniture.",
-      "Delivered CrackenGearFits as paid work.",
-      "Expanded language exposure through Python and R.",
-    ],
-    stack: ["PHP", "XAMPP", "MySQL", "Python", "R", "Git", "GitHub"],
-  },
-  {
-    year: "2025",
-    phase: "Chapter 04",
-    title: "The Modern Stack",
-    summary:
-      "Klein moved into React, Vite, and Django while shipping chatbot work, capstone systems, and school-focused CMS builds.",
-    highlights: [
-      "Built the J-Gear chatbot.",
-      "Delivered the RDFS capstone system.",
-      "Designed the Tag-os school site CMS.",
-      "Passed the PhilNITS IT Passport exam.",
-    ],
-    stack: ["React", "Vite", "Django", "Python", "JSX"],
-    certification: "Certified PhilNITS Passer - Examinee No. IP4500348",
   },
 ];
 
@@ -291,23 +224,8 @@ export const portfolioMemorySections: PortfolioMemorySection[] = [
     ),
   },
   {
-    id: "timeline",
-    order: 7,
-    eyebrow: "Growth Timeline",
-    title: "Developer Journey In Order",
-    summary:
-      "The timeline explains how Klein progressed from early web fundamentals into systems design, deployed projects, and the modern stack.",
-    context:
-      "Use this when the user asks about experience level, progression, learning path, or how Klein grew over time.",
-    accent: "primary",
-    items: portfolioTimeline.map(
-      (entry) =>
-        `${entry.year} - ${entry.title}: ${entry.summary}`,
-    ),
-  },
-  {
     id: "contact",
-    order: 8,
+    order: 7,
     eyebrow: "Contact",
     title: "How To Reach Klein",
     summary:
@@ -358,8 +276,4 @@ export function buildPortfolioMemoryPrompt(
 
 export function getPortfolioProjects(limit = 3): PortfolioProject[] {
   return portfolioProjects.slice(0, Math.max(1, Math.min(limit, portfolioProjects.length)));
-}
-
-export function getPortfolioTimeline(limit = 4): PortfolioTimelineEntry[] {
-  return portfolioTimeline.slice(0, Math.max(1, Math.min(limit, portfolioTimeline.length)));
 }

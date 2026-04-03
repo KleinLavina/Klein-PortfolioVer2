@@ -440,7 +440,9 @@ export async function getPortfolioMemory(includeInactive = false) {
       "Failed to load portfolio memory",
     );
 
-    return rows.map(mapPortfolioMemoryRow);
+    return rows
+      .map(mapPortfolioMemoryRow)
+      .filter((row) => row.id !== "timeline");
   } catch (error) {
     if (!isRecoverableChatbotStorageError(error)) {
       throw error;
@@ -463,7 +465,10 @@ export async function getPortfolioMemory(includeInactive = false) {
       updatedAt: 0,
     }));
 
-    return includeInactive ? fallbackRows : fallbackRows.filter((row) => row.isActive);
+    const filteredFallbackRows = fallbackRows.filter((row) => row.id !== "timeline");
+    return includeInactive
+      ? filteredFallbackRows
+      : filteredFallbackRows.filter((row) => row.isActive);
   }
 }
 

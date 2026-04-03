@@ -6,7 +6,6 @@ const SECTION_TITLES = {
   skills: 'Klein Lavina / Skills',
   projects: 'Klein Lavina / Projects',
   github: 'Klein Lavina / GitHub',
-  timeline: 'Klein Lavina / Timeline',
   contact: 'Klein Lavina / Contact'
 };
 

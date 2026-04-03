@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Home, User, Code2, FolderGit2, Mail, Moon, Sun, Clock,
+  Home, User, Code2, FolderGit2, Mail, Moon, Sun,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
@@ -17,8 +17,7 @@ const navItems = [
   { title: "About",    url: "#about",    icon: User,       num: "02" },
   { title: "Skills",   url: "#skills",   icon: Code2,      num: "03" },
   { title: "Projects", url: "#projects", icon: FolderGit2, num: "04" },
-  { title: "Timeline", url: "#timeline", icon: Clock,      num: "05" },
-  { title: "Contact",  url: "#contact",  icon: Mail,       num: "06" },
+  { title: "Contact",  url: "#contact",  icon: Mail,       num: "05" },
 ];
 
 export function AppSidebar() {

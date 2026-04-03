@@ -13,6 +13,9 @@ import {
   SiJavascript,
   SiTypescript,
   SiReact,
+  SiNodedotjs,
+  SiMongodb,
+  SiExpress,
   SiNextdotjs,
   SiTailwindcss,
   SiBootstrap,
@@ -25,7 +28,9 @@ import {
   SiGithub,
   SiFigma,
   SiVite,
-  SiNetlify
+  SiNetlify,
+  SiThreedotjs,
+  SiOpenai
 } from "react-icons/si";
 import { 
   FaCode, 
@@ -39,14 +44,15 @@ import {
   FaGithub,
   FaFigma,
   FaCloud,
-  FaPalette
+  FaPalette,
+  FaApple,
+  FaAndroid
 } from "react-icons/fa";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
 import { Section } from "@/components/ui/section";
 import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { GithubContributions } from "@/components/github-contributions";
-import { DeveloperTimeline } from "@/components/developer-timeline";
 import { FloatingChat } from "@/components/floating-chat";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -54,47 +60,52 @@ import {
   Loader2, Github, Code, Database, MonitorSmartphone,
   Layers, Server, TerminalSquare, Mail, FolderGit2,
   Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ArrowDown,
-  ChevronRight, Sparkles, Globe
+  ChevronRight, Sparkles, Globe, ArrowUpRight
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
 
-const SKILLS = {
-  "Frontend": [
-    { name: "HTML", icon: SiHtml5, color: "text-orange-500", level: 4 as const },
-    { name: "CSS", icon: FaCss3Alt, color: "text-blue-500", level: 4 as const },
-    { name: "JavaScript", icon: SiJavascript, color: "text-yellow-400", level: 3 as const },
-    { name: "TypeScript", icon: SiTypescript, color: "text-blue-600", level: 2 as const },
-    { name: "React", icon: SiReact, color: "text-cyan-500", level: 2 as const },
-    { name: "Next.js", icon: SiNextdotjs, color: "text-foreground", level: 2 as const },
-    { name: "Tailwind", icon: SiTailwindcss, color: "text-cyan-400", level: 2 as const },
-    { name: "Bootstrap", icon: SiBootstrap, color: "text-purple-500", level: 2 as const },
-  ],
-  "Backend": [
-    { name: "Django", icon: SiDjango, color: "text-green-600", level: 3 as const },
-    { name: "PHP", icon: SiPhp, color: "text-indigo-400", level: 3 as const },
-  ],
-  "Databases": [
-    { name: "MySQL", icon: SiMysql, color: "text-blue-500", level: 3 as const },
-    { name: "PostgreSQL", icon: SiPostgresql, color: "text-blue-400", level: 3 as const },
-  ],
-  "Languages": [
-    { name: "Java", icon: FaJava, color: "text-red-500", level: 1 as const },
-    { name: "Python", icon: SiPython, color: "text-blue-400", level: 3 as const },
-    { name: "R", icon: FaCode, color: "text-blue-600", level: 1 as const },
-  ],
-  "Tools": [
-    { name: "VS Code", icon: FaCode, color: "text-blue-500", level: 3 as const },
-    { name: "Git", icon: SiGit, color: "text-orange-600", level: 3 as const },
-    { name: "GitHub", icon: SiGithub, color: "text-foreground", level: 3 as const },
-    { name: "Figma", icon: SiFigma, color: "text-pink-500", level: 2 as const },
-    { name: "Postman", icon: FaTools, color: "text-orange-500", level: 1 as const },
-    { name: "Cloudinary", icon: FaCloud, color: "text-blue-600", level: 1 as const },
-    { name: "Replit", icon: FaCode, color: "text-orange-500", level: 2 as const },
-    { name: "Render", icon: FaServer, color: "text-purple-600", level: 2 as const },
-    { name: "Canva", icon: FaPalette, color: "text-cyan-500", level: 2 as const },
-  ],
-};
+const TECH_STACK_GROUPS = [
+  {
+    title: "Frontend & UI",
+    skills: [
+      { name: "HTML", icon: SiHtml5, color: "text-orange-500" },
+      { name: "CSS", icon: FaCss3Alt, color: "text-blue-500" },
+      { name: "JavaScript", icon: SiJavascript, color: "text-yellow-400" },
+      { name: "TypeScript", icon: SiTypescript, color: "text-blue-600" },
+      { name: "React", icon: SiReact, color: "text-cyan-500" },
+      { name: "Next.js", icon: SiNextdotjs, color: "text-foreground" },
+      { name: "Tailwind", icon: SiTailwindcss, color: "text-cyan-400" },
+      { name: "Bootstrap", icon: SiBootstrap, color: "text-purple-500" },
+      { name: "Figma", icon: SiFigma, color: "text-pink-500" },
+      { name: "Canva", icon: FaPalette, color: "text-cyan-500" },
+    ],
+  },
+  {
+    title: "Backend & Database",
+    skills: [
+      { name: "Django", icon: SiDjango, color: "text-green-600" },
+      { name: "PHP", icon: SiPhp, color: "text-indigo-400" },
+      { name: "Python", icon: SiPython, color: "text-blue-400" },
+      { name: "MySQL", icon: SiMysql, color: "text-blue-500" },
+      { name: "PostgreSQL", icon: SiPostgresql, color: "text-blue-400" },
+      { name: "Cloudinary", icon: FaCloud, color: "text-blue-600" },
+      { name: "Render", icon: FaServer, color: "text-purple-600" },
+    ],
+  },
+  {
+    title: "Architecture & Tools",
+    skills: [
+      { name: "Git", icon: SiGit, color: "text-orange-600" },
+      { name: "GitHub", icon: SiGithub, color: "text-foreground" },
+      { name: "VS Code", icon: FaCode, color: "text-blue-500" },
+      { name: "Postman", icon: FaTools, color: "text-orange-500" },
+      { name: "Replit", icon: FaCode, color: "text-orange-500" },
+      { name: "Java", icon: FaJava, color: "text-red-500" },
+      { name: "R", icon: FaCode, color: "text-blue-600" },
+    ],
+  },
+] as const;
 
 const PROFESSIONAL_SKILLS = [
   { name: "Problem Solving", icon: Lightbulb, color: "text-yellow-400", description: "Analytical approach to complex challenges" },
@@ -104,6 +115,64 @@ const PROFESSIONAL_SKILLS = [
   { name: "Continuous Learning", icon: BookOpen, color: "text-green-500", description: "Always expanding knowledge" },
   { name: "Communication", icon: MessageCircle, color: "text-cyan-500", description: "Clear technical and non-technical communication" },
 ];
+
+const CORE_CAPABILITIES = [
+  {
+    service: "Full-Stack Development",
+    description:
+      "Scalable MERN stack applications with robust architectures, built for enterprise-grade performance and security.",
+    stack: ["React", "Node.js", "MongoDB", "Express"],
+    icon: Server,
+    featured: false,
+  },
+  {
+    service: "App Development",
+    description:
+      "Native-feeling cross-platform mobile experiences that seamlessly connect your users to your digital ecosystem.",
+    stack: ["React Native", "iOS", "Android"],
+    icon: MonitorSmartphone,
+    featured: false,
+  },
+  {
+    service: "3D Web Experiences",
+    description:
+      "Next-generation immersive web environments utilizing WebGL to craft memorable and interactive storytelling.",
+    stack: ["Three.js", "WebGL", "GSAP", "React Three Fiber"],
+    icon: Layers,
+    featured: false,
+  },
+  {
+    service: "AI & API Integration",
+    description:
+      "Intelligent system integrations bridging cutting-edge LLMs and custom APIs to automate and elevate workflows.",
+    stack: ["OpenAI", "RESTful APIs", "Gemini API"],
+    icon: Sparkles,
+    featured: false,
+  },
+] as const;
+
+const CAPABILITY_STACK_META: Record<
+  string,
+  {
+    icon: any;
+    color: string;
+  }
+> = {
+  React: { icon: SiReact, color: "text-cyan-500" },
+  "Node.js": { icon: SiNodedotjs, color: "text-green-500" },
+  MongoDB: { icon: SiMongodb, color: "text-green-600" },
+  Express: { icon: SiExpress, color: "text-foreground" },
+  "React Native": { icon: SiReact, color: "text-cyan-500" },
+  iOS: { icon: FaApple, color: "text-foreground" },
+  Android: { icon: FaAndroid, color: "text-green-500" },
+  "Three.js": { icon: SiThreedotjs, color: "text-foreground" },
+  WebGL: { icon: Globe, color: "text-blue-500" },
+  GSAP: { icon: Zap, color: "text-lime-400" },
+  "React Three Fiber": { icon: SiReact, color: "text-cyan-500" },
+  OpenAI: { icon: SiOpenai, color: "text-foreground" },
+  "RESTful APIs": { icon: Server, color: "text-secondary" },
+  "Gemini API": { icon: Sparkles, color: "text-primary" },
+};
 
 const PROJECTS = [
   {
@@ -550,21 +619,22 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="space-y-10 mt-8">
-            {Object.entries(SKILLS).map(([category, skills], catIndex) => (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-8">
+            {TECH_STACK_GROUPS.map((group, catIndex) => (
               <motion.div
-                key={category}
+                key={group.title}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
                 transition={{ duration: 0.5, delay: catIndex * 0.07 }}
+                className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-xl p-5 shadow-xl"
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground">{category}</h3>
+                <div className="flex items-center gap-3 mb-5">
+                  <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground">{group.title}</h3>
                   <div className="flex-1 h-px bg-border/30" />
                 </div>
                 <div className="flex flex-wrap gap-2.5">
-                  {skills.map((skill, index) => (
+                  {group.skills.map((skill, index) => (
                     <motion.div
                       key={skill.name}
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -573,7 +643,7 @@ export default function Home() {
                       transition={{ duration: 0.3, delay: index * 0.04 }}
                       className="group"
                     >
-                      <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg glass-card border-white/5 hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 cursor-default">
+                      <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg glass-card border-white/5 hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 cursor-default">
                         <skill.icon size={13} strokeWidth={1.5} className={skill.color} />
                         <span className="text-xs font-semibold text-foreground/80 group-hover:text-foreground transition-colors whitespace-nowrap">{skill.name}</span>
                       </div>
@@ -612,6 +682,154 @@ export default function Home() {
                   <div>
                     <p className="font-semibold text-sm text-foreground">{skill.name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{skill.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.08 }}
+            transition={{ duration: 0.55, delay: 0.28 }}
+            className="mt-16"
+          >
+            <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6 xl:gap-12 items-start mb-8">
+              <div>
+                <p className="text-[10px] font-mono font-bold uppercase tracking-[0.35em] text-muted-foreground/70 mb-3">
+                  Services
+                </p>
+                <h3 className="text-[clamp(2.6rem,7vw,5.3rem)] font-black uppercase leading-[0.84] tracking-[-0.05em] text-foreground">
+                  Core
+                  <br />
+                  <span className="text-gradient">Capabilities</span>
+                </h3>
+              </div>
+
+              <div className="xl:pt-8">
+                <p className="text-base sm:text-xl font-semibold leading-[1.5] text-muted-foreground text-left xl:text-right max-w-2xl xl:ml-auto">
+                  Transforming ideas into polished digital realities through modern engineering and uncompromising design.
+                </p>
+              </div>
+            </div>
+
+            <div className="hidden lg:grid lg:grid-cols-[200px_minmax(0,1.05fr)_minmax(0,0.95fr)] gap-6 px-5 pb-4 border-b border-border/40">
+              <div className="text-[10px] font-mono font-bold uppercase tracking-[0.35em] text-muted-foreground/65">
+                Service
+              </div>
+              <div className="text-[10px] font-mono font-bold uppercase tracking-[0.35em] text-muted-foreground/65">
+                Description
+              </div>
+              <div className="text-[10px] font-mono font-bold uppercase tracking-[0.35em] text-muted-foreground/65 text-right">
+                Stack
+              </div>
+            </div>
+
+            <div className="mt-2 border-t border-border/20">
+              {CORE_CAPABILITIES.map((capability, index) => (
+                <motion.div
+                  key={capability.service}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.12 }}
+                  transition={{ duration: 0.45, delay: index * 0.06 }}
+                  className={[
+                    "group relative grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1.05fr)_minmax(0,0.95fr)] gap-5 lg:gap-6 px-4 sm:px-5 py-6 sm:py-7 border-b border-transparent transition-all duration-300",
+                    capability.featured
+                      ? "bg-muted/28 hover:bg-muted/42"
+                      : "hover:bg-card/30",
+                  ].join(" ")}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={[
+                      "absolute left-0 right-0 bottom-0 h-px origin-left scale-x-100 transition-all duration-300",
+                      capability.featured
+                        ? "bg-primary/35 group-hover:bg-primary/75 group-hover:h-[2px]"
+                        : "bg-border/35 group-hover:bg-primary/55 group-hover:h-[2px]",
+                    ].join(" ")}
+                  />
+
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className={[
+                      "w-12 h-12 rounded-none border flex items-center justify-center shrink-0 transition-colors duration-300",
+                      capability.featured
+                        ? "bg-primary text-primary-foreground border-primary shadow-[0_0_18px_hsl(var(--primary)/0.22)]"
+                        : "bg-background/65 text-foreground border-border/45 group-hover:border-primary/35 group-hover:text-primary",
+                    ].join(" ")}>
+                      <capability.icon size={18} strokeWidth={1.8} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="lg:hidden text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-muted-foreground/60 mb-1.5">
+                        Service
+                      </div>
+                      <h4 className={[
+                        "text-[1.45rem] sm:text-[1.9rem] font-black uppercase leading-[0.9] tracking-[-0.035em]",
+                        capability.featured ? "text-primary" : "text-foreground",
+                      ].join(" ")}>
+                        {capability.service.split(" ").map((word, wordIndex) => (
+                          <span key={`${capability.service}-${wordIndex}`} className="block">
+                            {word}
+                          </span>
+                        ))}
+                      </h4>
+                    </div>
+                  </div>
+
+                  <div className="lg:pt-0.5">
+                    <div className="lg:hidden text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-muted-foreground/60 mb-1.5">
+                      Description
+                    </div>
+                    <p className={[
+                      "text-base sm:text-[1.15rem] leading-[1.7] max-w-2xl",
+                      capability.featured ? "text-foreground" : "text-muted-foreground",
+                    ].join(" ")}>
+                      {capability.description}
+                    </p>
+                  </div>
+
+                  <div className="lg:pt-0.5">
+                    <div className="lg:hidden text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-muted-foreground/60 mb-2.5">
+                      Stack
+                    </div>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-wrap gap-2 lg:justify-end">
+                        {capability.stack.map((item) => {
+                          const meta = CAPABILITY_STACK_META[item];
+                          const IconComponent = meta?.icon;
+
+                          return (
+                            <span
+                              key={item}
+                              className={[
+                                "inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.12em] border transition-colors duration-300",
+                                capability.featured
+                                  ? "border-primary/55 text-foreground bg-background/75"
+                                  : "border-border/50 text-muted-foreground bg-background/40 group-hover:border-primary/30 group-hover:text-foreground",
+                              ].join(" ")}
+                            >
+                              {IconComponent ? (
+                                <IconComponent className={`${meta.color} shrink-0`} size={12} />
+                              ) : null}
+                              {item}
+                            </span>
+                          );
+                        })}
+                      </div>
+
+                      <div className="hidden lg:flex w-8 justify-end pt-0.5">
+                        <ArrowUpRight
+                          size={20}
+                          className={[
+                            "transition-all duration-300",
+                            capability.featured
+                              ? "text-primary/75 group-hover:text-primary group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                              : "text-muted-foreground/45 group-hover:text-primary group-hover:-translate-y-0.5 group-hover:translate-x-0.5",
+                          ].join(" ")}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -838,26 +1056,6 @@ export default function Home() {
           })()}
         </Section>
 
-        {/* ─── TIMELINE ────────────────────────────────────────────────── */}
-        <Section id="timeline">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
-            <SectionLabel num="04" label="Developer Journey" />
-            <h2 className="text-4xl sm:text-5xl font-black text-foreground leading-tight">
-              The road<br />
-              <span className="text-gradient">that got me here.</span>
-            </h2>
-            <p className="mt-4 text-xs text-muted-foreground/60 leading-relaxed max-w-md border-l-2 border-white/10 pl-3">
-              Only programming and software development–related milestones are documented here. This timeline highlights the most relevant experiences that shaped my growth as a developer.
-            </p>
-          </motion.div>
-          <DeveloperTimeline />
-        </Section>
       </div>
 
       {/* ─── SCROLL TEXT FILL ────────────────────────────────────────── */}

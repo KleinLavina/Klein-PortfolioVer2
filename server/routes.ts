@@ -230,7 +230,6 @@ const SECTION_ANCHOR_MAP: Record<string, { anchor: string; label: string }> = {
   "technical-skills": { anchor: "#skills", label: "View Skills" },
   "soft-skills": { anchor: "#skills", label: "View Skills" },
   projects: { anchor: "#projects", label: "View Projects" },
-  timeline: { anchor: "#timeline", label: "View Timeline" },
   contact: { anchor: "#contact", label: "View Contact" },
 };
 
@@ -238,7 +237,6 @@ const SECTION_KEYWORD_MAP: Array<{ keywords: string[]; anchor: string; label: st
   { keywords: ["contact", "email", "reach", "hire", "inquiry", "facebook", "linkedin", "message"], anchor: "#contact", label: "View Contact" },
   { keywords: ["project", "demo", "github", "live", "built", "portfolio", "work"], anchor: "#projects", label: "View Projects" },
   { keywords: ["skill", "stack", "technology", "language", "framework", "frontend", "backend", "tool"], anchor: "#skills", label: "View Skills" },
-  { keywords: ["timeline", "history", "journey", "experience", "year", "progression", "chapter", "learning path"], anchor: "#timeline", label: "View Timeline" },
   { keywords: ["about", "background", "who is", "story", "motivation", "personality", "values", "working style"], anchor: "#about", label: "View About" },
 ];
 
@@ -598,7 +596,7 @@ export async function registerRoutes(
                         properties: {
                           sectionId: {
                             type: "STRING",
-                            description: "The memory section id such as identity, about, values, technical-skills, projects, timeline, or contact.",
+                            description: "The memory section id such as identity, about, values, technical-skills, projects, or contact.",
                           },
                         },
                         required: ["sectionId"],

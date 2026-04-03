@@ -31,22 +31,6 @@ export function CursorWave() {
     };
     scrollContainer?.addEventListener("scroll", onScroll, { passive: true });
 
-    const getTimelineOpacity = (): number => {
-      const timeline = document.getElementById("timeline");
-      const el = scrollContainer as HTMLElement | null;
-      if (!timeline || !el) return 1;
-      const H = el.clientHeight;
-      // Reach 0 exactly when timeline's midpoint is centered in viewport
-      const timelineMid = timeline.offsetTop + timeline.offsetHeight / 2;
-      const scrollAtMid = timelineMid - H / 2;
-      const fadeStart = scrollAtMid - H * 0.5;
-      const fadeEnd = scrollAtMid;
-      const scroll = scrollRef.current;
-      if (scroll < fadeStart) return 1;
-      if (scroll >= fadeEnd) return 0;
-      return 1 - (scroll - fadeStart) / (fadeEnd - fadeStart);
-    };
-
     const tick = () => {
       const W = window.innerWidth;
       const H = window.innerHeight;
@@ -67,7 +51,7 @@ export function CursorWave() {
       const d1 = `M 0 ${y1} C ${cp1.x} ${cp1.y}, ${cp2.x} ${cp2.y}, ${W} ${y2}`;
       const d2 = `M 0 ${y1 + 40} C ${cp1.x - 20} ${cp1.y + 60}, ${cp2.x + 20} ${cp2.y - 60}, ${W} ${y2 + 40}`;
 
-      const opacity = getTimelineOpacity() * 0.5;
+      const opacity = 0.5;
 
       if (svgRef.current) svgRef.current.style.opacity = String(opacity);
       if (path1Ref.current) path1Ref.current.setAttribute("d", d1);
