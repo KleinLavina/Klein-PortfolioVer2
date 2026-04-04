@@ -1,9 +1,11 @@
 import { Component, useState, useEffect, useCallback, type ErrorInfo, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "wouter";
 import type {
   ManagedPortfolioMemorySection,
   PortfolioMemorySection,
 } from "@shared/portfolio-memory";
+import { AdminMessagesPanel } from "./admin-messages";
 import {
   LogOut,
   Plus,
@@ -24,12 +26,13 @@ import {
   Database,
   ExternalLink,
   ArrowRight,
+  Mail,
 } from "lucide-react";
 
 const SESSION_KEY = "admin_token";
 
 type View = "login" | "dashboard";
-type AdminPanel = "memory" | "scripts";
+type AdminPanel = "memory" | "scripts" | "messages";
 
 type ContentItem = {
   id: number;
@@ -393,11 +396,14 @@ function LoginView({ onLogin }: { onLogin: (token: string) => void }) {
 }
 
 function DashboardView({ token, onLogout }: { token: string; onLogout: () => void }) {
+  const [location, setLocation] = useLocation();
   const [items, setItems] = useState<ContentItem[]>([]);
   const [memorySections, setMemorySections] = useState<ManagedPortfolioMemorySection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activePanel, setActivePanel] = useState<AdminPanel>("memory");
+  const [activePanel, setActivePanel] = useState<AdminPanel>(
+    location.startsWith("/klein/admin/messages") ? "messages" : "memory",
+  );
   const [scriptModal, setScriptModal] = useState<{ mode: "create" | "edit"; item?: ContentItem } | null>(null);
   const [memoryModal, setMemoryModal] = useState<{ mode: "create" | "edit"; item?: ManagedPortfolioMemorySection } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ContentItem | null>(null);
@@ -424,6 +430,28 @@ function DashboardView({ token, onLogout }: { token: string; onLogout: () => voi
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (location.startsWith("/klein/admin/messages")) {
+      setActivePanel("messages");
+      return;
+    }
+
+    setActivePanel((prev) => (prev === "messages" ? "memory" : prev));
+  }, [location]);
+
+  const handlePanelChange = (panel: AdminPanel) => {
+    if (panel === "messages") {
+      setActivePanel("messages");
+      setLocation("/klein/admin/messages");
+      return;
+    }
+
+    if (location.startsWith("/klein/admin/messages")) {
+      setLocation("/klein/admin");
+    }
+    setActivePanel(panel);
+  };
 
   const handleToggleActive = async (item: ContentItem) => {
     try {
@@ -533,9 +561,9 @@ function DashboardView({ token, onLogout }: { token: string; onLogout: () => voi
 
       <main className="flex-1 max-w-6xl mx-auto w-full px-5 py-8">
         <div className="mb-8 rounded-[28px] border border-[hsl(var(--card-border))] bg-card/65 p-3 shadow-2xl backdrop-blur-xl">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
             <button
-              onClick={() => setActivePanel("memory")}
+              onClick={() => handlePanelChange("memory")}
               className={`rounded-[22px] border px-5 py-4 text-left transition-all ${
                 activePanel === "memory"
                   ? "border-primary/30 bg-primary/12 shadow-[0_20px_40px_-24px_hsl(var(--primary)/0.55)]"
@@ -553,7 +581,7 @@ function DashboardView({ token, onLogout }: { token: string; onLogout: () => voi
               </div>
             </button>
             <button
-              onClick={() => setActivePanel("scripts")}
+              onClick={() => handlePanelChange("scripts")}
               className={`rounded-[22px] border px-5 py-4 text-left transition-all ${
                 activePanel === "scripts"
                   ? "border-primary/30 bg-primary/12 shadow-[0_20px_40px_-24px_hsl(var(--primary)/0.55)]"
@@ -567,6 +595,24 @@ function DashboardView({ token, onLogout }: { token: string; onLogout: () => voi
                 <div>
                   <div className="text-sm font-bold text-foreground">AI Scripts</div>
                   <div className="text-xs text-muted-foreground">System prompt, welcome lines, and quick reply behavior.</div>
+                </div>
+              </div>
+            </button>
+            <button
+              onClick={() => handlePanelChange("messages")}
+              className={`rounded-[22px] border px-5 py-4 text-left transition-all ${
+                activePanel === "messages"
+                  ? "border-primary/30 bg-primary/12 shadow-[0_20px_40px_-24px_hsl(var(--primary)/0.55)]"
+                  : "border-border bg-background/50 hover:border-primary/20 hover:bg-background/80"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-500/25 bg-emerald-500/12 text-emerald-500">
+                  <Mail size={18} />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-foreground">Messages</div>
+                  <div className="text-xs text-muted-foreground">Review contact submissions and notification delivery.</div>
                 </div>
               </div>
             </button>
@@ -626,7 +672,7 @@ function DashboardView({ token, onLogout }: { token: string; onLogout: () => voi
               />
             )}
           </>
-        ) : (
+        ) : activePanel === "scripts" ? (
           <>
             <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -737,6 +783,8 @@ function DashboardView({ token, onLogout }: { token: string; onLogout: () => voi
               </div>
             )}
           </>
+        ) : (
+          <AdminMessagesPanel token={token} />
         )}
       </main>
 

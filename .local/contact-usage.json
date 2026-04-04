@@ -1,0 +1,64 @@
+{
+  "entries": [
+    {
+      "clientKey": "unknown::12345678-test-fingerprint",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::6f881a27-5155-4b85-ada5-c9d718e5d498",
+      "dateKey": "2026-04-04",
+      "usedCount": 3
+    },
+    {
+      "clientKey": "unknown::12345678-mail-test-fingerprint",
+      "dateKey": "2026-04-04",
+      "usedCount": 2
+    },
+    {
+      "clientKey": "unknown::12345678-retest-fingerprint",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::12345678-continue-test",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::12345678-cms-verify",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::12345678-one-shot-verify",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::12345678-form-retest",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::12345678-mail-queue-verify",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::12345678-delivery-meta",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::12345678-form-test-again",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    },
+    {
+      "clientKey": "unknown::12345678-route-debug",
+      "dateKey": "2026-04-04",
+      "usedCount": 1
+    }
+  ]
+}

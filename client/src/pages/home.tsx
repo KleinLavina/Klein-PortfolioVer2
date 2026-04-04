@@ -296,6 +296,7 @@ const CONTACT_EMAIL = "fklein.lavina09@gmail.com";
 const CONTACT_PHONE = "+639380734878";
 const CONTACT_GITHUB_URL = "https://github.com/KleinLavina";
 const CONTACT_LINKEDIN_URL = "https://www.linkedin.com/in/klein-lavina-353aba360";
+const CONTACT_FINGERPRINT_KEY = "portfolio_contact_fingerprint";
 const CONTACT_QR_SRC = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`BEGIN:VCARD
 VERSION:3.0
 FN:Klein F. Lavina
@@ -360,12 +361,30 @@ function getOrCreateVisitorId(): string {
   return generated;
 }
 
+function getOrCreateContactFingerprint(): string {
+  if (typeof window === "undefined") return "contact-server";
+
+  const existing = window.localStorage.getItem(CONTACT_FINGERPRINT_KEY);
+  if (existing) return existing;
+
+  const generated =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `contact-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+  window.localStorage.setItem(CONTACT_FINGERPRINT_KEY, generated);
+  return generated;
+}
+
 export default function Home() {
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [visitorLoading, setVisitorLoading] = useState(true);
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const [activeCertificateImage, setActiveCertificateImage] =
     useState<(typeof CERTIFICATION_IMAGES)[number] | null>(null);
+  const [isSubmittingContact, setIsSubmittingContact] = useState(false);
+  const [contactInlineMessage, setContactInlineMessage] = useState<string | null>(null);
+  const [contactRateLimited, setContactRateLimited] = useState(false);
   const [, setLocation] = useLocation();
   const currentYear = new Date().getFullYear();
   const mag1 = useMagnetic(0.3);
@@ -454,26 +473,60 @@ export default function Home() {
     });
   }, []);
 
-  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (typeof window === "undefined") return;
 
-    const formData = new FormData(event.currentTarget);
+    setContactInlineMessage(null);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     const fullName = String(formData.get("fullName") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const message = String(formData.get("message") ?? "").trim();
+    const fingerprint = getOrCreateContactFingerprint();
 
-    const subject = fullName ? `Portfolio inquiry from ${fullName}` : "Portfolio inquiry";
-    const body = [
-      fullName ? `Name: ${fullName}` : null,
-      email ? `Email: ${email}` : null,
-      "",
-      message || "Hello, I'd like to connect about a project.",
-    ]
-      .filter(Boolean)
-      .join("\n");
+    try {
+      setIsSubmittingContact(true);
+      const response = await fetch("/api/contact/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName,
+          email,
+          message,
+          fingerprint,
+        }),
+      });
 
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const data = (await response.json()) as { message?: string };
+
+      if (response.status === 429) {
+        setContactRateLimited(true);
+        setContactInlineMessage(
+          data.message ??
+            "You've reached the 3 message limit for today. Please try again tomorrow.",
+        );
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message ?? "Failed to send your message.");
+      }
+
+      form.reset();
+      setContactRateLimited(false);
+      setContactInlineMessage(
+        data.message ?? "Message sent successfully. I will get back to you soon.",
+      );
+    } catch (error) {
+      setContactInlineMessage(
+        error instanceof Error ? error.message : "Failed to send your message.",
+      );
+    } finally {
+      setIsSubmittingContact(false);
+    }
   };
 
 
@@ -1458,10 +1511,23 @@ export default function Home() {
 
                     <button
                       type="submit"
+                      disabled={isSubmittingContact || contactRateLimited}
                       className="flex h-[3.25rem] w-full items-center justify-center rounded-2xl bg-emerald-900 px-5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700/35 focus:ring-offset-2 focus:ring-offset-white dark:bg-emerald-800 dark:hover:bg-emerald-700 dark:focus:ring-offset-black"
                     >
-                      Send Message
+                      {isSubmittingContact ? "Sending..." : "Send Message"}
                     </button>
+                    {contactInlineMessage ? (
+                      <p
+                        className={cn(
+                          "text-sm leading-6",
+                          contactRateLimited
+                            ? "text-amber-600 dark:text-amber-400"
+                            : "text-emerald-700 dark:text-emerald-400",
+                        )}
+                      >
+                        {contactInlineMessage}
+                      </p>
+                    ) : null}
                   </form>
                 </div>
               </motion.div>

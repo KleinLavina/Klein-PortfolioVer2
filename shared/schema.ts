@@ -97,6 +97,43 @@ export const insertMessageSchema = messageSchema.omit({
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type Message = z.infer<typeof messageSchema>;
 
+export const contactSubmissionStatusSchema = z.enum(["unread", "read", "replied"]);
+
+export const contactSubmissionSchema = z.object({
+  id: z.number().int(),
+  fullName: z.string().trim().min(1).max(160),
+  email: z.string().trim().email(),
+  message: z.string().trim().min(1).max(5000),
+  fingerprint: z.string().trim().min(8).max(128),
+  ipAddress: z.string().trim().min(1).max(128),
+  status: contactSubmissionStatusSchema,
+  createdAt: z.string(),
+  readAt: z.string().nullable().optional(),
+  repliedAt: z.string().nullable().optional(),
+  updatedAt: z.string(),
+});
+
+export const contactSubmissionInputSchema = z.object({
+  fullName: z.string().trim().min(1).max(160),
+  email: z.string().trim().email().max(320),
+  message: z.string().trim().min(1).max(5000),
+  fingerprint: z.string().trim().min(8).max(128),
+});
+
+export const updateContactSubmissionStatusSchema = z.object({
+  status: contactSubmissionStatusSchema,
+});
+
+export const adminNotifyEmailSchema = z.object({
+  value: z.string().trim().email().max(320),
+});
+
+export type ContactSubmission = z.infer<typeof contactSubmissionSchema>;
+export type ContactSubmissionInput = z.infer<typeof contactSubmissionInputSchema>;
+export type ContactSubmissionStatus = z.infer<typeof contactSubmissionStatusSchema>;
+export type UpdateContactSubmissionStatusInput = z.infer<typeof updateContactSubmissionStatusSchema>;
+export type AdminNotifyEmailInput = z.infer<typeof adminNotifyEmailSchema>;
+
 export const projectSchema = z.object({
   id: z.number().int(),
   title: z.string().trim().min(1),

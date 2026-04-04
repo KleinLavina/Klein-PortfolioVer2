@@ -8,6 +8,7 @@ import {
 import { z } from "zod";
 import type { ChatAction } from "../shared/schema.ts";
 import {
+  requireAdmin,
   registerAdminRoutes,
   seedChatbotContent,
   seedPortfolioMemory,
@@ -15,6 +16,21 @@ import {
   getPortfolioMemory,
 } from "./admin-routes.ts";
 import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
+import {
+  consumeContactSubmissionQuota,
+  createContactSubmission,
+  deleteContactSubmission,
+  getClientIpAddress,
+  getNotifyEmail,
+  listContactSubmissions,
+  sendContactNotification,
+  updateContactSubmissionStatus,
+  updateNotifyEmailSetting,
+} from "./contact-service.ts";
+import {
+  adminNotifyEmailSchema,
+  updateContactSubmissionStatusSchema,
+} from "../shared/schema.ts";
 
 type ChatHistoryItem = {
   from: "user" | "klein";
@@ -772,6 +788,122 @@ export async function registerRoutes(
           message: err.errors[0].message,
           field: err.errors[0].path.join('.'),
         });
+      }
+      throw err;
+    }
+  });
+
+  app.post(api.contact.submit.path, async (req, res) => {
+    try {
+      const input = api.contact.submit.input.parse(req.body);
+      const ipAddress = getClientIpAddress(req.headers as Record<string, unknown>);
+      const quota = await consumeContactSubmissionQuota(ipAddress, input.fingerprint);
+
+      if (!quota.allowed) {
+        return res.status(429).json({
+          message: "You've reached the 3 message limit for today. Please try again tomorrow.",
+          limit: quota.limit,
+        });
+      }
+
+      const submission = await createContactSubmission(input, ipAddress);
+      let deliveryMessage: string | undefined;
+      let deliveryMeta:
+        | {
+            messageId: string;
+            accepted: string[];
+            rejected: string[];
+            response: string;
+          }
+        | undefined;
+      try {
+        const notifyEmail = await getNotifyEmail();
+        deliveryMeta = await sendContactNotification(submission, notifyEmail);
+        console.log("Contact notification queued:", {
+          submissionId: submission.id,
+          notifyEmail,
+          ...deliveryMeta,
+        });
+      } catch (deliveryError) {
+        const message =
+          deliveryError instanceof Error
+            ? deliveryError.message
+            : "Email delivery is unavailable right now.";
+        console.warn("Contact notification delivery failed:", message);
+        deliveryMessage =
+          "Message saved, but email notification is not configured right now.";
+      }
+
+      return res.status(201).json({
+        ok: true,
+        submissionId: submission.id,
+        ...(deliveryMessage ? { message: deliveryMessage } : {}),
+        ...(process.env.NODE_ENV !== "production" && deliveryMeta
+          ? { delivery: deliveryMeta }
+          : {}),
+      });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({
+          message: err.errors[0].message,
+          field: err.errors[0].path.join("."),
+        });
+      }
+      throw err;
+    }
+  });
+
+  app.get(api.contact.submissions.list.path, requireAdmin, async (_req, res) => {
+    const submissions = await listContactSubmissions();
+    return res.json(submissions);
+  });
+
+  app.patch(api.contact.submissions.updateStatus.path, requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isInteger(id)) {
+        return res.status(400).json({ message: "Invalid id." });
+      }
+
+      const { status } = updateContactSubmissionStatusSchema.parse(req.body);
+      const updated = await updateContactSubmissionStatus(id, status);
+
+      if (!updated) {
+        return res.status(404).json({ message: "Not found." });
+      }
+
+      return res.json(updated);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.delete(api.contact.submissions.delete.path, requireAdmin, async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      return res.status(400).json({ message: "Invalid id." });
+    }
+
+    await deleteContactSubmission(id);
+    return res.json({ ok: true });
+  });
+
+  app.get(api.adminSettings.notifyEmail.get.path, requireAdmin, async (_req, res) => {
+    const value = await getNotifyEmail();
+    return res.json({ value });
+  });
+
+  app.patch(api.adminSettings.notifyEmail.patch.path, requireAdmin, async (req, res) => {
+    try {
+      const input = adminNotifyEmailSchema.parse(req.body);
+      const value = await updateNotifyEmailSetting(input);
+      return res.json({ value });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
       }
       throw err;
     }
