@@ -1,0 +1,42 @@
+Read the existing codebase first and inspect the current implementation of the pinned or locked scroll section before changing anything. Identify exactly why the section is vibrating, shaking, jumping, or re-rendering excessively when scrolling up and down. Do not guess. Trace the issue through the current React structure, GSAP setup, ScrollTrigger configuration, layout sizing, and any CSS that may affect transforms, positioning, or overflow.
+
+There is a bug in the pinned section behavior: when scrolling upward or downward, the section visibly vibrates and feels unstable. I want this fixed properly. The pinned section should feel locked, smooth, and stable during scroll, with no shaking, jittering, layout jumping, or flickering.
+
+Fix the issue at the root cause instead of masking it.
+
+What to check:
+
+* Wrong or conflicting ScrollTrigger `start` and `end` values
+* Pinning an element that should not be pinned directly
+* Parent containers with transforms, overflow issues, or unstable heights
+* Multiple ScrollTriggers being created accidentally
+* React re-renders causing GSAP to re-initialize repeatedly
+* Missing cleanup of GSAP or ScrollTrigger instances
+* Layout shifts caused by dynamic content, image sizing, or spacing changes during pin
+* Incorrect use of `scrub`, `pinSpacing`, or nested pinned sections
+* CSS properties that may cause jitter during transform or scroll
+* Mobile and desktop differences in scroll behavior
+
+Requirements:
+
+* Make the pinned section stable and smooth when scrolling in both directions
+* Remove all visible vibration, jitter, or jumpiness
+* Preserve the intended pinned behavior
+* Keep the implementation clean and maintainable
+* Do not break the current visual design of the section
+* Do not introduce hacky fixes that only hide the symptom
+
+Implementation expectations:
+
+* Read the current React and GSAP code first before editing
+* Keep the pinned effect but stabilize it properly
+* Ensure ScrollTrigger is initialized only once for the correct elements
+* Use proper refs and scoped GSAP logic
+* Clean up all GSAP and ScrollTrigger instances on unmount
+* Check whether the correct wrapper element is being pinned
+* Ensure the pinned section has a stable layout and sufficient height for the scroll duration
+* Remove conflicting transforms or styles on ancestors if they are causing jitter
+* Keep the scroll experience smooth across desktop and mobile where applicable
+
+Deliverable:
+Fix the pinned or locked scroll section so it stays smooth and stable while scrolling up and down, with zero vibration or shaking, while preserving the intended pinned scrolling behavior and matching the existing codebase architecture.
