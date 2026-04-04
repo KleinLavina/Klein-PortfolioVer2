@@ -58,7 +58,7 @@ export function GithubContributions() {
             
             {/* Contribution Legend */}
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>Less</span>
+              <span className="text-white">Less</span>
               <div className="flex gap-1">
                 <div className="w-3 h-3 rounded-sm bg-[#ebedf0] dark:bg-[#161b22]"></div>
                 <div className="w-3 h-3 rounded-sm bg-[#d6e685]"></div>

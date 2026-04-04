@@ -86,11 +86,12 @@ export function CustomCursor() {
     };
 
     const updateInverted = (target: EventTarget | null) => {
-      const isOnContact =
-        target instanceof Element && Boolean(target.closest("#contact"));
+      const shouldInvert =
+        target instanceof Element &&
+        Boolean(target.closest("#contact, [data-cursor-invert='true']"));
 
-      if (invertedRef.current !== isOnContact) {
-        invertedRef.current = isOnContact;
+      if (invertedRef.current !== shouldInvert) {
+        invertedRef.current = shouldInvert;
         applyAppearance();
       }
     };

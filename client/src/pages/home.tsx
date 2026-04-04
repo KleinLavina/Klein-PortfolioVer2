@@ -55,7 +55,7 @@ import {
   Loader2, Github, Code, Database, MonitorSmartphone,
   Layers, Server, TerminalSquare, Mail, FolderGit2,
   Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ArrowDown,
-  ChevronRight, Sparkles, Globe, ArrowUpRight, UserRound
+  ChevronRight, Sparkles, Globe, ArrowUpRight, UserRound, CheckCircle2, X
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
@@ -230,7 +230,25 @@ const HERO_STATS = [
   { value: "15+", label: "Tech Stacks" },
   { value: "PhilNITS", label: "Certified Passer" },
 ] as const;
-
+const CERTIFICATION_IMAGES = [
+  {
+    src: "/1cf3141b-27d8-4d68-bfb2-6c7c97d5abeb.jpg",
+    alt: "PhilNITS IP certification document photo one",
+  },
+  {
+    src: "/b9e026f7-5891-4593-bcec-292ff9f26977.jpg",
+    alt: "PhilNITS IP certification document photo two",
+  },
+  {
+    src: "/d5488008-119d-4f80-9b98-6edacb779347.jpg",
+    alt: "PhilNITS IP certification document photo three",
+  },
+] as const;
+const PERSONAL_PROJECT_PILLS = [
+  "8+ projects shipped",
+  "self-taught & always leveling up",
+  "built for fun, deployed for real",
+] as const;
 // Tech stack icon mapping for projects - using reliable icons
 const getTechIcon = (tech: string) => {
   const iconMap: { [key: string]: any } = {
@@ -288,6 +306,8 @@ export default function Home() {
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [visitorLoading, setVisitorLoading] = useState(true);
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
+  const [activeCertificateImage, setActiveCertificateImage] =
+    useState<(typeof CERTIFICATION_IMAGES)[number] | null>(null);
   const mag1 = useMagnetic(0.3);
   const mag2 = useMagnetic(0.3);
 
@@ -343,6 +363,19 @@ export default function Home() {
 
     void trackVisitor();
   }, []);
+
+  useEffect(() => {
+    if (!activeCertificateImage) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveCertificateImage(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [activeCertificateImage]);
 
 
 
@@ -724,6 +757,222 @@ export default function Home() {
           <GithubContributions />
         </Section>
 
+        <Section id="credentials" className="!min-h-0 py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.6 }}
+            className="mb-12"
+          >
+            <SectionLabel num="02" label="Education / Experience" />
+            <h2 className="text-4xl sm:text-5xl font-black text-foreground leading-tight">
+              Foundation, experience, and the
+              <br />
+              <span className="text-gradient">proof behind it.</span>
+            </h2>
+            <p className="mt-6 max-w-3xl text-lg leading-relaxed text-muted-foreground">
+              Formal training, hands-on industry exposure, and a certification trail that
+              backs up the way I build for the modern web.
+            </p>
+          </motion.div>
+
+          <div className="relative">
+            <div className="pointer-events-none absolute bottom-0 left-1/2 top-0 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-border/80 to-transparent lg:block" />
+
+            <div className="grid gap-9 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.6 }}
+                className="space-y-8 lg:pr-8"
+              >
+                <div className="space-y-6">
+                  <div className="text-sm font-mono font-bold uppercase tracking-[0.28em] text-primary">
+                    // education
+                  </div>
+
+                  <div className="glass-card relative overflow-hidden rounded-[2rem] border border-border/60 p-6 sm:p-7">
+                    <div className="absolute left-6 top-7 h-[calc(100%-3.4rem)] w-px bg-gradient-to-b from-primary/60 via-border/70 to-transparent" />
+                    <div className="relative pl-8">
+                      <span className="absolute left-[-0.45rem] top-1.5 h-3.5 w-3.5 rounded-full border border-primary/60 bg-background shadow-[0_0_0_4px_hsl(var(--background))]" />
+                      <div className="flex flex-wrap items-center gap-3">
+                        <img
+                          src="https://www.sjc.edu.ph/wp-content/uploads/2024/09/SJC-LOGO-NEWER.png"
+                          alt="Saint Joseph College logo"
+                          className="h-20 w-20 object-contain"
+                          loading="lazy"
+                        />
+                        <h3 className="text-[1.9rem] font-black text-foreground sm:text-[2rem]">Saint Joseph College</h3>
+                        <span className="inline-flex items-center rounded-full border border-accent/35 bg-accent/10 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-accent">
+                          Expected 2026
+                        </span>
+                      </div>
+                      <p className="mt-3 text-base font-semibold text-foreground/90 sm:text-[1.18rem]">
+                        Bachelor of Science in Information Technology
+                      </p>
+                      <p className="mt-2 text-sm font-mono uppercase tracking-[0.2em] text-muted-foreground">
+                        2022 - 2026
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="text-sm font-mono font-bold uppercase tracking-[0.28em] text-primary">
+                    // certifications
+                  </div>
+
+                  <div className="glass-card space-y-6 rounded-[2rem] border border-border/60 p-6 sm:p-7">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="space-y-3">
+                        <a
+                          href="https://philnits.org/passers-ip/"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="group inline-flex flex-col gap-1.5"
+                        >
+                          <h3 className="text-[1.9rem] font-black text-foreground transition-colors duration-200 group-hover:text-primary sm:text-[2rem]">
+                            IT Passport (IP) Certification
+                          </h3>
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="font-semibold text-foreground/90 transition-colors duration-200 group-hover:text-foreground">
+                              PhilNITS Foundation, Inc.
+                            </p>
+                            <p>Phil. National IT Standards Foundation</p>
+                          </div>
+                          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.22em] text-primary/75">
+                            <ArrowUpRight size={12} />
+                            official passers list
+                          </span>
+                        </a>
+                      </div>
+
+                      <span className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/10 px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-accent">
+                        <CheckCircle2 size={14} />
+                        Certified Passer
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
+                        Certificate Gallery
+                      </p>
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        {CERTIFICATION_IMAGES.map((image, index) => (
+                          <motion.button
+                            key={image.src}
+                            type="button"
+                            onClick={() => setActiveCertificateImage(image)}
+                            whileHover={{ scale: 1.03, y: -2 }}
+                            whileTap={{ scale: 0.98 }}
+                            initial={{ opacity: 0, y: 18 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.35 }}
+                            transition={{ duration: 0.45, delay: index * 0.06 }}
+                            className="group relative overflow-hidden rounded-2xl border border-accent/35 bg-card/60 text-left shadow-[0_18px_42px_-26px_hsl(var(--accent)/0.6)] transition-all duration-300 hover:border-accent/55 hover:shadow-[0_22px_48px_-24px_hsl(var(--accent)/0.65)]"
+                          >
+                            <img
+                              src={image.src}
+                              alt={image.alt}
+                              className="h-28 w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <div className="h-px bg-gradient-to-r from-transparent via-border/80 to-transparent lg:hidden" />
+
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.6, delay: 0.05 }}
+                className="space-y-8 lg:pl-8"
+              >
+                <div className="space-y-6">
+                  <div className="text-sm font-mono font-bold uppercase tracking-[0.28em] text-primary">
+                    // experience
+                  </div>
+
+                  <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55 shadow-2xl backdrop-blur-xl">
+                    <div className="flex items-center gap-2 border-b border-border/60 bg-background/55 px-5 py-3">
+                      <span className="h-2.5 w-2.5 rounded-full bg-primary/85" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-secondary/85" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-accent/85" />
+                      <span className="ml-3 text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">
+                        experience.log
+                      </span>
+                    </div>
+
+                    <div className="space-y-6 p-6 sm:p-7">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-mono uppercase tracking-[0.18em] text-primary/85">
+                            On-the-Job Trainee (OJT)
+                          </p>
+                          <h3 className="mt-2 text-[1.9rem] font-black leading-tight text-foreground sm:text-[2rem]">
+                            Department of Environment and Natural Resources - PENRO
+                          </h3>
+                        </div>
+
+                        <span className="inline-flex items-center rounded-full border border-border/70 bg-background/45 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                          Government Agency
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="text-sm font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                          Provincial Environment and Natural Resources Office
+                        </p>
+                        <span className="inline-flex items-center rounded-full border border-primary/35 bg-primary/10 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-primary shadow-[0_12px_28px_-20px_hsl(var(--primary)/0.9)]">
+                          4 Months
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  <div className="text-[11px] font-mono uppercase tracking-[0.28em] text-primary/80">
+                    // personal_projects
+                  </div>
+
+                  <div className="glass-card rounded-[2rem] border border-border/60 p-5 sm:p-6">
+                    <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
+                      Beyond deadlines and requirements, I build things out of pure
+                      curiosity. Side projects, late-night experiments, tools I wish
+                      existed - shipped for fun, deployed for real.
+                    </p>
+
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      {PERSONAL_PROJECT_PILLS.map((pill, index) => (
+                        <motion.span
+                          key={pill}
+                          initial={{ opacity: 0, y: 14 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true, amount: 0.4 }}
+                          transition={{ duration: 0.45, delay: index * 0.06 }}
+                          whileHover={{ y: -2 }}
+                          className="inline-flex items-center rounded-full border border-accent/35 bg-accent/10 px-4 py-2 text-[11px] font-mono font-bold uppercase tracking-[0.14em] text-accent shadow-[0_16px_34px_-24px_hsl(var(--accent)/0.8)]"
+                        >
+                          {pill}
+                        </motion.span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </Section>
+
         {/* ─── PROJECTS ────────────────────────────────────────────────── */}
         <Section id="projects">
           <motion.div
@@ -733,7 +982,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="mb-12"
           >
-            <SectionLabel num="02" label="Featured Projects" />
+            <SectionLabel num="03" label="Featured Projects" />
             <h2 className="text-4xl sm:text-5xl font-black text-foreground leading-tight">
               Work that<br />
               <span className="text-gradient">speaks for itself.</span>
@@ -1109,6 +1358,54 @@ END:VCARD`)}`}
         </div>
       </Section>
       
+      <AnimatePresence>
+        {activeCertificateImage ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.24 }}
+            className="fixed inset-0 z-[120] flex items-center justify-center bg-background/88 px-5 py-8 backdrop-blur-md"
+            onClick={() => setActiveCertificateImage(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 12 }}
+              transition={{ duration: 0.28, ease: "easeOut" }}
+              className="relative w-full max-w-5xl overflow-hidden rounded-[2rem] border border-border/70 bg-card/95 shadow-[0_30px_120px_-40px_hsl(var(--background)/0.9)]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setActiveCertificateImage(null)}
+                className="absolute right-4 top-4 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-background/80 text-foreground transition-colors duration-200 hover:border-primary/40 hover:text-primary"
+                aria-label="Close certificate preview"
+              >
+                <X size={18} />
+              </button>
+
+              <div className="border-b border-border/60 px-6 py-4">
+                <p className="text-[11px] font-mono uppercase tracking-[0.26em] text-primary/80">
+                  PhilNITS IP Certification
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Full-size certificate preview
+                </p>
+              </div>
+
+              <div className="bg-background/35 p-4 sm:p-6">
+                <img
+                  src={activeCertificateImage.src}
+                  alt={activeCertificateImage.alt}
+                  className="max-h-[78vh] w-full rounded-[1.5rem] object-contain"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <FloatingChat />
     </Shell>
   );

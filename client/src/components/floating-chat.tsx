@@ -636,6 +636,7 @@ export function FloatingChat() {
               key="chat-backdrop"
               type="button"
               aria-label="Close chat backdrop"
+              data-cursor-invert="true"
               onClick={() => setOpen(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -647,6 +648,7 @@ export function FloatingChat() {
             {/* ── Chat panel — size unchanged: 340/380px wide, 400px max-height ── */}
             <motion.div
               key="chat-panel"
+              data-cursor-invert="true"
               initial={{ opacity: 0, y: 20, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.96 }}
@@ -935,6 +937,7 @@ export function FloatingChat() {
 
       {/* ── Floating trigger button ── */}
       <motion.button
+        data-cursor-invert="true"
         onClick={() => setOpen((v) => !v)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
