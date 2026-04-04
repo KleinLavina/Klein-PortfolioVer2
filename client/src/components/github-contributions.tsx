@@ -1,5 +1,4 @@
-import { useRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
 import { Github, Loader2 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -7,138 +6,201 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const GITHUB_USERNAME = "KleinLavina";
-
-// ── Bubble configuration ────────────────────────────────────────────────────
-// layer: "back" = renders behind the content card (z-0)
-//        "front" = renders above the content card (z-20), adding depth
-// yTravel: px to travel upward over the full pin scroll distance
-// scrub: higher = more lag / softer catch-up (keeps movement smooth)
-// opacity: 0-1 colour fill — intentionally more solid per user request
-const BUBBLE_CONFIG = [
-  // ── Large ambient blobs — background only, soft and slow ───────────────
-  { size: 340, left: "-8%",  bottom: "10%", yTravel: 80,  scrub: 2.5, color: "primary",   opacity: 0.18, blur: 52, layer: "back"  },
-  { size: 260, left: "70%",  bottom: "25%", yTravel: 100, scrub: 2.2, color: "secondary", opacity: 0.20, blur: 40, layer: "back"  },
-  { size: 200, left: "40%",  bottom: "2%",  yTravel: 75,  scrub: 2.8, color: "accent",    opacity: 0.16, blur: 32, layer: "back"  },
-  { size: 160, left: "15%",  bottom: "55%", yTravel: 65,  scrub: 3.0, color: "secondary", opacity: 0.14, blur: 28, layer: "back"  },
-  { size: 190, left: "82%",  bottom: "60%", yTravel: 70,  scrub: 2.6, color: "primary",   opacity: 0.16, blur: 30, layer: "back"  },
-  // ── Mid-size background orbs ────────────────────────────────────────────
-  { size: 95,  left: "6%",   bottom: "6%",  yTravel: 190, scrub: 1.4, color: "accent",    opacity: 0.28, blur: 12, layer: "back"  },
-  { size: 80,  left: "88%",  bottom: "18%", yTravel: 160, scrub: 1.6, color: "primary",   opacity: 0.30, blur: 10, layer: "back"  },
-  { size: 65,  left: "52%",  bottom: "4%",  yTravel: 210, scrub: 1.1, color: "secondary", opacity: 0.26, blur: 7,  layer: "back"  },
-  { size: 55,  left: "30%",  bottom: "15%", yTravel: 195, scrub: 1.3, color: "primary",   opacity: 0.25, blur: 6,  layer: "back"  },
-  { size: 75,  left: "62%",  bottom: "70%", yTravel: 140, scrub: 1.7, color: "accent",    opacity: 0.22, blur: 9,  layer: "back"  },
-  // ── Foreground orbs — appear above the card, semi-solid ─────────────────
-  { size: 36,  left: "78%",  bottom: "78%", yTravel: 230, scrub: 0.9, color: "primary",   opacity: 0.42, blur: 0,  layer: "front" },
-  { size: 24,  left: "5%",   bottom: "65%", yTravel: 270, scrub: 0.8, color: "secondary", opacity: 0.45, blur: 0,  layer: "front" },
-  { size: 18,  left: "93%",  bottom: "48%", yTravel: 310, scrub: 0.6, color: "accent",    opacity: 0.50, blur: 0,  layer: "front" },
-  { size: 14,  left: "45%",  bottom: "82%", yTravel: 290, scrub: 0.7, color: "primary",   opacity: 0.48, blur: 0,  layer: "front" },
-  { size: 28,  left: "22%",  bottom: "72%", yTravel: 250, scrub: 1.0, color: "accent",    opacity: 0.40, blur: 1,  layer: "front" },
-  { size: 20,  left: "58%",  bottom: "88%", yTravel: 300, scrub: 0.65,color: "secondary", opacity: 0.44, blur: 0,  layer: "front" },
-  { size: 10,  left: "35%",  bottom: "55%", yTravel: 340, scrub: 0.5, color: "primary",   opacity: 0.55, blur: 0,  layer: "front" },
-  { size: 12,  left: "70%",  bottom: "42%", yTravel: 320, scrub: 0.55,color: "accent",    opacity: 0.52, blur: 0,  layer: "front" },
-  // ── Extra mid-size foreground pops for density ──────────────────────────
-  { size: 44,  left: "50%",  bottom: "20%", yTravel: 175, scrub: 1.2, color: "secondary", opacity: 0.35, blur: 3,  layer: "front" },
-  { size: 32,  left: "12%",  bottom: "35%", yTravel: 220, scrub: 0.95,color: "primary",   opacity: 0.38, blur: 2,  layer: "front" },
-  { size: 16,  left: "84%",  bottom: "32%", yTravel: 280, scrub: 0.75,color: "secondary", opacity: 0.46, blur: 0,  layer: "front" },
-  { size: 22,  left: "38%",  bottom: "40%", yTravel: 260, scrub: 0.85,color: "accent",    opacity: 0.43, blur: 1,  layer: "front" },
-] as const;
-
 const PIN_SCROLL_DISTANCE = 700;
+const CHART_FRAME_MIN_HEIGHT = 220;
 
-// Pre-split for rendering — defined at module level so React never re-creates them.
-const BACK_BUBBLES  = BUBBLE_CONFIG.map((b, i) => ({ ...b, i })).filter((b) => b.layer === "back");
-const FRONT_BUBBLES = BUBBLE_CONFIG.map((b, i) => ({ ...b, i })).filter((b) => b.layer === "front");
+type BubbleSpec = {
+  size: number;
+  left: string;
+  bottom: string;
+  yTravel: number;
+  xTravel: number;
+  scaleTo: number;
+  color: "primary" | "secondary" | "accent";
+  opacity: number;
+  blur: number;
+  variant: "ring" | "glow" | "soft" | "solid";
+};
 
-// Organic shapes for the large blobs (indices 0-4).
-const BLOB_RADII = [
-  "45% 55% 60% 40% / 50% 45% 55% 50%",
-  "60% 40% 45% 55% / 40% 60% 40% 60%",
-  "50% 50% 40% 60% / 55% 45% 55% 45%",
-  "55% 45% 55% 45% / 45% 55% 45% 55%",
-  "40% 60% 50% 50% / 60% 40% 60% 40%",
+const TOP_BUBBLE_CONFIG: BubbleSpec[] = [
+  { size: 42, left: "7%", bottom: "18%", yTravel: 190, xTravel: 16, scaleTo: 1.12, color: "primary", opacity: 0.32, blur: 0, variant: "ring" },
+  { size: 30, left: "23%", bottom: "56%", yTravel: 210, xTravel: -14, scaleTo: 1.1, color: "secondary", opacity: 0.36, blur: 0, variant: "solid" },
+  { size: 22, left: "41%", bottom: "28%", yTravel: 240, xTravel: 12, scaleTo: 1.16, color: "accent", opacity: 0.4, blur: 0, variant: "solid" },
+  { size: 16, left: "58%", bottom: "62%", yTravel: 220, xTravel: -8, scaleTo: 1.08, color: "primary", opacity: 0.46, blur: 0, variant: "solid" },
+  { size: 14, left: "72%", bottom: "34%", yTravel: 250, xTravel: 10, scaleTo: 1.12, color: "secondary", opacity: 0.48, blur: 0, variant: "ring" },
+  { size: 18, left: "86%", bottom: "54%", yTravel: 205, xTravel: -12, scaleTo: 1.1, color: "accent", opacity: 0.42, blur: 0, variant: "solid" },
 ];
+
+const MAIN_BUBBLE_CONFIG: BubbleSpec[] = [
+  { size: 148, left: "14%", bottom: "68%", yTravel: 210, xTravel: -22, scaleTo: 1.12, color: "secondary", opacity: 0.24, blur: 0, variant: "ring" },
+  { size: 124, left: "79%", bottom: "18%", yTravel: 185, xTravel: 24, scaleTo: 1.06, color: "accent", opacity: 0.22, blur: 2, variant: "solid" },
+  { size: 92, left: "88%", bottom: "56%", yTravel: 260, xTravel: -26, scaleTo: 1.09, color: "accent", opacity: 0.2, blur: 0, variant: "ring" },
+  { size: 74, left: "49%", bottom: "82%", yTravel: 235, xTravel: -12, scaleTo: 1.1, color: "secondary", opacity: 0.28, blur: 0, variant: "solid" },
+  { size: 62, left: "24%", bottom: "84%", yTravel: 255, xTravel: 20, scaleTo: 1.12, color: "primary", opacity: 0.3, blur: 0, variant: "ring" },
+  { size: 50, left: "40%", bottom: "60%", yTravel: 265, xTravel: 12, scaleTo: 1.12, color: "primary", opacity: 0.34, blur: 0, variant: "solid" },
+  { size: 42, left: "30%", bottom: "44%", yTravel: 360, xTravel: -16, scaleTo: 1.18, color: "primary", opacity: 0.28, blur: 0, variant: "ring" },
+  { size: 36, left: "54%", bottom: "16%", yTravel: 390, xTravel: 18, scaleTo: 1.22, color: "accent", opacity: 0.34, blur: 1, variant: "glow" },
+  { size: 34, left: "10%", bottom: "54%", yTravel: 330, xTravel: 14, scaleTo: 1.16, color: "primary", opacity: 0.38, blur: 0, variant: "solid" },
+  { size: 32, left: "74%", bottom: "66%", yTravel: 350, xTravel: -20, scaleTo: 1.2, color: "secondary", opacity: 0.32, blur: 0, variant: "ring" },
+  { size: 30, left: "44%", bottom: "88%", yTravel: 280, xTravel: -8, scaleTo: 1.08, color: "accent", opacity: 0.4, blur: 0, variant: "solid" },
+  { size: 28, left: "1%", bottom: "20%", yTravel: 410, xTravel: 18, scaleTo: 1.24, color: "primary", opacity: 0.36, blur: 0, variant: "ring" },
+  { size: 26, left: "94%", bottom: "72%", yTravel: 310, xTravel: -16, scaleTo: 1.13, color: "secondary", opacity: 0.42, blur: 0, variant: "solid" },
+  { size: 24, left: "58%", bottom: "34%", yTravel: 430, xTravel: 12, scaleTo: 1.2, color: "accent", opacity: 0.38, blur: 0, variant: "solid" },
+  { size: 22, left: "26%", bottom: "30%", yTravel: 375, xTravel: -14, scaleTo: 1.17, color: "primary", opacity: 0.4, blur: 0, variant: "glow" },
+  { size: 20, left: "86%", bottom: "10%", yTravel: 450, xTravel: -22, scaleTo: 1.26, color: "secondary", opacity: 0.42, blur: 0, variant: "ring" },
+  { size: 18, left: "36%", bottom: "72%", yTravel: 320, xTravel: 10, scaleTo: 1.12, color: "accent", opacity: 0.46, blur: 0, variant: "solid" },
+  { size: 16, left: "68%", bottom: "88%", yTravel: 295, xTravel: -8, scaleTo: 1.1, color: "primary", opacity: 0.48, blur: 0, variant: "solid" },
+  { size: 14, left: "16%", bottom: "90%", yTravel: 345, xTravel: 10, scaleTo: 1.14, color: "secondary", opacity: 0.5, blur: 0, variant: "ring" },
+  { size: 12, left: "50%", bottom: "52%", yTravel: 470, xTravel: 14, scaleTo: 1.28, color: "accent", opacity: 0.52, blur: 0, variant: "solid" },
+];
+
+const BOTTOM_BUBBLE_CONFIG: BubbleSpec[] = [
+  { size: 18, left: "8%", bottom: "18%", yTravel: 210, xTravel: 10, scaleTo: 1.1, color: "primary", opacity: 0.36, blur: 0, variant: "solid" },
+  { size: 16, left: "19%", bottom: "60%", yTravel: 230, xTravel: -8, scaleTo: 1.12, color: "secondary", opacity: 0.42, blur: 0, variant: "ring" },
+  { size: 14, left: "31%", bottom: "28%", yTravel: 260, xTravel: 12, scaleTo: 1.16, color: "accent", opacity: 0.44, blur: 0, variant: "solid" },
+  { size: 12, left: "43%", bottom: "72%", yTravel: 250, xTravel: -10, scaleTo: 1.12, color: "primary", opacity: 0.46, blur: 0, variant: "solid" },
+  { size: 14, left: "54%", bottom: "18%", yTravel: 280, xTravel: 10, scaleTo: 1.18, color: "secondary", opacity: 0.4, blur: 0, variant: "ring" },
+  { size: 10, left: "61%", bottom: "56%", yTravel: 300, xTravel: 8, scaleTo: 1.2, color: "accent", opacity: 0.5, blur: 0, variant: "solid" },
+  { size: 16, left: "70%", bottom: "34%", yTravel: 240, xTravel: -12, scaleTo: 1.1, color: "primary", opacity: 0.38, blur: 0, variant: "glow" },
+  { size: 12, left: "79%", bottom: "74%", yTravel: 270, xTravel: 10, scaleTo: 1.16, color: "secondary", opacity: 0.44, blur: 0, variant: "solid" },
+  { size: 10, left: "88%", bottom: "22%", yTravel: 320, xTravel: -10, scaleTo: 1.22, color: "accent", opacity: 0.52, blur: 0, variant: "ring" },
+  { size: 8, left: "95%", bottom: "58%", yTravel: 290, xTravel: -6, scaleTo: 1.16, color: "primary", opacity: 0.56, blur: 0, variant: "solid" },
+];
+
+const TOP_BUBBLES = TOP_BUBBLE_CONFIG.map((bubble, index) => ({ ...bubble, index }));
+const MAIN_BUBBLES = MAIN_BUBBLE_CONFIG.map((bubble, index) => ({ ...bubble, index }));
+const BOTTOM_BUBBLES = BOTTOM_BUBBLE_CONFIG.map((bubble, index) => ({ ...bubble, index }));
+
+function getBubbleStyle(bubble: BubbleSpec): CSSProperties {
+  const baseColor = `hsl(var(--${bubble.color}) / ${bubble.opacity})`;
+
+  if (bubble.variant === "ring") {
+    return {
+      width: bubble.size,
+      height: bubble.size,
+      left: bubble.left,
+      bottom: bubble.bottom,
+      borderRadius: "9999px",
+      border: `1.5px solid hsl(var(--${bubble.color}) / ${Math.min(bubble.opacity + 0.12, 0.65)})`,
+      background: `radial-gradient(circle, transparent 58%, hsl(var(--${bubble.color}) / 0.08) 100%)`,
+      boxShadow: `0 0 0 1px hsl(var(--${bubble.color}) / 0.08), 0 0 28px hsl(var(--${bubble.color}) / 0.12)`,
+      backdropFilter: "blur(4px)",
+    };
+  }
+
+  if (bubble.variant === "glow") {
+    return {
+      width: bubble.size,
+      height: bubble.size,
+      left: bubble.left,
+      bottom: bubble.bottom,
+      borderRadius: "9999px",
+      background: `radial-gradient(circle at 35% 35%, hsl(var(--${bubble.color}) / ${Math.min(bubble.opacity + 0.18, 0.62)}), ${baseColor} 58%, hsl(var(--${bubble.color}) / 0.06) 100%)`,
+      filter: `blur(${Math.max(bubble.blur, 6)}px)`,
+      boxShadow: `0 0 42px hsl(var(--${bubble.color}) / 0.18)`,
+    };
+  }
+
+  if (bubble.variant === "soft") {
+    return {
+      width: bubble.size,
+      height: bubble.size,
+      left: bubble.left,
+      bottom: bubble.bottom,
+      borderRadius: "9999px",
+      background: `radial-gradient(circle at 30% 30%, hsl(var(--${bubble.color}) / ${Math.min(bubble.opacity + 0.12, 0.56)}), ${baseColor} 60%, hsl(var(--${bubble.color}) / 0.04) 100%)`,
+      filter: `blur(${Math.max(bubble.blur, 3)}px)`,
+      boxShadow: `0 14px 30px -18px hsl(var(--${bubble.color}) / 0.22)`,
+    };
+  }
+
+  return {
+    width: bubble.size,
+    height: bubble.size,
+    left: bubble.left,
+    bottom: bubble.bottom,
+    borderRadius: "9999px",
+    background: `radial-gradient(circle at 30% 30%, hsl(var(--${bubble.color}) / ${Math.min(bubble.opacity + 0.15, 0.6)}), ${baseColor} 62%, hsl(var(--${bubble.color}) / 0.08) 100%)`,
+    filter: bubble.blur > 0 ? `blur(${bubble.blur}px)` : undefined,
+    boxShadow: `0 0 0 1px hsl(var(--${bubble.color}) / 0.1) inset`,
+  };
+}
 
 export function GithubContributions() {
   const [loading, setLoading] = useState(true);
 
-  const sectionRef  = useRef<HTMLElement>(null);
-  const bubblesRef  = useRef<(HTMLDivElement | null)[]>(
-    new Array(BUBBLE_CONFIG.length).fill(null),
-  );
+  const sectionRef = useRef<HTMLElement>(null);
+  const mainSectionRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const topBubblesRef = useRef<(HTMLDivElement | null)[]>(new Array(TOP_BUBBLE_CONFIG.length).fill(null));
+  const mainBubblesRef = useRef<(HTMLDivElement | null)[]>(new Array(MAIN_BUBBLE_CONFIG.length).fill(null));
+  const bottomBubblesRef = useRef<(HTMLDivElement | null)[]>(new Array(BOTTOM_BUBBLE_CONFIG.length).fill(null));
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    const mainSection = mainSectionRef.current;
+    const scene = sceneRef.current;
+    if (!section || !mainSection || !scene) return;
 
-    // The scroll container in this project is <main>, not window.
-    const scroller = document.querySelector("main") as HTMLElement | null;
+    const scroller = section.closest("main") as HTMLElement | null;
     if (!scroller) return;
 
     const mm = gsap.matchMedia();
 
-    // ── Desktop / tablet ── full pin + parallax ──────────────────────────
+    const addLayerTimeline = (
+      elements: (HTMLDivElement | null)[],
+      config: BubbleSpec[],
+      trigger: HTMLElement,
+      start: string,
+      end: string,
+      scrub: number,
+      xFactor: number,
+      yFactor: number,
+      scaleFactor: number,
+    ) => {
+      const timeline = gsap.timeline({
+        scrollTrigger: {
+          trigger,
+          scroller,
+          start,
+          end,
+          scrub,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      elements.forEach((bubble, index) => {
+        if (!bubble) return;
+
+        timeline.to(
+          bubble,
+          {
+            x: Math.round(config[index].xTravel * xFactor),
+            y: -Math.round(config[index].yTravel * yFactor),
+            scale: 1 + (config[index].scaleTo - 1) * scaleFactor,
+            ease: "none",
+            force3D: true,
+          },
+          0,
+        );
+      });
+    };
+
     mm.add("(min-width: 768px)", () => {
       const ctx = gsap.context(() => {
-        // ① Pin the section — NO anticipatePin (causes jitter with custom scrollers).
-        ScrollTrigger.create({
-          trigger:    section,
-          scroller,
-          start:      "top top",
-          end:        `+=${PIN_SCROLL_DISTANCE}`,
-          pin:        true,
-          pinSpacing: true,
-          // anticipatePin deliberately omitted — it overshoots on non-window scrollers.
-        });
-
-        // ② Per-bubble scroll tweens — only translate bubbles, never the content.
-        bubblesRef.current.forEach((bubble, i) => {
-          if (!bubble) return;
-          const cfg = BUBBLE_CONFIG[i];
-          gsap.fromTo(
-            bubble,
-            { y: 0 },
-            {
-              y:    -cfg.yTravel,
-              ease: "none",
-              scrollTrigger: {
-                trigger: section,
-                scroller,
-                start:   "top top",
-                end:     `+=${PIN_SCROLL_DISTANCE}`,
-                scrub:   cfg.scrub,
-              },
-            },
-          );
-        });
-        // ③ The content wrapper is intentionally NOT animated — it stays rock-solid
-        //    during the pin so text and card never vibrate.
+        addLayerTimeline(topBubblesRef.current, TOP_BUBBLE_CONFIG, section, "top bottom", "center center", 0.9, 1, 0.7, 0.75);
+        addLayerTimeline(mainBubblesRef.current, MAIN_BUBBLE_CONFIG, mainSection, "top top", "bottom bottom", 0.8, 1, 1, 1);
+        addLayerTimeline(bottomBubblesRef.current, BOTTOM_BUBBLE_CONFIG, section, "center center", "bottom top", 1, 1, 0.8, 0.9);
       }, section);
 
       return () => ctx.revert();
     });
 
-    // ── Mobile — no pin; lighter parallax only ────────────────────────────
     mm.add("(max-width: 767px)", () => {
       const ctx = gsap.context(() => {
-        bubblesRef.current.forEach((bubble, i) => {
-          if (!bubble) return;
-          const travel = Math.round(BUBBLE_CONFIG[i].yTravel * 0.3);
-          gsap.fromTo(
-            bubble,
-            { y: 0 },
-            {
-              y:    -travel,
-              ease: "none",
-              scrollTrigger: {
-                trigger: section,
-                scroller,
-                start:   "top bottom",
-                end:     "bottom top",
-                scrub:   1.5,
-              },
-            },
-          );
-        });
+        addLayerTimeline(topBubblesRef.current, TOP_BUBBLE_CONFIG, section, "top bottom", "center center", 1.1, 0.45, 0.3, 0.35);
+        addLayerTimeline(mainBubblesRef.current, MAIN_BUBBLE_CONFIG, mainSection, "top bottom", "bottom top", 1.2, 0.45, 0.3, 0.45);
+        addLayerTimeline(bottomBubblesRef.current, BOTTOM_BUBBLE_CONFIG, section, "center center", "bottom top", 1.2, 0.45, 0.35, 0.4);
       }, section);
 
       return () => ctx.revert();
@@ -147,137 +209,142 @@ export function GithubContributions() {
     return () => mm.revert();
   }, []);
 
-  return (
-    <section
-      ref={sectionRef}
-      id="github"
-      className="relative flex flex-col justify-center py-16"
-      style={{ minHeight: "100svh", overflow: "hidden" }}
-    >
-      {/* ── Background bubbles (behind the card) ─────────────────────── */}
-      <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
-        {BACK_BUBBLES.map((b) => (
-          <div
-            key={b.i}
-            ref={(el) => { bubblesRef.current[b.i] = el; }}
-            className="absolute rounded-full will-change-transform"
-            style={{
-              width:        b.size,
-              height:       b.size,
-              left:         b.left,
-              bottom:       b.bottom,
-              background:   `hsl(var(--${b.color}) / ${b.opacity})`,
-              filter:       b.blur > 0 ? `blur(${b.blur}px)` : undefined,
-              borderRadius: b.i < 5 ? BLOB_RADII[b.i] : "50%",
-            }}
-          />
-        ))}
+  const handleChartLoad = () => {
+    setLoading(false);
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+  };
+
+    return (
+    <section ref={sectionRef} id="github" className="relative" style={{ "--pin-distance": `${PIN_SCROLL_DISTANCE}px` } as CSSProperties}>
+      <div className="relative h-28 overflow-hidden md:h-44">
+        <div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+          {TOP_BUBBLES.map((bubble) => (
+            <div
+              key={`top-${bubble.index}`}
+              ref={(element) => {
+                topBubblesRef.current[bubble.index] = element;
+              }}
+              className="absolute rounded-full will-change-transform"
+              style={getBubbleStyle(bubble)}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* ── Content — static during pin, NO GSAP transform on this element ── */}
-      <div className="relative z-10 mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="space-y-6"
+      <div
+        ref={mainSectionRef}
+        className="relative min-h-[100svh] md:h-[calc(100svh+var(--pin-distance))]"
+      >
+        <div
+          ref={sceneRef}
+          className="relative box-border flex min-h-[100svh] flex-col justify-center overflow-hidden py-16 md:sticky md:top-0 md:h-[100svh]"
         >
-          {/* Header */}
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20">
-              <Github className="h-6 w-6 text-primary" />
+        <div className="relative z-10 mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="rounded-2xl border border-primary/20 bg-primary/10 p-3">
+                <Github className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold text-foreground">The Days I Code</h3>
+                <p className="text-sm text-muted-foreground">@{GITHUB_USERNAME}</p>
+                <a
+                  href={`https://github.com/${GITHUB_USERNAME}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-flex items-center gap-1 text-xs text-primary transition-colors hover:text-primary/80"
+                >
+                  View full activity on GitHub (including private contributions)
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+              </div>
             </div>
-            <div>
-              <h3 className="text-2xl font-bold text-foreground">The Days I Code</h3>
-              <p className="text-sm text-muted-foreground">@{GITHUB_USERNAME}</p>
-              <a
-                href={`https://github.com/${GITHUB_USERNAME}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-1 mt-1"
-              >
-                View full activity on GitHub (including private contributions)
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+
+            <div className="glass-card overflow-hidden rounded-3xl p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-muted-foreground">
+                    GitHub Contribution Activity
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="text-white">Less</span>
+                    <div className="flex gap-1">
+                      <div className="h-3 w-3 rounded-sm bg-[#ebedf0] dark:bg-[#161b22]" />
+                      <div className="h-3 w-3 rounded-sm bg-[#d6e685]" />
+                      <div className="h-3 w-3 rounded-sm bg-[#8cc665]" />
+                      <div className="h-3 w-3 rounded-sm bg-[#44a340]" />
+                      <div className="h-3 w-3 rounded-sm bg-[#1e6823]" />
+                    </div>
+                    <span>More</span>
+                  </div>
+                </div>
+
+                <div
+                  className="relative flex items-center justify-center overflow-x-auto rounded-2xl bg-background/50 p-4"
+                  style={{ minHeight: `${CHART_FRAME_MIN_HEIGHT}px` }}
+                >
+                  {loading ? (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : null}
+
+                  <img
+                    src={`https://ghchart.rshah.org/${GITHUB_USERNAME}`}
+                    alt={`${GITHUB_USERNAME}'s GitHub Contributions`}
+                    className="h-auto max-w-full"
+                    style={{
+                      imageRendering: "crisp-edges",
+                      opacity: loading ? 0 : 1,
+                    }}
+                    onLoad={handleChartLoad}
+                    onError={handleChartLoad}
                   />
-                </svg>
-              </a>
+                </div>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  Contribution graph powered by GitHub
+                </p>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Contribution card */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="p-6 rounded-3xl glass-card overflow-hidden"
-          >
-            {loading && (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-muted-foreground">
-                  GitHub Contribution Activity
-                </p>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="text-white">Less</span>
-                  <div className="flex gap-1">
-                    <div className="w-3 h-3 rounded-sm bg-[#ebedf0] dark:bg-[#161b22]" />
-                    <div className="w-3 h-3 rounded-sm bg-[#d6e685]" />
-                    <div className="w-3 h-3 rounded-sm bg-[#8cc665]" />
-                    <div className="w-3 h-3 rounded-sm bg-[#44a340]" />
-                    <div className="w-3 h-3 rounded-sm bg-[#1e6823]" />
-                  </div>
-                  <span>More</span>
-                </div>
-              </div>
-
-              <div className="flex justify-center items-center bg-background/50 rounded-2xl p-4 overflow-x-auto">
-                <img
-                  src={`https://ghchart.rshah.org/${GITHUB_USERNAME}`}
-                  alt={`${GITHUB_USERNAME}'s GitHub Contributions`}
-                  className="max-w-full h-auto"
-                  style={{ imageRendering: "crisp-edges" }}
-                  onLoad={() => setLoading(false)}
-                />
-              </div>
-
-              <p className="text-xs text-muted-foreground text-center">
-                Contribution graph powered by GitHub
-              </p>
-            </div>
-          </motion.div>
-        </motion.div>
+        <div className="pointer-events-none absolute inset-0 z-20" aria-hidden>
+          {MAIN_BUBBLES.map((bubble) => (
+            <div
+              key={`main-${bubble.index}`}
+              ref={(element) => {
+                mainBubblesRef.current[bubble.index] = element;
+              }}
+              className="absolute rounded-full will-change-transform"
+              style={getBubbleStyle(bubble)}
+            />
+          ))}
+        </div>
+      </div>
       </div>
 
-      {/* ── Foreground bubbles (above the card) ──────────────────────── */}
-      <div className="pointer-events-none absolute inset-0 z-20" aria-hidden>
-        {FRONT_BUBBLES.map((b) => (
-          <div
-            key={b.i}
-            ref={(el) => { bubblesRef.current[b.i] = el; }}
-            className="absolute rounded-full will-change-transform"
-            style={{
-              width:        b.size,
-              height:       b.size,
-              left:         b.left,
-              bottom:       b.bottom,
-              background:   `hsl(var(--${b.color}) / ${b.opacity})`,
-              filter:       b.blur > 0 ? `blur(${b.blur}px)` : undefined,
-              borderRadius: "50%",
-            }}
-          />
-        ))}
+      <div className="relative h-36 overflow-hidden md:h-56">
+        <div className="pointer-events-none absolute inset-0 z-10" aria-hidden>
+          {BOTTOM_BUBBLES.map((bubble) => (
+            <div
+              key={`bottom-${bubble.index}`}
+              ref={(element) => {
+                bottomBubblesRef.current[bubble.index] = element;
+              }}
+              className="absolute rounded-full will-change-transform"
+              style={getBubbleStyle(bubble)}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
