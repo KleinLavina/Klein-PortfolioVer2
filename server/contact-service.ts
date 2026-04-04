@@ -37,15 +37,16 @@ type ContactDeliveryResult = {
   response: string;
 };
 
-type BrevoRuntimeConfig = {
-  host: string;
-  port: number;
-  user: string;
-  from: string;
-  to: string;
-  secure: boolean;
-  tls?: Record<string, unknown>;
-};
+function getBrevoFromAddress(): string {
+  const fromEmail = process.env.BREVO_FROM_EMAIL?.trim();
+  const fromName = process.env.BREVO_FROM_NAME?.trim();
+
+  if (!fromEmail) {
+    throw new Error("Brevo sender is not configured. Set BREVO_FROM_EMAIL.");
+  }
+
+  return fromName ? `"${fromName}" <${fromEmail}>` : fromEmail;
+}
 
 type LocalContactSubmissionStore = {
   nextId: number;
@@ -455,7 +456,6 @@ export async function getNotifyEmail(): Promise<string> {
     return (
       row?.value_text?.trim() ||
       process.env.NOTIFY_EMAIL?.trim() ||
-      process.env.BREVO_SMTP_USER?.trim() ||
       ""
     );
   } catch (error) {
@@ -466,7 +466,6 @@ export async function getNotifyEmail(): Promise<string> {
     return (
       (await readLocalNotifyEmail()) ||
       process.env.NOTIFY_EMAIL?.trim() ||
-      process.env.BREVO_SMTP_USER?.trim() ||
       ""
     );
   }
@@ -529,18 +528,6 @@ function createBrevoTransport() {
   return nodemailer.createTransport(buildBrevoTransportConfig());
 }
 
-function logBrevoRuntimeConfig(config: BrevoRuntimeConfig, context: string) {
-  console.log(`[brevo] ${context}`, {
-    host: config.host,
-    port: config.port,
-    user: config.user,
-    from: config.from,
-    to: config.to,
-    secure: config.secure,
-    tls: config.tls,
-  });
-}
-
 function logBrevoSendError(error: unknown, context: string) {
   console.error(`[brevo] ${context} raw error:`, error);
   if (error && typeof error === "object") {
@@ -561,32 +548,13 @@ async function sendWithBrevoTransport(
   mailOptions: nodemailer.SendMailOptions,
   context: string,
 ): Promise<ContactDeliveryResult> {
-  const transportConfig = buildBrevoTransportConfig();
-  const runtimeConfig: BrevoRuntimeConfig = {
-    host: transportConfig.host,
-    port: transportConfig.port,
-    user: transportConfig.auth.user,
-    from: typeof mailOptions.from === "string" ? mailOptions.from : String(mailOptions.from ?? ""),
-    to: typeof mailOptions.to === "string" ? mailOptions.to : String(mailOptions.to ?? ""),
-    secure: transportConfig.secure,
-    tls: transportConfig.tls,
-  };
   const transport = createBrevoTransport();
-
-  logBrevoRuntimeConfig(runtimeConfig, `${context} before sendMail()`);
 
   try {
     const info = await transport.sendMail(mailOptions);
     const accepted = Array.isArray(info.accepted) ? info.accepted.map(String) : [];
     const rejected = Array.isArray(info.rejected) ? info.rejected.map(String) : [];
     const response = typeof info.response === "string" ? info.response : "";
-
-    console.log(`[brevo] ${context} after successful sendMail()`, {
-      messageId: info.messageId,
-      accepted,
-      rejected,
-      response,
-    });
 
     if (accepted.length === 0) {
       throw new Error(
@@ -615,7 +583,7 @@ export async function sendContactNotification(
   }
 
   return sendWithBrevoTransport({
-    from: process.env.BREVO_SMTP_USER?.trim(),
+    from: getBrevoFromAddress(),
     to: notifyEmail,
     replyTo: submission.email,
     subject: `New Message from ${submission.fullName} - Klein Portfolio`,
@@ -631,7 +599,7 @@ export async function sendContactNotification(
 export async function sendBrevoDirectTestEmail(to: string): Promise<ContactDeliveryResult> {
   return sendWithBrevoTransport(
     {
-      from: process.env.BREVO_SMTP_USER?.trim(),
+      from: getBrevoFromAddress(),
       to,
       subject: "SMTP direct test",
       text: "hello from localhost",

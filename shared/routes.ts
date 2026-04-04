@@ -70,14 +70,6 @@ export const api = {
           ok: z.literal(true),
           submissionId: z.number().int(),
           message: z.string().optional(),
-          delivery: z
-            .object({
-              messageId: z.string(),
-              accepted: z.array(z.string()),
-              rejected: z.array(z.string()),
-              response: z.string(),
-            })
-            .optional(),
         }),
         400: errorSchemas.validation,
         429: z.object({

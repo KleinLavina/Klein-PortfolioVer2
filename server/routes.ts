@@ -808,22 +808,9 @@ export async function registerRoutes(
 
       const submission = await createContactSubmission(input, ipAddress);
       let deliveryMessage: string | undefined;
-      let deliveryMeta:
-        | {
-            messageId: string;
-            accepted: string[];
-            rejected: string[];
-            response: string;
-          }
-        | undefined;
       try {
         const notifyEmail = await getNotifyEmail();
-        deliveryMeta = await sendContactNotification(submission, notifyEmail);
-        console.log("Contact notification queued:", {
-          submissionId: submission.id,
-          notifyEmail,
-          ...deliveryMeta,
-        });
+        await sendContactNotification(submission, notifyEmail);
       } catch (deliveryError) {
         const message =
           deliveryError instanceof Error
@@ -838,9 +825,6 @@ export async function registerRoutes(
         ok: true,
         submissionId: submission.id,
         ...(deliveryMessage ? { message: deliveryMessage } : {}),
-        ...(process.env.NODE_ENV !== "production" && deliveryMeta
-          ? { delivery: deliveryMeta }
-          : {}),
       });
     } catch (err) {
       if (err instanceof z.ZodError) {
