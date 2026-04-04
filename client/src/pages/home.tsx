@@ -51,14 +51,17 @@ import { GithubContributions } from "@/components/github-contributions";
 import { FloatingChat } from "@/components/floating-chat";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useLocation } from "wouter";
 import {
   Loader2, Github, Code, Database, MonitorSmartphone,
-  Layers, Server, TerminalSquare, Mail, FolderGit2,
+  Layers, Server, TerminalSquare, Mail, FolderGit2, Phone,
   Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ArrowDown,
   ChevronRight, Sparkles, Globe, ArrowUpRight, UserRound, CheckCircle2, X
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
+import { cn } from "@/lib/utils";
+import { PROJECTS as ALL_PROJECTS, getTechIcon as resolveProjectTechIcon } from "@/lib/projects";
 
 const TECH_STACK_GROUPS = [
   {
@@ -289,6 +292,62 @@ function SectionLabel({ num, label }: { num: string; label: string }) {
   );
 }
 
+const CONTACT_EMAIL = "fklein.lavina09@gmail.com";
+const CONTACT_PHONE = "+639380734878";
+const CONTACT_GITHUB_URL = "https://github.com/KleinLavina";
+const CONTACT_LINKEDIN_URL = "https://www.linkedin.com/in/klein-lavina-353aba360";
+const CONTACT_QR_SRC = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`BEGIN:VCARD
+VERSION:3.0
+FN:Klein F. Lavina
+TEL:${CONTACT_PHONE}
+EMAIL:${CONTACT_EMAIL}
+URL:${CONTACT_GITHUB_URL}
+URL:${CONTACT_LINKEDIN_URL}
+END:VCARD`)}`;
+
+function LinkedInIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
+
+function ContactIncludes({ tone = "light" }: { tone?: "light" | "dark" }) {
+  const wrapperClass =
+    tone === "dark"
+      ? "text-[11px] text-emerald-900/70 sm:text-xs"
+      : "text-[11px] text-white/70 sm:text-xs";
+  const labelClass =
+    tone === "dark"
+      ? "text-xs text-emerald-900/45 font-mono uppercase tracking-[0.24em]"
+      : "text-xs text-white/50 font-mono uppercase tracking-[0.24em]";
+
+  return (
+    <div className="text-center space-y-2">
+      <p className={labelClass}>Includes</p>
+      <div className={cn("flex flex-wrap justify-center gap-x-3 gap-y-2", wrapperClass)}>
+        <div className="flex items-center gap-1">
+          <Mail size={12} />
+          <span>Email</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Phone size={12} />
+          <span>Phone</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Github size={12} />
+          <span>GitHub</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <LinkedInIcon className="h-3 w-3" />
+          <span>LinkedIn</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function getOrCreateVisitorId(): string {
   if (typeof window === "undefined") return "visitor-server";
 
@@ -302,12 +361,13 @@ function getOrCreateVisitorId(): string {
 }
 
 export default function Home() {
-  const [showAllProjects, setShowAllProjects] = useState(false);
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [visitorLoading, setVisitorLoading] = useState(true);
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const [activeCertificateImage, setActiveCertificateImage] =
     useState<(typeof CERTIFICATION_IMAGES)[number] | null>(null);
+  const [, setLocation] = useLocation();
+  const currentYear = new Date().getFullYear();
   const mag1 = useMagnetic(0.3);
   const mag2 = useMagnetic(0.3);
 
@@ -376,6 +436,45 @@ export default function Home() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [activeCertificateImage]);
+
+  useEffect(() => {
+    const targetId = window.sessionStorage.getItem("portfolio-scroll-target");
+    if (!targetId) return;
+
+    window.sessionStorage.removeItem("portfolio-scroll-target");
+
+    window.requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        const target = document.getElementById(targetId);
+        target?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 120);
+    });
+  }, []);
+
+  const handleContactSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (typeof window === "undefined") return;
+
+    const formData = new FormData(event.currentTarget);
+    const fullName = String(formData.get("fullName") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const message = String(formData.get("message") ?? "").trim();
+
+    const subject = fullName ? `Portfolio inquiry from ${fullName}` : "Portfolio inquiry";
+    const body = [
+      fullName ? `Name: ${fullName}` : null,
+      email ? `Email: ${email}` : null,
+      "",
+      message || "Hello, I'd like to connect about a project.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
 
 
 
@@ -759,6 +858,7 @@ export default function Home() {
 
         <Section id="credentials" className="!min-h-0 py-20">
           <motion.div
+            id="projects-head"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
@@ -995,7 +1095,7 @@ export default function Home() {
           </motion.div>
 
           {(() => {
-            const visibleProjects = showAllProjects ? PROJECTS : PROJECTS.slice(0, 3);
+            const visibleProjects = ALL_PROJECTS.slice(0, 3);
             const accentColors = [
               "from-primary via-secondary to-accent",
               "from-accent via-primary to-secondary",
@@ -1117,7 +1217,7 @@ export default function Home() {
                               {/* Tech pills with actual tech logos */}
                               <div className="flex flex-wrap gap-2">
                                 {project.techStack.map(tech => {
-                                  const IconComponent = getTechIcon(tech);
+                                  const IconComponent = resolveProjectTechIcon(tech);
                                   return (
                                     <span
                                       key={tech}
@@ -1169,17 +1269,17 @@ export default function Home() {
                   transition={{ duration: 0.4, delay: 0.2 }}
                 >
                   <button
-                    onClick={() => setShowAllProjects((prev) => !prev)}
+                    onClick={() => setLocation("/projects")}
                     className="group flex items-center gap-2.5 px-7 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
                   >
                     <motion.span
-                      animate={{ rotate: showAllProjects ? 180 : 0 }}
-                      transition={{ duration: 0.3 }}
+                      whileHover={{ x: 2 }}
+                      transition={{ duration: 0.2 }}
                       className="inline-block"
                     >
-                      <ChevronRight size={15} className="rotate-90" />
+                      <ChevronRight size={15} />
                     </motion.span>
-                    {showAllProjects ? "Show Less" : `Show ${PROJECTS.length - 3} More Projects`}
+                    {`Show ${ALL_PROJECTS.length - 3} More Projects`}
                   </button>
                 </motion.div>
               </>
@@ -1209,7 +1309,7 @@ export default function Home() {
         {/* Contact body */}
         <div className="relative bg-primary overflow-hidden -mt-1">
           <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-12 pt-20 pb-20">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div className="grid grid-cols-1 gap-12 items-start lg:grid-cols-2 lg:gap-16">
 
               {/* Left: Copy */}
               <motion.div
@@ -1236,21 +1336,17 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-xs text-white/50 font-mono uppercase tracking-wider">Email</p>
-                    <p className="text-sm font-semibold text-white">fklein.lavina09@gmail.com</p>
+                    <p className="text-sm font-semibold text-white">{CONTACT_EMAIL}</p>
                   </div>
                 </div>
 
                 {/* Social icons */}
                 <div className="flex gap-3 pt-4 flex-wrap">
                   {[
-                    { href: "https://github.com/KleinLavina", icon: Github, label: "GitHub" },
+                    { href: CONTACT_GITHUB_URL, icon: Github, label: "GitHub" },
                     {
-                      href: "https://www.linkedin.com/in/klein-lavina-353aba360",
-                      icon: () => (
-                        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                        </svg>
-                      ),
+                      href: CONTACT_LINKEDIN_URL,
+                      icon: () => <LinkedInIcon className="h-5 w-5" />,
                       label: "LinkedIn"
                     },
                   ].map(({ href, icon: Icon, label }) => (
@@ -1266,6 +1362,38 @@ export default function Home() {
                     </a>
                   ))}
                 </div>
+
+                <div className="pt-4">
+                  <div className="w-full max-w-xs rounded-[1.75rem] border border-white/20 bg-white/95 p-4 shadow-[0_26px_60px_-32px_rgba(0,0,0,0.45)] sm:p-5">
+                    <div className="space-y-1 text-center">
+                      <h3 className="text-lg font-bold text-emerald-950">Scan to Connect</h3>
+                      <p className="text-sm text-emerald-900/60">Get my contact info instantly</p>
+                    </div>
+
+                    <div className="mt-4 flex justify-center">
+                      <div className="relative flex h-32 w-32 items-center justify-center bg-white sm:h-36 sm:w-36">
+                        <img
+                          src={CONTACT_QR_SRC}
+                          alt="Contact QR Code"
+                          className="h-full w-full"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white shadow-lg sm:h-10 sm:w-10">
+                            <img
+                              src="/Gemini_Generated_Image_enc1uoenc1uoenc1-removebg-preview.png"
+                              alt="Klein Logo"
+                              className="h-7 w-7 object-contain sm:h-8 sm:w-8"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <ContactIncludes tone="dark" />
+                    </div>
+                  </div>
+                </div>
               </motion.div>
 
               {/* Right: Form */}
@@ -1274,66 +1402,67 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.6, delay: 0.15 }}
+                className="w-full"
               >
-                <div className="flex flex-col items-center space-y-6">
-                  <div className="text-center space-y-3">
-                    <h3 className="text-xl font-bold text-white">Scan to Connect</h3>
-                    <p className="text-sm text-white/70">Get my contact info instantly</p>
+                <div className="mx-auto w-full max-w-xl rounded-[2rem] border border-black/10 bg-white p-6 shadow-md backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900 sm:p-8 lg:min-h-[31rem]">
+                  <div className="space-y-2">
+                    <p className="text-xs font-mono uppercase tracking-[0.24em] text-emerald-600/60 dark:text-emerald-400/60">Direct Message</p>
+                    <h3 className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 sm:text-[2rem]">Let&apos;s talk about your next build</h3>
+                    <p className="max-w-lg text-sm leading-7 text-emerald-800/70 dark:text-emerald-300/70">
+                      Share the project, the goal, or the reason you&apos;re reaching out. I&apos;ll package it into an email draft so you can send it instantly.
+                    </p>
                   </div>
-                  
-                  {/* QR Code */}
-                  <div className="p-6 bg-white rounded-2xl shadow-2xl">
-                    <div className="w-48 h-48 bg-white flex items-center justify-center relative">
-                      <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=192x192&data=${encodeURIComponent(`BEGIN:VCARD
-VERSION:3.0
-FN:Klein F. Lavina
-TEL:+639380734878
-EMAIL:fklein.lavina09@gmail.com
-URL:https://github.com/KleinLavina
-URL:https://linkedin.com/in/klein-lavina-353aba360
-END:VCARD`)}`}
-                        alt="Contact QR Code"
-                        className="w-full h-full"
+
+                  <form onSubmit={handleContactSubmit} className="mt-8 space-y-5">
+                    <div className="space-y-2">
+                      <label htmlFor="contact-full-name" className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                        Full Name
+                      </label>
+                      <input
+                        id="contact-full-name"
+                        name="fullName"
+                        type="text"
+                        placeholder="Your full name"
+                        className="h-[3.25rem] w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        required
                       />
-                      {/* Logo overlay in center */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-lg">
-                          <img 
-                            src="/Gemini_Generated_Image_enc1uoenc1uoenc1-removebg-preview.png"
-                            alt="Klein Logo"
-                            className="w-10 h-10 object-contain"
-                          />
-                        </div>
-                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="text-center space-y-2">
-                    <p className="text-xs text-white/50 font-mono uppercase tracking-wider">Includes</p>
-                    <div className="flex flex-wrap justify-center gap-3 text-xs text-white/70">
-                      <div className="flex items-center gap-1">
-                        <Mail size={12} />
-                        <span>Email</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                        </svg>
-                        <span>Phone</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Github size={12} />
-                        <span>GitHub</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                        </svg>
-                        <span>LinkedIn</span>
-                      </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="contact-email-address" className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                        Email Address
+                      </label>
+                      <input
+                        id="contact-email-address"
+                        name="email"
+                        type="email"
+                        placeholder="your@email.com"
+                        className="h-[3.25rem] w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        required
+                      />
                     </div>
-                  </div>
+
+                    <div className="space-y-2">
+                      <label htmlFor="contact-message" className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                        Message / Purpose
+                      </label>
+                      <textarea
+                        id="contact-message"
+                        name="message"
+                        placeholder="Tell me about your project or reason for reaching out..."
+                        rows={5}
+                        className="w-full resize-none rounded-[1.5rem] border border-neutral-300 bg-neutral-100 px-4 py-3.5 text-sm font-medium leading-7 text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="flex h-[3.25rem] w-full items-center justify-center rounded-2xl bg-emerald-900 px-5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700/35 focus:ring-offset-2 focus:ring-offset-white dark:bg-emerald-800 dark:hover:bg-emerald-700 dark:focus:ring-offset-black"
+                    >
+                      Send Message
+                    </button>
+                  </form>
                 </div>
               </motion.div>
             </div>
@@ -1341,7 +1470,7 @@ END:VCARD`)}`}
             {/* Footer */}
             <div className="mt-10 pt-6 border-t border-white/15 flex flex-col justify-center items-center gap-2">
               <p className="text-sm text-white/50 font-mono">
-                © 2025 Klein F. Lavina. All rights reserved.
+                © {currentYear} Klein F. Lavina. All rights reserved.
               </p>
               <p className="text-sm text-white/50 font-mono flex items-center gap-2">
                 {visitorLoading

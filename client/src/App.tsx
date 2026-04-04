@@ -9,11 +9,13 @@ import { useState, useEffect, useCallback } from "react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
+import ProjectsPage from "@/pages/projects";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/projects" component={ProjectsPage} />
       <Route path="/klein/admin" component={Admin} />
       <Route path="/klein/admin/" component={Admin} />
       <Route component={NotFound} />
