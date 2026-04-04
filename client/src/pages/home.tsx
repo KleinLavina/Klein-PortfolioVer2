@@ -1,10 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
-  faPencil, 
-  faHandshake, 
-  faRocket, 
-  faBookOpen, 
-  faArrowsRotate,
   faEye
 } from "@fortawesome/free-solid-svg-icons";
 // Using reliable FontAwesome icons primarily
@@ -60,7 +55,7 @@ import {
   Loader2, Github, Code, Database, MonitorSmartphone,
   Layers, Server, TerminalSquare, Mail, FolderGit2,
   Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ArrowDown,
-  ChevronRight, Sparkles, Globe, ArrowUpRight
+  ChevronRight, Sparkles, Globe, ArrowUpRight, UserRound
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
@@ -230,6 +225,11 @@ const PROJECTS = [
 ];
 
 const TECH_PILLS = ["React", "TypeScript", "Node.js", "Django", "PostgreSQL", "Python", "Next.js", "Tailwind"];
+const HERO_STATS = [
+  { value: "8+", label: "Projects Built" },
+  { value: "15+", label: "Tech Stacks" },
+  { value: "PhilNITS", label: "Certified Passer" },
+] as const;
 
 // Tech stack icon mapping for projects - using reliable icons
 const getTechIcon = (tech: string) => {
@@ -360,78 +360,116 @@ export default function Home() {
         {/* ─── HERO ─────────────────────────────────────────────────────── */}
         <Section id="home" className="justify-center min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-7rem)] py-0 pt-0">
           <div className="w-full flex flex-col justify-center">
+            <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-12">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
+                className="w-full lg:pr-6"
+              >
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="h-px w-10 bg-primary/60" />
+                  <p className="text-[11px] font-mono uppercase tracking-[0.38em] text-primary">
+                    Available for projects
+                  </p>
+                </div>
 
-            {/* Main hero content — centered layout */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-              className="max-w-4xl"
-            >
-              <p className="text-xs font-mono text-primary mb-4 tracking-widest">// Hello, World!</p>
+                <h1 className="text-[clamp(3rem,7vw,5.8rem)] font-black leading-[0.88] tracking-[-0.04em] text-foreground">
+                  <span className="block">Klein Flores</span>
+                  <span className="block text-gradient">Lavina</span>
+                </h1>
 
-              <h1 className="text-[clamp(2.6rem,6.5vw,5.5rem)] font-black leading-[0.9] tracking-tight mb-1">
-                <span className="text-foreground">Hi, I'm </span>
-                <span className="text-gradient font-cursive font-normal whitespace-nowrap">Klein F. Lavina</span>
-              </h1>
+                <p className="mt-4 text-xs font-mono uppercase tracking-[0.32em] text-secondary">
+                  Creative Full-Stack Web Developer
+                </p>
 
-              <div className="flex items-center gap-4 mb-4">
-                <div className="h-px w-10 bg-primary/50" />
-                <h2 className="text-base sm:text-lg font-semibold text-muted-foreground tracking-wide">
-                  Fresh Graduate · Full Stack Developer
-                </h2>
-              </div>
+                <p className="mt-8 max-w-xl text-base leading-8 text-muted-foreground sm:text-lg">
+                  Crafting immersive digital experiences and scalable architectures for the modern web,
+                  spanning SaaS development, web and app builds, full-stack solutions, and emerging tech
+                  integrations for teams that need products to perform and scale.
+                </p>
 
-              <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed mb-6">
-                BSIT graduate with hands-on experience from internship, school and personal projects. I build full-stack apps with Django, PHP, and React — and I'm just getting started.
-              </p>
-
-              {/* Stats row */}
-              <div className="flex gap-8 border-y border-border/30 py-4 mb-6 w-fit">
-                {[
-                  { n: "8+", label: "PROJECTS BUILT" },
-                  { n: "15+", label: "TECH STACKS" },
-                  { n: "PhilNITS", label: "CERTIFIED PASSER" },
-                ].map(s => (
-                  <div key={s.label}>
-                    <div className="text-2xl font-black text-primary">{s.n}</div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-0.5">{s.label}</div>
+                <div className="mt-10 flex flex-wrap gap-4">
+                  <div
+                    ref={mag1.ref as React.RefObject<HTMLDivElement>}
+                    onMouseMove={mag1.onMouseMove}
+                    onMouseLeave={mag1.onMouseLeave}
+                    className="inline-block"
+                  >
+                    <Button
+                      size="lg"
+                      className="group h-12 rounded-xl border border-primary/35 bg-primary/10 px-7 text-[11px] font-mono uppercase tracking-[0.26em] text-foreground shadow-[0_18px_40px_-24px_hsl(var(--primary)/0.45)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/55 hover:bg-primary/16"
+                    >
+                      <a href="#projects" className="flex items-center gap-3">
+                        <span>View My Work</span>
+                        <ChevronRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+                      </a>
+                    </Button>
                   </div>
-                ))}
-              </div>
-
-              {/* CTAs */}
-              <div className="flex flex-wrap gap-4">
-                <div
-                  ref={mag1.ref as React.RefObject<HTMLDivElement>}
-                  onMouseMove={mag1.onMouseMove}
-                  onMouseLeave={mag1.onMouseLeave}
-                  className="inline-block"
-                >
-                  <Button size="lg" className="group relative overflow-hidden rounded-2xl px-8 bg-primary text-white font-bold text-sm shadow-2xl shadow-primary/40 hover:shadow-primary/60 hover:-translate-y-2 hover:scale-105 transition-all duration-300 border-2 border-white/20 backdrop-blur-sm h-11">
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out"></div>
-                    <a href="#projects" className="relative flex items-center gap-3 z-10">
-                      <span className="tracking-wide">View My Work</span>
-                      <ChevronRight size={15} className="group-hover:translate-x-1 transition-transform duration-300" />
-                    </a>
-                  </Button>
+                  <div
+                    ref={mag2.ref as React.RefObject<HTMLDivElement>}
+                    onMouseMove={mag2.onMouseMove}
+                    onMouseLeave={mag2.onMouseLeave}
+                    className="inline-block"
+                  >
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="h-12 rounded-xl border border-border/70 bg-transparent px-7 text-[11px] font-mono uppercase tracking-[0.26em] text-muted-foreground transition-all duration-300 hover:-translate-y-1 hover:border-secondary/45 hover:bg-card/35 hover:text-foreground"
+                    >
+                      <a href="#contact" className="flex items-center gap-3">
+                        <Mail size={15} />
+                        <span>Get In Touch</span>
+                      </a>
+                    </Button>
+                  </div>
                 </div>
-                <div
-                  ref={mag2.ref as React.RefObject<HTMLDivElement>}
-                  onMouseMove={mag2.onMouseMove}
-                  onMouseLeave={mag2.onMouseLeave}
-                  className="inline-block"
-                >
-                  <Button size="lg" variant="outline" className="rounded-full px-8 border border-border/60 hover:border-primary/50 hover:text-primary transition-all h-11 text-sm font-bold backdrop-blur-sm">
-                    <a href="#contact" className="flex items-center gap-2">
-                      <Mail size={15} />
-                      Contact Me
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
 
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+                className="relative flex min-h-[420px] flex-col items-center justify-center lg:min-h-[560px]"
+              >
+                <div className="hero-portrait-stage">
+                  <div className="hero-portrait-shell">
+                    <div className="hero-portrait-frame">
+                      <div className="hero-portrait-core flex flex-col items-center justify-center gap-4 text-center">
+                        <div className="flex h-24 w-24 items-center justify-center rounded-full border border-accent/20 bg-background/45 shadow-[0_0_0_1px_hsl(var(--accent)/0.08)]">
+                          <UserRound className="h-10 w-10 text-accent/45" strokeWidth={1.6} />
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground/70">
+                            Unset profile
+                          </p>
+                          <p className="text-[11px] font-mono uppercase tracking-[0.22em] text-accent/55">
+                            Add portrait here
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="hero-floating-badge hero-floating-badge-bottom">
+                    <span className="hero-floating-badge-label">Open to work</span>
+                    <span className="hero-floating-badge-value">Onsite / Remote</span>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex w-full max-w-[34rem] flex-wrap justify-center gap-8 border-t border-border/40 pt-7 lg:mt-6">
+                  {HERO_STATS.map((stat) => (
+                    <div key={stat.label} className="min-w-[88px] text-center">
+                      <div className="text-3xl font-black leading-none text-foreground">{stat.value}</div>
+                      <div className="mt-2 text-[11px] font-mono uppercase tracking-[0.24em] text-muted-foreground">
+                        {stat.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
             {/* Scroll indicator */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -448,162 +486,6 @@ export default function Home() {
         </Section>
 
         {/* ─── ABOUT ───────────────────────────────────────────────────── */}
-        <Section id="about" className="!min-h-0 py-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
-          >
-            <SectionLabel num="01" label="About Me" />
-            <h2 className="text-4xl sm:text-5xl font-black text-foreground mb-10 leading-tight">
-              Crafting the web,<br />
-              <span className="text-gradient">one commit at a time.</span>
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            {/* TOP LEFT: JSON Terminal */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6 }}
-              className="rounded-2xl overflow-hidden border border-border/30 shadow-2xl"
-            >
-              <div className="flex items-center gap-2 px-4 py-3 bg-muted/60 border-b border-border/30 backdrop-blur-sm">
-                <span className="w-3 h-3 rounded-full bg-red-400/80" />
-                <span className="w-3 h-3 rounded-full bg-yellow-400/80" />
-                <span className="w-3 h-3 rounded-full bg-green-400/80" />
-                <span className="ml-3 text-xs font-mono text-muted-foreground/60">about.json</span>
-              </div>
-              <div className="p-6 bg-card/40 backdrop-blur-xl font-mono text-sm leading-relaxed h-full">
-                <pre className="text-muted-foreground/80 whitespace-pre-wrap">{`{
-  `}<span className="text-secondary">"name"</span>{`: `}<span className="text-primary">"Klein F. Lavina"</span>{`,
-  `}<span className="text-secondary">"role"</span>{`: `}<span className="text-primary">"Full Stack Developer"</span>{`,
-  `}<span className="text-secondary">"location"</span>{`: `}<span className="text-primary">"Philippines 🇵🇭"</span>{`,
-  `}<span className="text-secondary">"experience"</span>{`: `}<span className="text-accent">"Fresh Graduate"</span>{`,
-  `}<span className="text-secondary">"specialization"</span>{`: [
-    `}<span className="text-primary">"React"</span>{`, `}<span className="text-primary">"Django"</span>{`,
-    `}<span className="text-primary">"PHP"</span>{`, `}<span className="text-primary">"PostgreSQL"</span>
-{`  ],
-  `}<span className="text-secondary">"passion"</span>{`: `}<span className="text-primary">"Making things actually work"</span>{`,
-  `}<span className="text-secondary">"certifications"</span>{`: [`}<span className="text-primary">"PhilNITS Passer"</span>{`],
-  `}<span className="text-secondary">"openToWork"</span>{`: `}<span className="text-green-400">true</span>
-{`}`}
-</pre>
-              </div>
-            </motion.div>
-
-            {/* TOP RIGHT: Text */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="flex flex-col justify-center space-y-4 p-2"
-            >
-              <p className="text-base text-muted-foreground leading-relaxed">
-                I'm a fresh CS grad from the Philippines who builds full-stack web apps using{" "}
-                <span className="text-foreground font-semibold">Django</span>,{" "}
-                <span className="text-foreground font-semibold">PHP</span>, and{" "}
-                <span className="text-foreground font-semibold">React</span>. I got into dev because I wanted to understand how websites actually work — turns out, I just never stopped building them.
-              </p>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                I care about writing code that actually makes sense to the next person reading it. Outside of coding I'm still learning — picking up new tools, breaking things, and figuring out why.
-              </p>
-              <blockquote className="border-l-2 border-primary pl-4">
-                <p className="text-sm italic text-muted-foreground/80">
-                  "Passed PhilNITS. Still googling CSS flexbox."
-                </p>
-              </blockquote>
-            </motion.div>
-
-            {/* BOTTOM LEFT: Value Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="rounded-2xl border border-border/30 p-5 bg-card/40 backdrop-blur-xl shadow-2xl"
-            >
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">Values I code by</p>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { icon: faPencil, color: "text-primary", title: "Clean Code", desc: "Write it like someone else has to read it tomorrow." },
-                  { icon: faHandshake, color: "text-secondary", title: "Honesty", desc: 'I\'d rather say "I don\'t know yet" than fake it.' },
-                  { icon: faRocket, color: "text-accent", title: "Ship It", desc: "Done and imperfect beats perfect and never shipped." },
-                  { icon: faBookOpen, color: "text-green-400", title: "Always Learning", desc: "Every bug is a lesson. Every project levels me up." },
-                ].map((v) => (
-                  <div key={v.title} className="rounded-xl p-3 bg-muted/30 border border-border/20 hover:border-primary/20 transition-colors">
-                    <FontAwesomeIcon icon={v.icon} className={`${v.color} text-base mb-2`} />
-                    <div className="text-sm font-semibold text-foreground mb-1">{v.title}</div>
-                    <div className="text-xs text-muted-foreground leading-snug">{v.desc}</div>
-                  </div>
-                ))}
-                <div className="col-span-2 rounded-xl p-3 bg-muted/30 border border-border/20 hover:border-primary/20 transition-colors flex items-center gap-4">
-                  <FontAwesomeIcon icon={faArrowsRotate} className="text-purple-400 text-base shrink-0" />
-                  <div>
-                    <div className="text-sm font-semibold text-foreground mb-0.5">Iteration</div>
-                    <div className="text-xs text-muted-foreground leading-snug">Version 1 is never the best version — keep improving, keep refining.</div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* BOTTOM RIGHT: Git Log Terminal */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="rounded-2xl overflow-hidden border border-border/30 shadow-2xl"
-              style={{ backgroundColor: '#0d1117' }}
-            >
-              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10" style={{ backgroundColor: '#161b22' }}>
-                <span className="w-3 h-3 rounded-full bg-red-400/80" />
-                <span className="w-3 h-3 rounded-full bg-yellow-400/80" />
-                <span className="w-3 h-3 rounded-full bg-green-400/80" />
-                <span className="ml-3 text-xs font-mono" style={{ color: '#8b949e' }}>bash — git log</span>
-              </div>
-              <div className="p-5 font-mono text-xs leading-relaxed space-y-3" style={{ color: '#e6edf3' }}>
-                <div style={{ color: '#8b949e' }}>$ git log</div>
-
-                <div className="space-y-0.5">
-                  <div>
-                    <span style={{ color: '#ffa657' }}>commit a3f91b2e4d8c1f0b</span>
-                  </div>
-                  <div>
-                    <span style={{ color: '#79c0ff' }}>(HEAD → </span>
-                    <span style={{ color: '#56d364' }}>main</span>
-                    <span style={{ color: '#79c0ff' }}>, origin/seeking-first-job)</span>
-                  </div>
-                  <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
-                  <div><span style={{ color: '#8b949e' }}>Date:   </span>Mon Mar 16 10:00:00 2026 +0800</div>
-                  <div className="mt-1 pl-4" style={{ color: '#e6edf3' }}>feat: ship 8+ projects &amp; open to work</div>
-                </div>
-
-                <div className="border-t border-white/5 pt-3 space-y-0.5">
-                  <div><span style={{ color: '#ffa657' }}>commit b7c24d1a3e9f2c8d</span></div>
-                  <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
-                  <div><span style={{ color: '#8b949e' }}>Date:   </span>Fri Jan 10 09:15:00 2025 +0800</div>
-                  <div className="mt-1 pl-4" style={{ color: '#e6edf3' }}>cert: pass PhilNITS examination</div>
-                </div>
-
-                <div className="border-t border-white/5 pt-3 space-y-0.5">
-                  <div><span style={{ color: '#ffa657' }}>commit e1d08a9c7b5f3e2a</span></div>
-                  <div><span style={{ color: '#8b949e' }}>Author: </span>Klein F. Lavina &lt;klein@dev.ph&gt;</div>
-                  <div><span style={{ color: '#8b949e' }}>Date:   </span>Thu Jun 01 08:00:00 2023 +0800</div>
-                  <div className="mt-1 pl-4" style={{ color: '#e6edf3' }}>init: add Django, PHP, React skills</div>
-                </div>
-              </div>
-            </motion.div>
-
-          </div>
-        </Section>
-
-        {/* ─── SKILLS ──────────────────────────────────────────────────── */}
         <Section id="skills">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -612,7 +494,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="mb-12"
           >
-            <SectionLabel num="02" label="Technical Arsenal" />
+            <SectionLabel num="01" label="Technical Arsenal" />
             <h2 className="text-4xl sm:text-5xl font-black text-foreground leading-tight">
               Tools I build<br />
               <span className="text-gradient">great things with.</span>
@@ -851,7 +733,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="mb-12"
           >
-            <SectionLabel num="03" label="Featured Projects" />
+            <SectionLabel num="02" label="Featured Projects" />
             <h2 className="text-4xl sm:text-5xl font-black text-foreground leading-tight">
               Work that<br />
               <span className="text-gradient">speaks for itself.</span>
@@ -1231,3 +1113,5 @@ END:VCARD`)}`}
     </Shell>
   );
 }
+
+

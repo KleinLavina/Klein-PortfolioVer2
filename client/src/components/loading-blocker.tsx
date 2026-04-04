@@ -1,4 +1,4 @@
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, animate } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
 import Ripple from "@/components/ui/ripple";
 
@@ -15,8 +15,9 @@ const HELLO_WORLD_PHRASES = [
   { text: "Kumusta Mundo!!", lang: "Filipino" },
 ];
 
-const BASE_DURATION = 1200;
-const SPEED_FACTOR = 0.75;
+const BASE_DURATION = 800;
+const SPEED_FACTOR = 0.68;
+const SEGMENT_COUNT = 6;
 
 function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -40,13 +41,12 @@ type Props = {
   onComplete: () => void;
 };
 
-const LAST_PAUSE = 900;
+const LAST_PAUSE = 450;
 
 export function LoadingBlocker({ isLoaded, onComplete }: Props) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [displayPct, setDisplayPct] = useState(0);
   const progress = useMotionValue(0);
-  const barWidth = useTransform(progress, [0, 100], ["0%", "100%"]);
 
   // Randomize the phrases order each time the component mounts
   const randomizedPhrases = useMemo(() => shuffleArray(HELLO_WORLD_PHRASES), []);
@@ -87,25 +87,31 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
 
   const currentPhrase = randomizedPhrases[phraseIndex];
   const isRTL = currentPhrase.lang === "Arabic";
+  const filledSegments = Math.round((displayPct / 100) * SEGMENT_COUNT);
 
   return (
     <AnimatePresence>
       {!isLoaded && (
         <motion.div
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.9, ease: "easeInOut" } }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-background overflow-hidden"
+          exit={{
+            y: "-100%",
+            transition: { duration: 1.35, ease: [0.16, 1, 0.3, 1] },
+          }}
+          className="fixed inset-0 z-[100] bg-background overflow-hidden"
         >
           {/* Ripple Background */}
-          <Ripple className="absolute inset-0" />
+          <Ripple
+            origin="top-left"
+            showOverlay={false}
+            mainCircleSize={560}
+            circleGap={120}
+            originOffsetX="-3.5rem"
+            originOffsetY="-3.5rem"
+            className="pointer-events-none absolute inset-0"
+          />
 
-          {/* Ambient glow blobs */}
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl animate-blob pointer-events-none" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full filter blur-3xl animate-blob animation-delay-2000 pointer-events-none" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full filter blur-3xl pointer-events-none" />
-
-          <div className="relative flex flex-col items-center gap-10 px-6 text-center">
-
+          <div className="fixed bottom-8 right-8 z-10 flex flex-col items-end gap-4 text-right">
             {/* Animated Pet GIF */}
             <div className="relative flex items-center justify-center">
               <motion.div
@@ -123,36 +129,45 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
               </motion.div>
             </div>
 
+            {/* Progress bar + percentage */}
+            <div className="flex w-[176px] flex-col items-end gap-2">
+              <div className="flex w-full items-center justify-end gap-[2px]">
+                {Array.from({ length: SEGMENT_COUNT }, (_, index) => {
+                  const isFilled = index < filledSegments;
+                  return (
+                    <div
+                      key={index}
+                      className={
+                        isFilled
+                          ? "h-2 flex-1 rounded-[2px] border border-primary/75 bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.22)]"
+                          : "h-2 flex-1 rounded-[2px] border border-border/35 bg-background"
+                      }
+                    />
+                  );
+                })}
+              </div>
+              <span className="text-[11px] font-mono font-semibold tabular-nums uppercase tracking-[0.24em] text-muted-foreground">
+                {displayPct}%
+              </span>
+            </div>
+
             {/* Language phrase */}
-            <div className="flex flex-col items-center gap-3 min-h-[120px] justify-center">
+            <div className="flex min-h-[3.2rem] w-[176px] items-start justify-end">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={phraseIndex}
-                  initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+                  initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -16, filter: "blur(6px)" }}
+                  exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
                   transition={{ duration: 0.28, ease: "easeOut" }}
                   dir={isRTL ? "rtl" : "ltr"}
-                  className="flex flex-col items-center gap-2"
+                  className="flex w-full justify-end"
                 >
-                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-none">
+                  <h1 className="max-w-[176px] text-[1.05rem] font-black leading-tight tracking-tight text-foreground sm:text-[1.15rem]">
                     {currentPhrase.text}
                   </h1>
                 </motion.div>
               </AnimatePresence>
-            </div>
-
-            {/* Progress bar + percentage */}
-            <div className="flex flex-col items-center gap-2 w-64">
-              <div className="w-full h-[4px] rounded-full bg-muted overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-primary via-secondary to-accent"
-                  style={{ width: barWidth }}
-                />
-              </div>
-              <span className="text-xs font-bold tabular-nums text-muted-foreground tracking-widest">
-                {displayPct}%
-              </span>
             </div>
           </div>
         </motion.div>

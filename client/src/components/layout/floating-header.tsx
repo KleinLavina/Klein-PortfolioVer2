@@ -14,10 +14,18 @@ import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { title: "About Me", href: "#about", icon: User, section: "about" },
+  { title: "About Me", href: "#home", icon: User, section: "about" },
   { title: "Projects", href: "#projects", icon: FolderGit2, section: "projects" },
   { title: "Contact Me", href: "#contact", icon: Mail, section: "contact" },
 ] as const;
+
+function isNavItemActive(section: (typeof navItems)[number]["section"], activeSection: string) {
+  if (section === "about") {
+    return activeSection !== "projects" && activeSection !== "contact";
+  }
+
+  return activeSection === section;
+}
 
 function ThemeToggle({
   compact = false,
@@ -62,9 +70,26 @@ function ThemeToggle({
           <span className="text-[11px] font-semibold text-muted-foreground transition-colors group-hover:text-foreground">
             {isDark ? "Dark" : "Light"}
           </span>
-          <span className="relative flex h-[18px] w-8 items-center rounded-full bg-border/55 px-0.5 transition-colors group-hover:bg-border/80">
+          <span
+            aria-hidden="true"
+            className={cn(
+              "h-5 w-px transition-colors",
+              isDark ? "bg-white/24 group-hover:bg-white/36" : "bg-black/24 group-hover:bg-black/38",
+            )}
+          />
+          <span
+            className={cn(
+              "relative flex h-[18px] w-8 items-center rounded-full px-0.5 transition-colors",
+              isDark
+                ? "border border-white/35 bg-border/55 group-hover:border-white/50 group-hover:bg-border/80"
+                : "border border-black/35 bg-border/55 group-hover:border-black/50 group-hover:bg-border/80",
+            )}
+          >
             <motion.span
-              className="h-3.5 w-3.5 rounded-full bg-primary shadow-md shadow-primary/35"
+              className={cn(
+                "h-3.5 w-3.5 rounded-full bg-primary shadow-md shadow-primary/35",
+                isDark ? "border border-white/40" : "border border-black/35",
+              )}
               animate={{ x: isDark ? 14 : 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
             />
@@ -150,7 +175,7 @@ export function FloatingHeader({
           >
             <nav className="hidden items-center gap-1.5 md:flex">
               {navItems.map((item) => {
-                const isActive = activeSection === item.section;
+                const isActive = isNavItemActive(item.section, activeSection);
                 const isContact = item.section === "contact";
                 return (
                   <a
@@ -160,7 +185,7 @@ export function FloatingHeader({
                       "group relative flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold transition-all duration-300",
                       isContact
                         ? isActive
-                          ? "border border-primary bg-primary/22 text-primary shadow-[0_0_24px_hsl(var(--primary)/0.18)] ring-1 ring-primary/30"
+                          ? "border border-primary bg-primary text-primary-foreground shadow-[0_16px_36px_-20px_hsl(var(--primary)/0.55)]"
                           : "border border-primary/60 bg-transparent text-primary shadow-[0_0_18px_hsl(var(--primary)/0.12)] hover:border-primary hover:bg-primary/12 hover:text-primary hover:shadow-[0_0_24px_hsl(var(--primary)/0.22)]"
                         : isActive
                         ? "bg-primary/14 text-primary border border-primary/20 shadow-[inset_0_1px_0_hsl(var(--primary)/0.08)]"
@@ -172,7 +197,7 @@ export function FloatingHeader({
                         "h-4 w-4 transition-colors",
                         isContact
                           ? isActive
-                            ? "text-primary"
+                            ? "text-primary-foreground"
                             : "text-primary group-hover:text-primary"
                           : isActive
                           ? "text-primary"
@@ -228,7 +253,7 @@ export function FloatingHeader({
               >
                 <div className="flex flex-col gap-1.5">
                   {navItems.map((item) => {
-                    const isActive = activeSection === item.section;
+                    const isActive = isNavItemActive(item.section, activeSection);
                     const isContact = item.section === "contact";
                     return (
                       <a
@@ -239,7 +264,7 @@ export function FloatingHeader({
                           "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-300",
                           isContact
                             ? isActive
-                              ? "border border-primary bg-primary/22 text-primary shadow-[0_0_18px_hsl(var(--primary)/0.16)] ring-1 ring-primary/25"
+                              ? "border border-primary bg-primary text-primary-foreground shadow-[0_16px_32px_-20px_hsl(var(--primary)/0.5)]"
                               : "border border-primary/60 bg-transparent text-primary hover:border-primary hover:bg-primary/12 hover:text-primary"
                             : isActive
                             ? "border border-primary/20 bg-primary/12 text-primary"
@@ -251,7 +276,7 @@ export function FloatingHeader({
                             "h-4 w-4",
                             isContact
                               ? isActive
-                                ? "text-primary"
+                                ? "text-primary-foreground"
                                 : "text-primary"
                               : isActive
                               ? "text-primary"

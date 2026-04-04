@@ -106,8 +106,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 const SECTION_REDIRECT_MAP: Record<string, { anchor: string; label: string }> = {
   identity: { anchor: "#home", label: "View Home" },
-  about: { anchor: "#about", label: "View About" },
-  values: { anchor: "#about", label: "View About" },
+  about: { anchor: "#home", label: "View Home" },
+  values: { anchor: "#home", label: "View Home" },
   "technical-skills": { anchor: "#skills", label: "View Skills" },
   "soft-skills": { anchor: "#skills", label: "View Skills" },
   projects: { anchor: "#projects", label: "View Projects" },

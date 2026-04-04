@@ -38,6 +38,7 @@ export function CustomCursor() {
   const rafRef = useRef<number | null>(null);
   const hiddenRef = useRef(true);
   const hoveredRef = useRef(false);
+  const invertedRef = useRef(false);
   const lastPointerRef = useRef({ x: -120, y: -120 });
 
   useEffect(() => {
@@ -53,6 +54,45 @@ export function CustomCursor() {
     const applyAppearance = () => {
       cursorEl.style.opacity = hiddenRef.current ? "0" : "1";
       scaleRef.current = hoveredRef.current ? HOVER_SCALE : DEFAULT_SCALE;
+      cursorEl.style.mixBlendMode = invertedRef.current ? "difference" : "normal";
+      cursorEl.style.setProperty(
+        "--cursor-fill",
+        invertedRef.current ? "rgb(255 255 255 / 0.16)" : "hsl(var(--primary) / 0.15)",
+      );
+      cursorEl.style.setProperty(
+        "--cursor-stroke",
+        invertedRef.current ? "rgb(255 255 255)" : "hsl(var(--primary))",
+      );
+      cursorEl.style.setProperty(
+        "--cursor-stroke-soft",
+        invertedRef.current ? "rgb(255 255 255 / 0.82)" : "hsl(var(--primary) / 0.82)",
+      );
+      cursorEl.style.setProperty(
+        "--cursor-shadow-strong",
+        invertedRef.current ? "rgb(255 255 255 / 0.98)" : "hsl(var(--primary) / 0.98)",
+      );
+      cursorEl.style.setProperty(
+        "--cursor-shadow-mid",
+        invertedRef.current ? "rgb(255 255 255 / 0.85)" : "hsl(var(--primary) / 0.85)",
+      );
+      cursorEl.style.setProperty(
+        "--cursor-shadow-soft",
+        invertedRef.current ? "rgb(255 255 255 / 0.42)" : "hsl(var(--primary) / 0.42)",
+      );
+      cursorEl.style.setProperty(
+        "--cursor-shadow-line",
+        invertedRef.current ? "rgb(255 255 255 / 0.4)" : "hsl(var(--primary) / 0.4)",
+      );
+    };
+
+    const updateInverted = (target: EventTarget | null) => {
+      const isOnContact =
+        target instanceof Element && Boolean(target.closest("#contact"));
+
+      if (invertedRef.current !== isOnContact) {
+        invertedRef.current = isOnContact;
+        applyAppearance();
+      }
     };
 
     const updateHovered = (target: EventTarget | null) => {
@@ -97,6 +137,7 @@ export function CustomCursor() {
       const prev = lastPointerRef.current;
       pos.current.x = e.clientX;
       pos.current.y = e.clientY;
+      updateInverted(e.target);
 
       const moveX = e.clientX - prev.x;
       const moveY = e.clientY - prev.y;
@@ -119,10 +160,12 @@ export function CustomCursor() {
 
     const onPointerOver = (e: PointerEvent) => {
       updateHovered(e.target);
+      updateInverted(e.target);
     };
 
     const onPointerOut = (e: PointerEvent) => {
       updateHovered(e.relatedTarget);
+      updateInverted(e.relatedTarget);
     };
 
     const onLeave = () => {
@@ -181,6 +224,14 @@ export function CustomCursor() {
       className="fixed top-0 left-0 pointer-events-none z-[9999] will-change-transform transform-gpu"
       style={{
         opacity: 0,
+        mixBlendMode: "normal",
+        ["--cursor-fill" as string]: "hsl(var(--primary) / 0.15)",
+        ["--cursor-stroke" as string]: "hsl(var(--primary))",
+        ["--cursor-stroke-soft" as string]: "hsl(var(--primary) / 0.82)",
+        ["--cursor-shadow-strong" as string]: "hsl(var(--primary) / 0.98)",
+        ["--cursor-shadow-mid" as string]: "hsl(var(--primary) / 0.85)",
+        ["--cursor-shadow-soft" as string]: "hsl(var(--primary) / 0.42)",
+        ["--cursor-shadow-line" as string]: "hsl(var(--primary) / 0.4)",
         transform: `translate3d(-120px, -120px, 0) translate(-${HEAD_OFFSET_X}px, -${HEAD_OFFSET_Y}px) rotate(${DEFAULT_ANGLE}deg) scale(1)`,
         transition: "opacity 0.15s ease-out",
       }}
@@ -188,7 +239,7 @@ export function CustomCursor() {
       <div
         className="absolute inset-0 rounded-full blur-xl"
         style={{
-          background: "hsl(var(--primary) / 0.15)",
+          background: "var(--cursor-fill)",
           transform: "translate(-1px, 1px) scale(0.78)",
         }}
       />
@@ -203,23 +254,23 @@ export function CustomCursor() {
         <path
           d="M4.25 4.4L24 14L4.25 23.6L9.15 14L4.25 4.4Z"
           fill="transparent"
-          stroke="hsl(var(--primary))"
+          stroke="var(--cursor-stroke)"
           strokeWidth="1.45"
           strokeLinejoin="round"
           strokeLinecap="round"
           style={{
             filter:
-              "drop-shadow(0 0 2px hsl(var(--primary) / 0.98)) drop-shadow(0 0 7px hsl(var(--primary) / 0.85)) drop-shadow(0 0 16px hsl(var(--primary) / 0.42))",
+              "drop-shadow(0 0 2px var(--cursor-shadow-strong)) drop-shadow(0 0 7px var(--cursor-shadow-mid)) drop-shadow(0 0 16px var(--cursor-shadow-soft))",
           }}
         />
         <path
           d="M9.1 14L18.25 14M9.1 14L6.1 8.2M9.1 14L6.1 19.8"
-          stroke="hsl(var(--primary) / 0.82)"
+          stroke="var(--cursor-stroke-soft)"
           strokeWidth="0.95"
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{
-            filter: "drop-shadow(0 0 6px hsl(var(--primary) / 0.4))",
+            filter: "drop-shadow(0 0 6px var(--cursor-shadow-line))",
           }}
         />
       </svg>

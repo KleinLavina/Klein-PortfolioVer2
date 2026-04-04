@@ -25,39 +25,36 @@ export function Shell({ children }: { children: ReactNode }) {
     const root = scrollRef.current;
     if (!root) return;
 
-    const trackedSectionIds = ["home", "about", "skills", "projects", "github", "contact"];
+    const trackedSectionIds = ["home", "skills", "github", "projects", "contact"];
     const sections = trackedSectionIds
       .map((id) => document.getElementById(id))
       .filter((section): section is HTMLElement => Boolean(section));
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleSections = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-        if (visibleSections[0]) {
-          setActiveSection(visibleSections[0].target.id);
-        }
-      },
-      {
-        root,
-        threshold: [0.12, 0.24, 0.4, 0.65],
-        rootMargin: "-18% 0px -18% 0px",
-      },
-    );
-
-    sections.forEach((section) => observer.observe(section));
-
     const onScroll = () => {
       setIsScrolled(root.scrollTop > 18);
+
+      const probe = root.scrollTop + root.clientHeight * 0.36;
+      let currentSection = sections[0]?.id ?? "home";
+
+      for (const section of sections) {
+        if (probe >= section.offsetTop) {
+          currentSection = section.id;
+        } else {
+          break;
+        }
+      }
+
+      if (root.scrollTop + root.clientHeight >= root.scrollHeight - 8) {
+        currentSection = sections[sections.length - 1]?.id ?? currentSection;
+      }
+
+      setActiveSection(currentSection);
     };
 
     onScroll();
     root.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      observer.disconnect();
       root.removeEventListener("scroll", onScroll);
     };
   }, []);
@@ -76,7 +73,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
       <main
         ref={scrollRef}
-        className="relative flex-1 overflow-y-auto scroll-smooth scroll-pt-28 w-full pt-24 md:scroll-pt-32 md:pt-28"
+        className="relative flex-1 overflow-y-auto scroll-smooth scroll-pt-20 w-full pt-16 md:scroll-pt-24 md:pt-20"
       >
         {children}
       </main>
