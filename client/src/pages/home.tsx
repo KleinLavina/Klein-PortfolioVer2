@@ -905,9 +905,7 @@ export default function Home() {
         </Section>
 
         {/* ─── GITHUB ──────────────────────────────────────────────────── */}
-        <Section id="github" className="!py-16">
-          <GithubContributions />
-        </Section>
+        <GithubContributions />
 
         <Section id="credentials" className="!min-h-0 py-20">
           <motion.div

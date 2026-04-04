@@ -1,0 +1,55 @@
+Read the existing codebase first and fully understand how the current “days i code” section is built before making any changes. Inspect the current component structure, styling approach, spacing system, typography, responsive behavior, and animation patterns already used in the project. Reuse the established design language and do not introduce a new visual style that clashes with the rest of the site.
+
+I want the “days i code” section to be upgraded into a premium pinned scroll section using React and GSAP. When the section enters the viewport, it should stay pinned for a controlled scroll duration instead of scrolling away immediately. During that pinned phase, decorative bubble elements in the background should animate upward with a parallax effect tied to scroll progress.
+
+This should not feel like random floating circles. The effect must feel intentional, layered, soft, cinematic, and polished. Each bubble should have a different size, different vertical travel distance, different movement speed, and different placement so the depth feels natural. The bubbles should behave like ambient background motion and must never overpower the actual section content.
+
+Use GSAP with ScrollTrigger for the pinned behavior and parallax motion. The animation should be driven by scroll progress, not a disconnected loop animation. The section should feel smooth and premium while remaining readable and performant.
+
+Requirements:
+
+* Keep the “days i code” content as the visual priority at all times
+* Pin the section using GSAP ScrollTrigger
+* Add multiple bubble elements as decorative background layers
+* Give every bubble a unique size, position, speed, and vertical movement range
+* Bubble movement must respond to scroll progress while the section is pinned
+* Create a layered parallax effect so some bubbles move slower and some faster
+* Keep the motion subtle, smooth, and refined rather than exaggerated
+* Ensure the text and main content always stay above the bubbles with proper layering
+* Preserve responsiveness across desktop, tablet, and mobile
+* Reduce or simplify the effect on smaller screens if needed for readability and performance
+* Do not rewrite the section from scratch if the existing structure can be enhanced cleanly
+* Keep the implementation maintainable and aligned with the project’s current architecture
+
+React and GSAP implementation expectations:
+
+* Use the existing React component for the “days i code” section and enhance it instead of rebuilding unrelated parts
+* Use refs properly for the section container and animated bubble elements
+* Use GSAP with ScrollTrigger inside a React-safe lifecycle pattern
+* Scope animations correctly so they only affect this section
+* Clean up all GSAP and ScrollTrigger instances on unmount to avoid memory leaks
+* Avoid brittle selectors that may affect other sections
+* Do not hardcode animation logic in a messy or unscalable way
+* Keep the code organized so bubble configuration can be adjusted easily later
+
+Visual direction:
+
+* The pinned section should feel immersive but not heavy
+* The bubbles should feel atmospheric, soft, and background-only
+* Bubble sizing should vary enough to create depth, but still look elegant
+* Motion should suggest gentle upward drift with parallax, not chaotic bouncing
+* The overall result should feel like a modern premium portfolio interaction
+
+Implementation guidance:
+
+* Read the current section first, then extend it carefully
+* Add a pinned scroll experience using ScrollTrigger
+* Generate or render multiple decorative bubbles within the section background
+* Assign each bubble its own movement behavior for a non-uniform parallax effect
+* Use z-index and positioning carefully so the content remains unobstructed
+* Match the current palette, opacity treatment, blur usage, and spacing already used in the codebase
+* Keep the final effect visually cohesive with the rest of the portfolio
+* Avoid duplicate logic, duplicate wrappers, or unnecessary structural changes
+
+Deliverable:
+Update the existing React “days i code” section into a GSAP-powered pinned parallax section where the content stays readable while multiple background bubbles move upward at different speeds, sizes, and distances based on scroll progress, fully integrated into the site’s current visual identity and frontend architecture.
