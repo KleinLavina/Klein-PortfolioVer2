@@ -1,5 +1,5 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
 import nodemailer from "nodemailer";
+import { query, queryOne } from "./db.ts";
 
 import type {
   AdminNotifyEmailInput,
@@ -7,14 +7,9 @@ import type {
   ContactSubmissionInput,
   ContactSubmissionStatus,
 } from "../shared/schema.ts";
-import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
 
 const CONTACT_DAILY_LIMIT = 3;
 const NOTIFY_EMAIL_SETTING_KEY = "notify_email";
-const LOCAL_SETTINGS_DIR = new URL("../.local/", import.meta.url);
-const LOCAL_NOTIFY_EMAIL_FILE = new URL("admin-settings.json", LOCAL_SETTINGS_DIR);
-const LOCAL_CONTACT_SUBMISSIONS_FILE = new URL("contact-submissions.json", LOCAL_SETTINGS_DIR);
-const LOCAL_CONTACT_USAGE_FILE = new URL("contact-usage.json", LOCAL_SETTINGS_DIR);
 
 type ContactSubmissionRow = {
   id: number;
@@ -48,19 +43,6 @@ function getBrevoFromAddress(): string {
   return fromName ? `"${fromName}" <${fromEmail}>` : fromEmail;
 }
 
-type LocalContactSubmissionStore = {
-  nextId: number;
-  submissions: ContactSubmission[];
-};
-
-type LocalContactUsageStore = {
-  entries: Array<{
-    clientKey: string;
-    dateKey: string;
-    usedCount: number;
-  }>;
-};
-
 function sanitizeText(input: string): string {
   return input
     .replace(/\u0000/g, "")
@@ -79,106 +61,6 @@ function getLocalDateKey(now: Date): string {
 
 function buildRateLimitKey(ipAddress: string, fingerprint: string): string {
   return `${ipAddress}::${fingerprint}`;
-}
-
-function isMissingSupabaseTable(error: unknown, tableName: string): boolean {
-  if (!(error instanceof Error)) return false;
-  const message = error.message.toLowerCase();
-  return (
-    message.includes(`public.${tableName}`.toLowerCase()) ||
-    message.includes(`table '${tableName}'`) ||
-    (message.includes("could not find the table") && message.includes(tableName)) ||
-    (message.includes("relation") && message.includes(tableName))
-  );
-}
-
-function isMissingSupabaseFunction(error: unknown, functionName: string): boolean {
-  if (!(error instanceof Error)) return false;
-  const message = error.message.toLowerCase();
-  return (
-    message.includes(functionName.toLowerCase()) &&
-    (message.includes("function") || message.includes("schema cache"))
-  );
-}
-
-function isMissingContactStorage(error: unknown): boolean {
-  return (
-    isMissingSupabaseTable(error, "contact_submissions") ||
-    isMissingSupabaseTable(error, "contact_daily_usage") ||
-    isMissingSupabaseFunction(error, "consume_contact_submission_limit")
-  );
-}
-
-function sortSubmissionsNewestFirst(submissions: ContactSubmission[]) {
-  return [...submissions].sort(
-    (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
-  );
-}
-
-async function readLocalJsonFile<T>(fileUrl: URL, fallback: T): Promise<T> {
-  try {
-    const raw = await readFile(fileUrl, "utf8");
-    return JSON.parse(raw) as T;
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") {
-      return fallback;
-    }
-    throw error;
-  }
-}
-
-async function writeLocalJsonFile<T>(fileUrl: URL, value: T): Promise<T> {
-  await mkdir(LOCAL_SETTINGS_DIR, { recursive: true });
-  await writeFile(fileUrl, JSON.stringify(value, null, 2), "utf8");
-  return value;
-}
-
-async function readLocalContactSubmissionStore(): Promise<LocalContactSubmissionStore> {
-  const store = await readLocalJsonFile<LocalContactSubmissionStore>(LOCAL_CONTACT_SUBMISSIONS_FILE, {
-    nextId: 1,
-    submissions: [],
-  });
-
-  return {
-    nextId: typeof store.nextId === "number" && Number.isFinite(store.nextId) ? store.nextId : 1,
-    submissions: Array.isArray(store.submissions) ? store.submissions : [],
-  };
-}
-
-async function writeLocalContactSubmissionStore(store: LocalContactSubmissionStore) {
-  return writeLocalJsonFile(LOCAL_CONTACT_SUBMISSIONS_FILE, store);
-}
-
-async function readLocalContactUsageStore(): Promise<LocalContactUsageStore> {
-  const store = await readLocalJsonFile<LocalContactUsageStore>(LOCAL_CONTACT_USAGE_FILE, {
-    entries: [],
-  });
-
-  return {
-    entries: Array.isArray(store.entries) ? store.entries : [],
-  };
-}
-
-async function writeLocalContactUsageStore(store: LocalContactUsageStore) {
-  return writeLocalJsonFile(LOCAL_CONTACT_USAGE_FILE, store);
-}
-
-async function readLocalNotifyEmail(): Promise<string> {
-  try {
-    const raw = await readFile(LOCAL_NOTIFY_EMAIL_FILE, "utf8");
-    const parsed = JSON.parse(raw) as { value?: unknown };
-    return typeof parsed.value === "string" ? parsed.value.trim() : "";
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") {
-      return "";
-    }
-    throw error;
-  }
-}
-
-async function writeLocalNotifyEmail(value: string): Promise<string> {
-  await writeLocalJsonFile(LOCAL_NOTIFY_EMAIL_FILE, { value });
-  return value;
 }
 
 function mapContactSubmissionRow(row: ContactSubmissionRow): ContactSubmission {
@@ -219,146 +101,49 @@ export function getClientIpAddress(headers: Record<string, unknown>): string {
 export async function consumeContactSubmissionQuota(ipAddress: string, fingerprint: string) {
   const dateKey = getLocalDateKey(new Date());
   const limiterKey = buildRateLimitKey(ipAddress, fingerprint);
-  try {
-    const supabase = getServerSupabase();
-    const result = await supabase.rpc("consume_contact_submission_limit", {
-      target_client_key: limiterKey,
-      date_key_input: dateKey,
-      daily_limit: CONTACT_DAILY_LIMIT,
-    });
 
-    const row = unwrapSupabaseResult(
-      Array.isArray(result.data) ? result.data[0] : result.data,
-      result.error,
-      "Failed to consume contact submission limit",
-    ) as { allowed: boolean; used_count: number } | null;
+  const row = await queryOne<{ allowed: boolean; used_count: number }>(
+    `SELECT * FROM public.consume_contact_submission_limit($1, $2, $3)`,
+    [limiterKey, dateKey, CONTACT_DAILY_LIMIT],
+  );
 
-    return {
-      allowed: row?.allowed ?? false,
-      usedCount: row?.used_count ?? CONTACT_DAILY_LIMIT,
-      limit: CONTACT_DAILY_LIMIT,
-    };
-  } catch (error) {
-    if (!isMissingContactStorage(error)) {
-      throw error;
-    }
-
-    const store = await readLocalContactUsageStore();
-    const existing = store.entries.find(
-      (entry) => entry.clientKey === limiterKey && entry.dateKey === dateKey,
-    );
-
-    if (!existing) {
-      store.entries.push({
-        clientKey: limiterKey,
-        dateKey,
-        usedCount: 1,
-      });
-      await writeLocalContactUsageStore(store);
-      return { allowed: true, usedCount: 1, limit: CONTACT_DAILY_LIMIT };
-    }
-
-    if (existing.usedCount >= CONTACT_DAILY_LIMIT) {
-      return {
-        allowed: false,
-        usedCount: existing.usedCount,
-        limit: CONTACT_DAILY_LIMIT,
-      };
-    }
-
-    existing.usedCount += 1;
-    await writeLocalContactUsageStore(store);
-    return {
-      allowed: true,
-      usedCount: existing.usedCount,
-      limit: CONTACT_DAILY_LIMIT,
-    };
-  }
+  return {
+    allowed: row?.allowed ?? false,
+    usedCount: row?.used_count ?? CONTACT_DAILY_LIMIT,
+    limit: CONTACT_DAILY_LIMIT,
+  };
 }
 
 export async function createContactSubmission(
   input: ContactSubmissionInput,
   ipAddress: string,
 ): Promise<ContactSubmission> {
-  const payload = {
-    full_name: sanitizeText(input.fullName),
-    email: sanitizeText(input.email).toLowerCase(),
-    message: sanitizeText(input.message),
-    fingerprint: sanitizeText(input.fingerprint),
-    ip_address: sanitizeText(ipAddress),
-    status: "unread" as const,
-  };
+  const row = await queryOne<ContactSubmissionRow>(
+    `INSERT INTO public.contact_submissions
+       (full_name, email, message, fingerprint, ip_address, status)
+     VALUES ($1, $2, $3, $4, $5, 'unread')
+     RETURNING *`,
+    [
+      sanitizeText(input.fullName),
+      sanitizeText(input.email).toLowerCase(),
+      sanitizeText(input.message),
+      sanitizeText(input.fingerprint),
+      sanitizeText(ipAddress),
+    ],
+  );
 
-  try {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("contact_submissions")
-      .insert(payload)
-      .select("*")
-      .single();
-
-    const row = unwrapSupabaseResult(
-      result.data as ContactSubmissionRow | null,
-      result.error,
-      "Failed to create contact submission",
-    );
-
-    if (!row) {
-      throw new Error("Failed to create contact submission: Supabase returned no row.");
-    }
-
-    return mapContactSubmissionRow(row);
-  } catch (error) {
-    if (!isMissingContactStorage(error)) {
-      throw error;
-    }
-
-    const store = await readLocalContactSubmissionStore();
-    const now = new Date().toISOString();
-    const submission: ContactSubmission = {
-      id: store.nextId,
-      fullName: payload.full_name,
-      email: payload.email,
-      message: payload.message,
-      fingerprint: payload.fingerprint,
-      ipAddress: payload.ip_address,
-      status: "unread",
-      createdAt: now,
-      readAt: null,
-      repliedAt: null,
-      updatedAt: now,
-    };
-
-    store.nextId += 1;
-    store.submissions.push(submission);
-    await writeLocalContactSubmissionStore(store);
-    return submission;
+  if (!row) {
+    throw new Error("Failed to create contact submission: no row returned.");
   }
+
+  return mapContactSubmissionRow(row);
 }
 
 export async function listContactSubmissions(): Promise<ContactSubmission[]> {
-  try {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("contact_submissions")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    const rows = unwrapSupabaseResult(
-      (result.data ?? []) as ContactSubmissionRow[],
-      result.error,
-      "Failed to load contact submissions",
-    );
-
-    return rows.map(mapContactSubmissionRow);
-  } catch (error) {
-    if (!isMissingContactStorage(error)) {
-      throw error;
-    }
-
-    const store = await readLocalContactSubmissionStore();
-    return sortSubmissionsNewestFirst(store.submissions);
-  }
+  const rows = await query<ContactSubmissionRow>(
+    `SELECT * FROM public.contact_submissions ORDER BY created_at DESC`,
+  );
+  return rows.map(mapContactSubmissionRow);
 }
 
 export async function updateContactSubmissionStatus(
@@ -366,141 +151,57 @@ export async function updateContactSubmissionStatus(
   status: ContactSubmissionStatus,
 ): Promise<ContactSubmission | null> {
   const now = new Date().toISOString();
-  const payload: Record<string, unknown> = { status };
 
-  if (status === "read") {
-    payload.read_at = now;
-  }
+  let sql: string;
+  let params: unknown[];
 
   if (status === "replied") {
-    payload.read_at = now;
-    payload.replied_at = now;
+    sql = `UPDATE public.contact_submissions
+           SET status = $1, read_at = $2, replied_at = $2, updated_at = $2
+           WHERE id = $3
+           RETURNING *`;
+    params = [status, now, id];
+  } else if (status === "read") {
+    sql = `UPDATE public.contact_submissions
+           SET status = $1, read_at = $2, updated_at = $2
+           WHERE id = $3
+           RETURNING *`;
+    params = [status, now, id];
+  } else {
+    sql = `UPDATE public.contact_submissions
+           SET status = $1, updated_at = $2
+           WHERE id = $3
+           RETURNING *`;
+    params = [status, now, id];
   }
 
-  try {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("contact_submissions")
-      .update(payload)
-      .eq("id", id)
-      .select("*")
-      .maybeSingle();
-
-    const row = unwrapSupabaseResult(
-      result.data as ContactSubmissionRow | null,
-      result.error,
-      "Failed to update contact submission status",
-    );
-
-    return row ? mapContactSubmissionRow(row) : null;
-  } catch (error) {
-    if (!isMissingContactStorage(error)) {
-      throw error;
-    }
-
-    const store = await readLocalContactSubmissionStore();
-    const index = store.submissions.findIndex((submission) => submission.id === id);
-    if (index < 0) {
-      return null;
-    }
-
-    const current = store.submissions[index]!;
-    const updated: ContactSubmission = {
-      ...current,
-      status,
-      readAt: status === "read" || status === "replied" ? now : current.readAt ?? null,
-      repliedAt: status === "replied" ? now : current.repliedAt ?? null,
-      updatedAt: now,
-    };
-    store.submissions[index] = updated;
-    await writeLocalContactSubmissionStore(store);
-    return updated;
-  }
+  const row = await queryOne<ContactSubmissionRow>(sql, params);
+  return row ? mapContactSubmissionRow(row) : null;
 }
 
 export async function deleteContactSubmission(id: number): Promise<void> {
-  try {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("contact_submissions")
-      .delete()
-      .eq("id", id);
-
-    unwrapSupabaseResult(result.data, result.error, "Failed to delete contact submission");
-  } catch (error) {
-    if (!isMissingContactStorage(error)) {
-      throw error;
-    }
-
-    const store = await readLocalContactSubmissionStore();
-    store.submissions = store.submissions.filter((submission) => submission.id !== id);
-    await writeLocalContactSubmissionStore(store);
-  }
+  await query(`DELETE FROM public.contact_submissions WHERE id = $1`, [id]);
 }
 
 export async function getNotifyEmail(): Promise<string> {
-  try {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("admin_settings")
-      .select("value_text")
-      .eq("setting_key", NOTIFY_EMAIL_SETTING_KEY)
-      .maybeSingle();
-
-    const row = unwrapSupabaseResult(
-      result.data as { value_text: string | null } | null,
-      result.error,
-      "Failed to load notify email setting",
-    );
-
-    return (
-      row?.value_text?.trim() ||
-      process.env.NOTIFY_EMAIL?.trim() ||
-      ""
-    );
-  } catch (error) {
-    if (!isMissingSupabaseTable(error, "admin_settings")) {
-      throw error;
-    }
-
-    return (
-      (await readLocalNotifyEmail()) ||
-      process.env.NOTIFY_EMAIL?.trim() ||
-      ""
-    );
-  }
+  const row = await queryOne<{ value_text: string | null }>(
+    `SELECT value_text FROM public.admin_settings WHERE setting_key = $1`,
+    [NOTIFY_EMAIL_SETTING_KEY],
+  );
+  return row?.value_text?.trim() || process.env.NOTIFY_EMAIL?.trim() || "";
 }
 
 export async function updateNotifyEmailSetting(input: AdminNotifyEmailInput): Promise<string> {
   const value = sanitizeText(input.value).toLowerCase();
-  try {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("admin_settings")
-      .upsert(
-        {
-          setting_key: NOTIFY_EMAIL_SETTING_KEY,
-          value_text: value,
-        },
-        { onConflict: "setting_key" },
-      )
-      .select("value_text")
-      .single();
 
-    const row = unwrapSupabaseResult(
-      result.data as { value_text: string } | null,
-      result.error,
-      "Failed to update notify email setting",
-    );
+  await query(
+    `INSERT INTO public.admin_settings (setting_key, value_text)
+     VALUES ($1, $2)
+     ON CONFLICT (setting_key) DO UPDATE SET value_text = EXCLUDED.value_text, updated_at = timezone('utc', now())`,
+    [NOTIFY_EMAIL_SETTING_KEY, value],
+  );
 
-    return row?.value_text ?? value;
-  } catch (error) {
-    if (!isMissingSupabaseTable(error, "admin_settings")) {
-      throw error;
-    }
-
-    return writeLocalNotifyEmail(value);
-  }
+  return value;
 }
 
 function buildBrevoTransportConfig() {
@@ -508,8 +209,6 @@ function buildBrevoTransportConfig() {
   const port = Number(process.env.BREVO_SMTP_PORT?.trim() || "587");
   const user = process.env.BREVO_SMTP_USER?.trim();
   const pass = process.env.BREVO_SMTP_PASS?.trim();
-  const secure = false;
-  const tls: Record<string, unknown> | undefined = undefined;
 
   if (!user || !pass) {
     throw new Error("Brevo SMTP is not configured. Set BREVO_SMTP_USER and BREVO_SMTP_PASS.");
@@ -518,8 +217,7 @@ function buildBrevoTransportConfig() {
   return {
     host,
     port,
-    secure,
-    tls,
+    secure: false,
     auth: { user, pass },
   };
 }
@@ -539,7 +237,6 @@ function logBrevoSendError(error: unknown, context: string) {
       command: record.command,
       response: record.response,
       responseCode: record.responseCode,
-      stack: record.stack,
     });
   }
 }
@@ -562,12 +259,7 @@ async function sendWithBrevoTransport(
       );
     }
 
-    return {
-      messageId: info.messageId,
-      accepted,
-      rejected,
-      response,
-    };
+    return { messageId: info.messageId, accepted, rejected, response };
   } catch (error) {
     logBrevoSendError(error, `${context} sendMail() failure`);
     throw error;
@@ -579,21 +271,26 @@ export async function sendContactNotification(
   notifyEmail: string,
 ): Promise<ContactDeliveryResult> {
   if (!notifyEmail.trim()) {
-    throw new Error("Notify email is not configured. Set NOTIFY_EMAIL or save one in admin settings.");
+    throw new Error(
+      "Notify email is not configured. Set NOTIFY_EMAIL or save one in admin settings.",
+    );
   }
 
-  return sendWithBrevoTransport({
-    from: getBrevoFromAddress(),
-    to: notifyEmail,
-    replyTo: submission.email,
-    subject: `New Message from ${submission.fullName} - Klein Portfolio`,
-    text: [
-      `Name: ${submission.fullName}`,
-      `Email: ${submission.email}`,
-      `Message: ${submission.message}`,
-      `Sent at: ${submission.createdAt}`,
-    ].join("\n"),
-  }, "contact notification");
+  return sendWithBrevoTransport(
+    {
+      from: getBrevoFromAddress(),
+      to: notifyEmail,
+      replyTo: submission.email,
+      subject: `New Message from ${submission.fullName} - Klein Portfolio`,
+      text: [
+        `Name: ${submission.fullName}`,
+        `Email: ${submission.email}`,
+        `Message: ${submission.message}`,
+        `Sent at: ${submission.createdAt}`,
+      ].join("\n"),
+    },
+    "contact notification",
+  );
 }
 
 export async function sendBrevoDirectTestEmail(to: string): Promise<ContactDeliveryResult> {

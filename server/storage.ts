@@ -1,12 +1,12 @@
-import {
-  type Achievement,
-  type InsertAchievement,
-  type InsertMessage,
-  type InsertProject,
-  type Message,
-  type Project,
+import { query, queryOne } from "./db.ts";
+import type {
+  Achievement,
+  InsertAchievement,
+  InsertMessage,
+  InsertProject,
+  Message,
+  Project,
 } from "../shared/schema.ts";
-import { getServerSupabase, unwrapSupabaseResult } from "./supabase.ts";
 
 type MessageRow = {
   id: number;
@@ -73,129 +73,67 @@ export interface IStorage {
   createAchievement(achievement: InsertAchievement): Promise<Achievement>;
 }
 
-export class SupabaseStorage implements IStorage {
+export class PostgresStorage implements IStorage {
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("messages")
-      .insert({
-        name: insertMessage.name,
-        email: insertMessage.email,
-        message: insertMessage.message,
-      })
-      .select("*")
-      .single();
-
-    const row = unwrapSupabaseResult(
-      result.data as MessageRow | null,
-      result.error,
-      "Failed to create message",
+    const row = await queryOne<MessageRow>(
+      `INSERT INTO public.messages (name, email, message)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [insertMessage.name, insertMessage.email, insertMessage.message],
     );
-    if (!row) {
-      throw new Error("Failed to create message: Supabase returned no row.");
-    }
-
+    if (!row) throw new Error("Failed to create message: no row returned.");
     return mapMessageRow(row);
   }
 
   async getMessages(): Promise<Message[]> {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("messages")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    const rows = unwrapSupabaseResult(
-      (result.data ?? []) as MessageRow[],
-      result.error,
-      "Failed to load messages",
+    const rows = await query<MessageRow>(
+      `SELECT * FROM public.messages ORDER BY created_at DESC`,
     );
-
     return rows.map(mapMessageRow);
   }
 
   async getProjects(): Promise<Project[]> {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("projects")
-      .select("*")
-      .order("id", { ascending: true });
-
-    const rows = unwrapSupabaseResult(
-      (result.data ?? []) as ProjectRow[],
-      result.error,
-      "Failed to load projects",
+    const rows = await query<ProjectRow>(
+      `SELECT * FROM public.projects ORDER BY id ASC`,
     );
-
     return rows.map(mapProjectRow);
   }
 
   async createProject(insertProject: InsertProject): Promise<Project> {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("projects")
-      .insert({
-        title: insertProject.title,
-        description: insertProject.description,
-        thumbnail: insertProject.thumbnail,
-        tech_stack: insertProject.techStack,
-        live_url: insertProject.liveUrl ?? null,
-        github_url: insertProject.githubUrl ?? null,
-      })
-      .select("*")
-      .single();
-
-    const row = unwrapSupabaseResult(
-      result.data as ProjectRow | null,
-      result.error,
-      "Failed to create project",
+    const row = await queryOne<ProjectRow>(
+      `INSERT INTO public.projects (title, description, thumbnail, tech_stack, live_url, github_url)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [
+        insertProject.title,
+        insertProject.description,
+        insertProject.thumbnail,
+        JSON.stringify(insertProject.techStack),
+        insertProject.liveUrl ?? null,
+        insertProject.githubUrl ?? null,
+      ],
     );
-    if (!row) {
-      throw new Error("Failed to create project: Supabase returned no row.");
-    }
-
+    if (!row) throw new Error("Failed to create project: no row returned.");
     return mapProjectRow(row);
   }
 
   async getAchievements(): Promise<Achievement[]> {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("achievements")
-      .select("*")
-      .order("id", { ascending: true });
-
-    const rows = unwrapSupabaseResult(
-      (result.data ?? []) as AchievementRow[],
-      result.error,
-      "Failed to load achievements",
+    const rows = await query<AchievementRow>(
+      `SELECT * FROM public.achievements ORDER BY id ASC`,
     );
-
     return rows.map(mapAchievementRow);
   }
 
   async createAchievement(insertAchievement: InsertAchievement): Promise<Achievement> {
-    const supabase = getServerSupabase();
-    const result = await supabase
-      .from("achievements")
-      .insert({
-        title: insertAchievement.title,
-        description: insertAchievement.description,
-        date: insertAchievement.date,
-      })
-      .select("*")
-      .single();
-
-    const row = unwrapSupabaseResult(
-      result.data as AchievementRow | null,
-      result.error,
-      "Failed to create achievement",
+    const row = await queryOne<AchievementRow>(
+      `INSERT INTO public.achievements (title, description, date)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [insertAchievement.title, insertAchievement.description, insertAchievement.date],
     );
-    if (!row) {
-      throw new Error("Failed to create achievement: Supabase returned no row.");
-    }
-
+    if (!row) throw new Error("Failed to create achievement: no row returned.");
     return mapAchievementRow(row);
   }
 }
 
-export const storage = new SupabaseStorage();
+export const storage = new PostgresStorage();
