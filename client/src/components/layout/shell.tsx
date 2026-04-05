@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { ScrollWave } from "@/components/ui/scroll-wave";
-import { CustomCursor } from "@/components/ui/custom-cursor";
 import { ScrollSnake } from "@/components/ui/scroll-snake";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { FloatingHeader } from "./floating-header";
@@ -66,7 +65,6 @@ export function Shell({ children }: { children: ReactNode }) {
         style={{ scaleX }}
       />
 
-      <CustomCursor />
       <ScrollWave />
       <ScrollSnake />
       <FloatingHeader activeSection={activeSection} isScrolled={isScrolled} />

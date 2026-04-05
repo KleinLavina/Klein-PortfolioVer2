@@ -28,7 +28,7 @@ export default function ProjectsPage() {
         className="fixed inset-0 z-0 transition-opacity duration-500 ease-out"
         style={{ opacity: "var(--ambient-bg-opacity, 1)" }}
       >
-        <BubbleBackground interactive className="h-full w-full" />
+        <BubbleBackground className="h-full w-full" />
       </div>
 
       <div className="pointer-events-none fixed inset-x-0 top-4 z-50 px-2.5 sm:top-5 sm:px-6">

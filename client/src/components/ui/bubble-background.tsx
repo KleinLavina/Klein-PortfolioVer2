@@ -11,35 +11,8 @@ function BubbleBackground({
   interactive = false,
   ...props
 }: BubbleBackgroundProps) {
-  const containerRef = React.useRef<HTMLDivElement>(null);
-  const blobRef = React.useRef<HTMLDivElement>(null);
-  const rafIdRef = React.useRef<number | null>(null);
-
-  React.useEffect(() => {
-    if (!interactive) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = requestAnimationFrame(() => {
-        if (blobRef.current && containerRef.current) {
-          const rect = containerRef.current.getBoundingClientRect();
-          const x = e.clientX - rect.left - rect.width / 2;
-          const y = e.clientY - rect.top - rect.height / 2;
-          blobRef.current.style.transform = `translate(${x * 0.08}px, ${y * 0.08}px) translateZ(0)`;
-        }
-      });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
-    };
-  }, [interactive]);
-
   return (
     <div
-      ref={containerRef}
       data-slot="bubble-background"
       className={cn('relative size-full overflow-hidden bg-background', className)}
       style={{ contain: 'layout style paint' }}
@@ -63,7 +36,6 @@ function BubbleBackground({
         .blob-1 { animation: blob-drift-1 28s ease-in-out infinite; will-change: transform; }
         .blob-2 { animation: blob-drift-2 22s ease-in-out infinite; will-change: transform; animation-delay: -8s; }
         .blob-3 { animation: blob-drift-3 36s ease-in-out infinite; will-change: transform; animation-delay: -14s; }
-        .blob-interactive { transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); will-change: transform; }
       `}</style>
 
       <div
@@ -101,19 +73,7 @@ function BubbleBackground({
             background: 'radial-gradient(circle at center, rgba(90,141,219,0.5) 0%, transparent 70%)',
           }}
         />
-        {interactive && (
-          <div
-            ref={blobRef}
-            className="blob-interactive absolute rounded-full"
-            style={{
-              width: '50%',
-              height: '50%',
-              top: '25%',
-              left: '25%',
-              background: 'radial-gradient(circle at center, rgba(53,211,97,0.35) 0%, transparent 70%)',
-            }}
-          />
-        )}
+        {interactive ? null : null}
       </div>
 
       <div className="relative z-10 size-full">

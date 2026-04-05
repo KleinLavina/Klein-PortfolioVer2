@@ -49,7 +49,7 @@ import { Section } from "@/components/ui/section";
 import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { GithubContributions } from "@/components/github-contributions";
 import { FloatingChat } from "@/components/floating-chat";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 import {
@@ -389,6 +389,7 @@ export default function Home() {
   const currentYear = new Date().getFullYear();
   const mag1 = useMagnetic(0.3);
   const mag2 = useMagnetic(0.3);
+  const contactEntryControls = useAnimationControls();
 
   // Function to toggle project description expansion
   const toggleProjectExpansion = (projectId: number) => {
@@ -473,6 +474,21 @@ export default function Home() {
     });
   }, []);
 
+  useEffect(() => {
+    const triggerContactEntry = () => {
+      void contactEntryControls.set({ opacity: 0.56 });
+      void contactEntryControls.start({
+        opacity: 1,
+        transition: { duration: 0.28, ease: "easeOut" },
+      });
+    };
+
+    window.addEventListener("portfolio:navigate-contact", triggerContactEntry);
+    return () => {
+      window.removeEventListener("portfolio:navigate-contact", triggerContactEntry);
+    };
+  }, [contactEntryControls]);
+
   const handleContactSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (typeof window === "undefined") return;
@@ -537,7 +553,7 @@ export default function Home() {
         className="fixed inset-0 z-0 transition-opacity duration-500 ease-out"
         style={{ opacity: "var(--ambient-bg-opacity, 1)" }}
       >
-        <BubbleBackground interactive className="w-full h-full" />
+        <BubbleBackground className="w-full h-full" />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 pb-4 sm:px-8 sm:pb-8 lg:px-12 lg:pb-12 relative z-10">
@@ -1358,7 +1374,11 @@ export default function Home() {
         </div>
 
         {/* Contact body */}
-        <div className="relative bg-primary overflow-hidden -mt-1">
+        <motion.div
+          initial={false}
+          animate={contactEntryControls}
+          className="relative bg-primary overflow-hidden -mt-1"
+        >
           <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-12 pt-20 pb-20">
             <div className="grid grid-cols-1 gap-12 items-start lg:grid-cols-2 lg:gap-16">
 
@@ -1474,7 +1494,7 @@ export default function Home() {
                         name="fullName"
                         type="text"
                         placeholder="Your full name"
-                        className="h-[3.25rem] w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        className="h-[3.25rem] w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-primary outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-primary dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
                         required
                       />
                     </div>
@@ -1488,7 +1508,7 @@ export default function Home() {
                         name="email"
                         type="email"
                         placeholder="your@email.com"
-                        className="h-[3.25rem] w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        className="h-[3.25rem] w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-primary outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-primary dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
                         required
                       />
                     </div>
@@ -1502,7 +1522,7 @@ export default function Home() {
                         name="message"
                         placeholder="Tell me about your project or reason for reaching out..."
                         rows={5}
-                        className="w-full resize-none rounded-[1.5rem] border border-neutral-300 bg-neutral-100 px-4 py-3.5 text-sm font-medium leading-7 text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        className="w-full resize-none rounded-[1.5rem] border border-neutral-300 bg-neutral-100 px-4 py-3.5 text-sm font-medium leading-7 text-primary outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-primary dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
                         required
                       />
                     </div>
@@ -1548,7 +1568,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </Section>
       
       <AnimatePresence>

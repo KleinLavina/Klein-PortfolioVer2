@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LoadingBlocker } from "@/components/loading-blocker";
+import { CustomCursor } from "@/components/ui/custom-cursor";
 import { useState, useEffect, useCallback } from "react";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
@@ -46,6 +47,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" storageKey="portfolio-theme">
         <TooltipProvider>
+          {!isAdminRoute && <CustomCursor />}
           {!isAdminRoute && (
             <LoadingBlocker isLoaded={isLoaded} onComplete={handleComplete} />
           )}

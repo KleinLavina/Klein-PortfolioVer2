@@ -701,7 +701,10 @@ export async function registerRoutes(
           field: err.errors[0].path.join("."),
         });
       }
-      throw err;
+      console.error("Visitor tracking failed:", err);
+      return res.json({
+        count: 0,
+      });
     }
   });
   

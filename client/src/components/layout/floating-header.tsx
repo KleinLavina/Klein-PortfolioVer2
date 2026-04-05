@@ -7,6 +7,7 @@ import {
   User,
 } from "lucide-react";
 import { useLocation } from "wouter";
+import type { MouseEvent } from "react";
 
 import { useTheme } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
@@ -109,6 +110,36 @@ export function FloatingHeader({
   const isOnContactSection = activeSection === "contact";
   const homeHrefPrefix = location === "/" ? "" : "/";
 
+  const handleNavClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    item: (typeof navItems)[number],
+  ) => {
+    if (location !== "/" || item.section !== "contact") {
+      return;
+    }
+
+    event.preventDefault();
+
+    const target = document.getElementById("contact");
+    const scrollRoot = document.querySelector("main");
+    if (!(target instanceof HTMLElement) || !(scrollRoot instanceof HTMLElement)) {
+      return;
+    }
+
+    const headerOffset = 88;
+    const top = Math.max(0, target.offsetTop - headerOffset);
+
+    const previousScrollBehavior = scrollRoot.style.scrollBehavior;
+    scrollRoot.style.scrollBehavior = "auto";
+    scrollRoot.scrollTop = top;
+    window.requestAnimationFrame(() => {
+      scrollRoot.style.scrollBehavior = previousScrollBehavior;
+    });
+
+    window.history.replaceState(null, "", "#contact");
+    window.dispatchEvent(new CustomEvent("portfolio:navigate-contact"));
+  };
+
   return (
     <div className="pointer-events-none fixed inset-x-0 top-4 z-40 flex justify-center px-2.5 sm:top-5 sm:px-6">
       <motion.div
@@ -147,10 +178,11 @@ export function FloatingHeader({
                   const isContact = item.section === "contact";
                   return (
                     <a
-                    key={item.title}
-                    href={`${homeHrefPrefix}${item.href}`}
-                    aria-label={item.title}
-                    title={item.title}
+                      key={item.title}
+                      href={`${homeHrefPrefix}${item.href}`}
+                      aria-label={item.title}
+                      title={item.title}
+                      onClick={(event) => handleNavClick(event, item)}
                       className={cn(
                         "group relative flex h-11 min-w-0 items-center justify-center gap-2 rounded-full px-0 text-sm font-semibold transition-all duration-300",
                         "w-11 sm:w-auto sm:px-3.5 md:px-4",

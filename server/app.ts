@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import { createServer } from "http";
+import { validateEnvironment } from "./env.ts";
 import { registerRoutes } from "./routes.ts";
 import { serveStatic } from "./static.ts";
 
@@ -25,6 +26,8 @@ export function log(message: string, source = "express") {
 type ClientMode = "development" | "production" | "none";
 
 export async function createApp(clientMode: ClientMode) {
+  await validateEnvironment();
+
   const app = express();
   const httpServer = createServer(app);
 
