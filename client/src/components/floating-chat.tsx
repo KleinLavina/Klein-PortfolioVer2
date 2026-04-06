@@ -42,6 +42,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import type { ChatAction } from "@shared/schema";
+import { smoothScrollToTarget } from "@/lib/smooth-scroll";
 import { cn } from "@/lib/utils";
 
 type TechEntry = { icon: IconDefinition; color: string };
@@ -621,7 +622,7 @@ export function FloatingChat() {
 
     requestAnimationFrame(() => {
       if (target instanceof HTMLElement) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        smoothScrollToTarget(target, { durationMs: 720, offset: 88 });
       }
     });
   };

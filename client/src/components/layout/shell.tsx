@@ -9,6 +9,8 @@ export function Shell({ children }: { children: ReactNode }) {
   const scrollRef = useRef<HTMLElement>(null);
   const [activeSection, setActiveSection] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
+  const activeSectionRef = useRef("home");
+  const isScrolledRef = useRef(false);
   const { scrollYProgress } = useScroll({
     container: scrollRef
   });
@@ -23,38 +25,55 @@ export function Shell({ children }: { children: ReactNode }) {
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
+    let frameId: number | null = null;
 
     const trackedSectionIds = ["home", "skills", "github", "projects", "contact"];
     const sections = trackedSectionIds
       .map((id) => document.getElementById(id))
       .filter((section): section is HTMLElement => Boolean(section));
 
-    const onScroll = () => {
-      setIsScrolled(root.scrollTop > 18);
+    const updateScrollState = () => {
+      frameId = null;
+      const nextIsScrolled = root.scrollTop > 18;
+      if (nextIsScrolled !== isScrolledRef.current) {
+        isScrolledRef.current = nextIsScrolled;
+        setIsScrolled(nextIsScrolled);
+      }
 
       const probe = root.scrollTop + root.clientHeight * 0.36;
-      let currentSection = sections[0]?.id ?? "home";
+      let nextSection = sections[0]?.id ?? "home";
 
       for (const section of sections) {
         if (probe >= section.offsetTop) {
-          currentSection = section.id;
+          nextSection = section.id;
         } else {
           break;
         }
       }
 
       if (root.scrollTop + root.clientHeight >= root.scrollHeight - 8) {
-        currentSection = sections[sections.length - 1]?.id ?? currentSection;
+        nextSection = sections[sections.length - 1]?.id ?? nextSection;
       }
 
-      setActiveSection(currentSection);
+      if (nextSection !== activeSectionRef.current) {
+        activeSectionRef.current = nextSection;
+        setActiveSection(nextSection);
+      }
     };
 
-    onScroll();
+    const onScroll = () => {
+      if (frameId !== null) return;
+      frameId = window.requestAnimationFrame(updateScrollState);
+    };
+
+    updateScrollState();
     root.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
       root.removeEventListener("scroll", onScroll);
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
+      }
     };
   }, []);
 

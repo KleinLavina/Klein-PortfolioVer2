@@ -1,5 +1,6 @@
 import { motion, AnimatePresence, useMotionValue, animate } from "framer-motion";
 import { useEffect, useState, useMemo } from "react";
+import { LoadingBlockerMorph } from "@/components/loading-blocker-morph";
 import Ripple from "@/components/ui/ripple";
 
 const HELLO_WORLD_PHRASES = [
@@ -110,6 +111,8 @@ export function LoadingBlocker({ isLoaded, onComplete }: Props) {
             originOffsetY="-3.5rem"
             className="pointer-events-none absolute inset-0"
           />
+
+          <LoadingBlockerMorph />
 
           <div className="fixed bottom-8 right-8 z-10 flex flex-col items-end gap-4 text-right">
             {/* Animated Pet GIF */}

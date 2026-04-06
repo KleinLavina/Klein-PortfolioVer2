@@ -73,6 +73,7 @@ type GeminiGenerateResponse = {
 const DAILY_CHAT_LIMIT = 8;
 const GITHUB_FETCH_TIMEOUT_MS = 8000;
 const GEMINI_FETCH_TIMEOUT_MS = 20000;
+const SUPABASE_RPC_TIMEOUT_MS = 8000;
 const CHAT_FORMATTER_INSTRUCTIONS = [
   "RESPONSE FORMAT RULES — follow these exactly:",
   "1. Write clean, well-structured explanations with natural sentence flow.",
@@ -87,6 +88,29 @@ const CHAT_FORMATTER_INSTRUCTIONS = [
 
 function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === "AbortError";
+}
+
+function isDatabaseUnavailableError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+
+  const message = error.message.toLowerCase();
+  const code =
+    typeof (error as { code?: unknown }).code === "string"
+      ? String((error as { code?: string }).code).toUpperCase()
+      : "";
+
+  return (
+    code === "XX000" ||
+    message.includes("circuit breaker open") ||
+    message.includes("connection terminated unexpectedly") ||
+    message.includes("dbhandler exited") ||
+    message.includes("unable to establish connection to upstream database")
+  );
+}
+
+function logSeedSkip(scope: string, error: unknown) {
+  const reason = error instanceof Error ? error.message : String(error);
+  console.warn(`[seed] Skipping ${scope}: ${reason}`);
 }
 
 async function fetchWithTimeout(
@@ -150,13 +174,62 @@ async function tryConsumeDailyMessage(clientId: string): Promise<{
   };
 }
 
-async function trackUniqueLifetimeVisitor(visitorId: string): Promise<number> {
-  const row = await queryOne<{ track_unique_lifetime_visitor: number }>(
-    `SELECT public.track_unique_lifetime_visitor($1)`,
-    [visitorId],
-  );
-  const val = row?.track_unique_lifetime_visitor;
-  return typeof val === "number" ? val : Number(val ?? 0);
+export async function trackUniqueLifetimeVisitor(visitorId: string): Promise<number> {
+  try {
+    await query(
+      `INSERT INTO public.visitor_lifetime (visitor_id)
+       VALUES ($1)
+       ON CONFLICT (visitor_id) DO NOTHING`,
+      [visitorId],
+    );
+    const row = await queryOne<{ count: number | string }>(
+      `SELECT COUNT(*)::integer AS count FROM public.visitor_lifetime`,
+    );
+    return Number(row?.count ?? 0);
+  } catch (error) {
+    const supabaseUrl =
+      process.env.SUPABASE_URL?.trim() ||
+      process.env.VITE_SUPABASE_URL?.trim();
+    const supabaseClientKey =
+      process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+      process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim() ||
+      process.env.VITE_SUPABASE_ANON_KEY?.trim();
+
+    if (!supabaseUrl || !supabaseClientKey) {
+      throw error;
+    }
+
+    const response = await fetchWithTimeout(
+      `${supabaseUrl}/rest/v1/rpc/track_unique_lifetime_visitor`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: supabaseClientKey,
+          Authorization: `Bearer ${supabaseClientKey}`,
+        },
+        body: JSON.stringify({
+          target_visitor_id: visitorId,
+        }),
+      },
+      SUPABASE_RPC_TIMEOUT_MS,
+    );
+
+    if (!response.ok) {
+      const details = await response.text();
+      throw new Error(
+        `Supabase visitor RPC failed (${response.status}): ${details}`,
+      );
+    }
+
+    const raw = (await response.text()).trim();
+    const count = Number(raw);
+    if (!Number.isFinite(count)) {
+      throw new Error(`Supabase visitor RPC returned a non-numeric count: ${raw}`);
+    }
+
+    return count;
+  }
 }
 
 function toGeminiHistory(history: ChatHistoryItem[]): GeminiContent[] {
@@ -702,8 +775,8 @@ export async function registerRoutes(
         });
       }
       console.error("Visitor tracking failed:", err);
-      return res.json({
-        count: 0,
+      return res.status(503).json({
+        message: "Visitor tracking is unavailable.",
       });
     }
   });
@@ -895,14 +968,33 @@ export async function registerRoutes(
     }
   }
 
-  // Call seed functions
-  void seedDatabase();
-  void seedChatbotContent().catch((error) => {
-    console.error("Error seeding chatbot content", error);
-  });
-  void seedPortfolioMemory().catch((error) => {
-    console.error("Error seeding portfolio memory", error);
-  });
+  async function runStartupSeeds() {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[seed] Skipping automatic startup seeding in development.");
+      return;
+    }
+
+    const tasks: Array<{ label: string; run: () => Promise<void> }> = [
+      { label: "database", run: seedDatabase },
+      { label: "chatbot content", run: seedChatbotContent },
+      { label: "portfolio memory", run: seedPortfolioMemory },
+    ];
+
+    for (const task of tasks) {
+      try {
+        await task.run();
+      } catch (error) {
+        if (isDatabaseUnavailableError(error)) {
+          logSeedSkip(task.label, error);
+          continue;
+        }
+
+        console.error(`Error seeding ${task.label}`, error);
+      }
+    }
+  }
+
+  void runStartupSeeds();
 
   return httpServer;
 }

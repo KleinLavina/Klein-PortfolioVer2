@@ -13,17 +13,12 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24;
 const FALLBACK_SYSTEM_PROMPT =
   "You are Klein F. Lavina's portfolio AI assistant. Answer only about Klein's work, projects, skills, achievements, services, and contact process. When the user asks for portfolio facts, prefer calling tools instead of guessing. If data is unavailable, say so clearly.\n\nRESPONSE FORMAT RULES - follow these exactly:\n1. Write clean, well-structured prose. Separate distinct sections with a blank line. Keep sentences clear and professional.\n2. Never include raw URLs or hyperlinks in your text. Links are rendered automatically as separate action buttons below your reply. Instead, reference them naturally (e.g. \"You can check it below\" or \"See the links below for details\").\n3. For tech stacks, tools, or technologies - list each item using this exact marker syntax: [tech:Name]. Place all tech markers together on their own dedicated line, space-separated. Example line: [tech:React] [tech:TypeScript] [tech:Node.js]\n4. Keep responses concise - aim for 3 to 6 sentences unless a detailed breakdown is explicitly requested.\n5. Always use available portfolio tools when asked for specific facts.";
 
-function getAdminPassword(): string {
+export function getAdminPassword(): string {
   const configured = process.env.ADMIN_PASSWORD?.trim();
   if (configured) {
     return configured;
   }
-
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("ADMIN_PASSWORD is required in production.");
-  }
-
-  return "admin";
+  throw new Error("ADMIN_PASSWORD is required.");
 }
 
 type ChatbotContentRow = {

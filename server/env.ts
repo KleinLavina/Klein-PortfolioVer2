@@ -46,18 +46,20 @@ function parseDatabaseHostname(connectionString: string): string {
 
 function validateFrontendSupabaseEnv(warnings: string[]) {
   const url = process.env.VITE_SUPABASE_URL?.trim();
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY?.trim();
+  const clientKey =
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim() ||
+    process.env.VITE_SUPABASE_ANON_KEY?.trim();
 
-  if (!url || !anonKey) {
+  if (!url || !clientKey) {
     warnings.push(
-      "Supabase client env is incomplete. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY for frontend Supabase features.",
+      "Supabase client env is incomplete. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY for frontend Supabase features.",
     );
     return;
   }
 
-  if (looksLikePlaceholder(url) || looksLikePlaceholder(anonKey)) {
+  if (looksLikePlaceholder(url) || looksLikePlaceholder(clientKey)) {
     warnings.push(
-      "Supabase client env still contains placeholder values. Replace VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY with real project values.",
+      "Supabase client env still contains placeholder values. Replace VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY with real project values.",
     );
   }
 }
@@ -103,6 +105,14 @@ export async function validateEnvironment(): Promise<void> {
   );
   if (geminiApiKeyError) {
     warnings.push(geminiApiKeyError);
+  }
+
+  const adminPasswordError = getRequiredEnvError(
+    "ADMIN_PASSWORD",
+    "Set the admin login password through the environment instead of hardcoding it in code.",
+  );
+  if (adminPasswordError) {
+    errors.push(adminPasswordError);
   }
 
   validateFrontendSupabaseEnv(warnings);

@@ -13,7 +13,7 @@ export function SupabaseTest() {
   const testConnection = async () => {
     try {
       if (!supabase) {
-        throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+        throw new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.');
       }
       const { data, error } = await supabase
         .from('projects')

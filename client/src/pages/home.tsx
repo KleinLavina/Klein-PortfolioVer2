@@ -1,6 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
-  faEye
+  faBookOpen,
+  faEye,
+  faLightbulb,
+  faShip
 } from "@fortawesome/free-solid-svg-icons";
 // Using reliable FontAwesome icons primarily
 import {
@@ -19,6 +22,7 @@ import {
   SiMysql,
   SiPostgresql,
   SiPython,
+  SiSupabase,
   SiGit,
   SiGithub,
   SiFigma,
@@ -31,7 +35,6 @@ import {
   FaCode, 
   FaJava, 
   FaServer, 
-  FaEnvelope,
   FaCss3Alt,
   FaDatabase,
   FaTools,
@@ -45,6 +48,7 @@ import {
 } from "react-icons/fa";
 import { Shell } from "@/components/layout/shell";
 import { BubbleBackground } from "@/components/ui/bubble-background";
+import { ProjectShowcaseCard } from "@/components/project-showcase-card";
 import { Section } from "@/components/ui/section";
 import { ScrollTextFill } from "@/components/ui/scroll-text-fill";
 import { GithubContributions } from "@/components/github-contributions";
@@ -56,16 +60,17 @@ import {
   Loader2, Github, Code, Database, MonitorSmartphone,
   Layers, Server, TerminalSquare, Mail, FolderGit2, Phone,
   Lightbulb, Users, Wrench, Zap, BookOpen, MessageCircle, ArrowDown,
-  ChevronRight, Sparkles, Globe, ArrowUpRight, UserRound, CheckCircle2, X
+  ChevronRight, Sparkles, Globe, ArrowUpRight, UserRound, CheckCircle2, MapPin, X
 } from "lucide-react";
-import { useState, useEffect, type FormEvent } from "react";
+import { memo, useCallback, useState, useEffect, type ElementType, type FormEvent, type MouseEvent, type ReactNode } from "react";
 import { useMagnetic } from "@/hooks/use-magnetic";
+import { smoothScrollToTarget } from "@/lib/smooth-scroll";
 import { cn } from "@/lib/utils";
-import { PROJECTS as ALL_PROJECTS, getTechIcon as resolveProjectTechIcon } from "@/lib/projects";
+import { PROJECTS as ALL_PROJECTS, buildProjectShowcaseItems } from "@/lib/projects";
 
 const TECH_STACK_GROUPS = [
   {
-    title: "Frontend & UI",
+    title: "Frontend",
     skills: [
       { name: "HTML", icon: SiHtml5, color: "text-orange-500" },
       { name: "CSS", icon: FaCss3Alt, color: "text-blue-500" },
@@ -75,24 +80,41 @@ const TECH_STACK_GROUPS = [
       { name: "Next.js", icon: SiNextdotjs, color: "text-foreground" },
       { name: "Tailwind", icon: SiTailwindcss, color: "text-cyan-400" },
       { name: "Bootstrap", icon: SiBootstrap, color: "text-purple-500" },
-      { name: "Figma", icon: SiFigma, color: "text-pink-500" },
-      { name: "Canva", icon: FaPalette, color: "text-cyan-500" },
     ],
   },
   {
-    title: "Backend & Database",
+    title: "Backend",
     skills: [
       { name: "Django", icon: SiDjango, color: "text-green-600" },
       { name: "PHP", icon: SiPhp, color: "text-indigo-400" },
       { name: "Python", icon: SiPython, color: "text-blue-400" },
+    ],
+  },
+  {
+    title: "Database & Backend Services",
+    skills: [
       { name: "MySQL", icon: SiMysql, color: "text-blue-500" },
       { name: "PostgreSQL", icon: SiPostgresql, color: "text-blue-400" },
+      { name: "Supabase", icon: SiSupabase, color: "text-emerald-500" },
+    ],
+  },
+  {
+    title: "Cloud, Hosting & Media",
+    skills: [
       { name: "Cloudinary", icon: FaCloud, color: "text-blue-600" },
       { name: "Render", icon: FaServer, color: "text-purple-600" },
     ],
   },
   {
-    title: "Architecture & Tools",
+    title: "Design & Planning Tools",
+    skills: [
+      { name: "Figma", icon: SiFigma, color: "text-pink-500" },
+      { name: "Canva", icon: FaPalette, color: "text-cyan-500" },
+      { name: "draw.io", icon: FaCode, color: "text-orange-500" },
+    ],
+  },
+  {
+    title: "Developer Tools",
     skills: [
       { name: "Git", icon: SiGit, color: "text-orange-600" },
       { name: "GitHub", icon: SiGithub, color: "text-foreground" },
@@ -129,14 +151,6 @@ const CORE_CAPABILITIES = [
       "Native-feeling cross-platform mobile experiences that seamlessly connect your users to your digital ecosystem.",
     stack: ["React Native", "iOS", "Android"],
     icon: MonitorSmartphone,
-    featured: false,
-  },
-  {
-    service: "3D Web Experiences",
-    description:
-      "Next-generation immersive web environments utilizing WebGL to craft memorable and interactive storytelling.",
-    stack: ["Three.js", "WebGL", "GSAP", "React Three Fiber"],
-    icon: Layers,
     featured: false,
   },
   {
@@ -252,35 +266,7 @@ const PERSONAL_PROJECT_PILLS = [
   "self-taught & always leveling up",
   "built for fun, deployed for real",
 ] as const;
-// Tech stack icon mapping for projects - using reliable icons
-const getTechIcon = (tech: string) => {
-  const iconMap: { [key: string]: any } = {
-    "JavaScript": SiJavascript,
-    "TypeScript": SiTypescript,
-    "React": SiReact,
-    "HTML": SiHtml5,
-    "CSS": FaCss3Alt,
-    "Python": SiPython,
-    "PHP": SiPhp,
-    "Bootstrap": SiBootstrap,
-    "Git": SiGit,
-    "GitHub": SiGithub,
-    "Node.js": SiNextdotjs, // Using Next.js icon as Node.js alternative
-    "Django": SiDjango,
-    "PostgreSQL": SiPostgresql,
-    "MySQL": SiMysql,
-    "Vite": SiVite,
-    "Next.js": SiNextdotjs,
-    "Tailwind": SiTailwindcss,
-    "Cloudinary": FaCloud,
-    "Netlify": SiNetlify,
-    "OnRender": FaServer,
-    "Render": FaServer,
-    "Brevo SMTP": FaEnvelope, // Using envelope icon for SMTP
-    "InfinityFree": FaServer, // Using server icon for hosting
-  };
-  return iconMap[tech] || FaCode; // Default fallback to generic code icon
-};
+const FEATURED_PROJECTS = buildProjectShowcaseItems(ALL_PROJECTS.slice(0, 3));
 
 function SectionLabel({ num, label }: { num: string; label: string }) {
   return (
@@ -291,6 +277,335 @@ function SectionLabel({ num, label }: { num: string; label: string }) {
     </div>
   );
 }
+
+function CredentialSectionTitle({ label }: { label: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.7 }}
+      transition={{ duration: 0.42, ease: "easeOut" }}
+      className="flex items-center gap-3"
+    >
+      <span className="h-px w-8 bg-primary/45" />
+      <span className="text-[11px] font-mono font-bold uppercase tracking-[0.3em] text-primary/90">
+        {label}
+      </span>
+    </motion.div>
+  );
+}
+
+type LogWindowCardProps = {
+  windowLabel: string;
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  logoSrc?: string;
+  logoAlt?: string;
+  logoNode?: ReactNode;
+  logoContainerClassName?: string;
+  logoContentClassName?: string;
+  sideBadge?: ReactNode;
+  children?: ReactNode;
+};
+
+function LogWindowCard({
+  windowLabel,
+  eyebrow,
+  title,
+  subtitle,
+  logoSrc,
+  logoAlt,
+  logoNode,
+  logoContainerClassName,
+  logoContentClassName,
+  sideBadge,
+  children,
+}: LogWindowCardProps) {
+  return (
+    <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55 shadow-2xl backdrop-blur-xl">
+      <div className="flex items-center gap-2 border-b border-border/60 bg-background/55 px-5 py-3">
+        <span className="h-2.5 w-2.5 rounded-full bg-primary/85" />
+        <span className="h-2.5 w-2.5 rounded-full bg-secondary/85" />
+        <span className="h-2.5 w-2.5 rounded-full bg-accent/85" />
+        <span className="ml-3 text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">
+          {windowLabel}
+        </span>
+      </div>
+
+      <div className="space-y-6 p-6 sm:p-7">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-4">
+            {logoSrc || logoNode ? (
+              <div
+                className={cn(
+                  "flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden border border-border/60 bg-white p-1.5 shadow-[0_14px_30px_-24px_hsl(var(--background)/0.85)]",
+                  "rounded-full",
+                  logoContainerClassName,
+                )}
+              >
+                {logoNode ? (
+                  <div className={cn("relative flex h-full w-full items-center justify-center", logoContentClassName)}>
+                    {logoNode}
+                  </div>
+                ) : (
+                  <img
+                    src={logoSrc}
+                    alt={logoAlt ?? title}
+                    className={cn("h-full w-full object-contain", logoContentClassName)}
+                    loading="lazy"
+                  />
+                )}
+              </div>
+            ) : null}
+
+            <div className="min-w-0">
+              <p className="text-sm font-mono uppercase tracking-[0.18em] text-primary/85">
+                {eyebrow}
+              </p>
+              <h3 className="mt-2 text-[1.9rem] font-black leading-tight text-foreground sm:text-[2rem]">
+                {title}
+              </h3>
+              {subtitle ? (
+                <p className="mt-3 text-base font-semibold text-foreground/90 sm:text-[1.08rem]">
+                  {subtitle}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          {sideBadge ? <div className="shrink-0">{sideBadge}</div> : null}
+        </div>
+
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const TECHNICAL_ARSENAL_HEADER_VARIANTS = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+} as const;
+
+const TECHNICAL_ARSENAL_GRID_VARIANTS = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+      delayChildren: 0.04,
+    },
+  },
+} as const;
+
+const TECHNICAL_ARSENAL_CARD_VARIANTS = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+} as const;
+
+const TECHNICAL_ARSENAL_PILL_GRID_VARIANTS = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.04,
+    },
+  },
+} as const;
+
+const TECHNICAL_ARSENAL_PILL_VARIANTS = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
+} as const;
+
+const SOFT_SKILLS_GRID_VARIANTS = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+      delayChildren: 0.03,
+    },
+  },
+} as const;
+
+const SOFT_SKILL_CARD_VARIANTS = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+} as const;
+
+const TECH_SKILL_CHIP_CLASS =
+  "flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border/35 bg-card/55 shadow-[0_10px_24px_-18px_hsl(var(--foreground)/0.28)] hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 cursor-default";
+
+const SOFT_SKILL_CARD_CLASS =
+  "group flex items-center gap-4 p-4 rounded-xl border border-border/35 bg-card/55 shadow-[0_18px_38px_-28px_hsl(var(--foreground)/0.35)] hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 cursor-default";
+
+const SkillChip = memo(function SkillChip({
+  name,
+  color,
+  Icon,
+}: {
+  name: string;
+  color: string;
+  Icon: ElementType<{ size?: string | number; strokeWidth?: string | number; className?: string }>;
+}) {
+  return (
+    <div className={TECH_SKILL_CHIP_CLASS} style={{ contain: "paint" }}>
+      <Icon size={13} strokeWidth={1.5} className={color} />
+      <span className="text-xs font-semibold text-foreground/80 transition-colors whitespace-nowrap">
+        {name}
+      </span>
+    </div>
+  );
+});
+
+const SoftSkillCard = memo(function SoftSkillCard({
+  name,
+  description,
+  color,
+  Icon,
+}: {
+  name: string;
+  description: string;
+  color: string;
+  Icon: ElementType<{ size?: string | number; strokeWidth?: string | number; className?: string }>;
+}) {
+  return (
+    <div className={SOFT_SKILL_CARD_CLASS} style={{ contain: "paint" }}>
+      <div className={`p-2.5 rounded-lg bg-background/60 border border-border/40 flex-shrink-0 ${color} transition-transform group-hover:scale-110`}>
+        <Icon size={18} strokeWidth={1.5} />
+      </div>
+      <div>
+        <p className="font-semibold text-sm text-foreground">{name}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+      </div>
+    </div>
+  );
+});
+
+const FeaturedProjectsSection = memo(function FeaturedProjectsSection({
+  expandedProjects,
+  onToggleExpand,
+  onViewAll,
+}: {
+  expandedProjects: Set<number>;
+  onToggleExpand: (projectId: number) => void;
+  onViewAll: () => void;
+}) {
+  return (
+    <>
+      <div className="space-y-8">
+        {FEATURED_PROJECTS.map((project, index) => (
+          <ProjectShowcaseCard
+            key={project.id}
+            project={project}
+            index={index}
+            expanded={expandedProjects.has(project.id)}
+            onToggleExpand={onToggleExpand}
+          />
+        ))}
+      </div>
+
+      <motion.div
+        className="flex justify-center mt-12"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
+        <button
+          onClick={onViewAll}
+          className="group flex items-center gap-2.5 px-7 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
+        >
+          <motion.span
+            whileHover={{ x: 2 }}
+            transition={{ duration: 0.2 }}
+            className="inline-block"
+          >
+            <ChevronRight size={15} />
+          </motion.span>
+          {`Show ${ALL_PROJECTS.length - 3} More Projects`}
+        </button>
+      </motion.div>
+    </>
+  );
+});
+
+const TechnicalArsenalSection = memo(function TechnicalArsenalSection() {
+  return (
+    <>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={TECHNICAL_ARSENAL_HEADER_VARIANTS}
+        className="mb-12"
+      >
+        <SectionLabel num="01" label="Technical Arsenal" />
+        <h2 className="text-4xl sm:text-5xl font-black text-foreground leading-tight">
+          Tools I build
+          <br />
+          <span className="text-gradient">great things with.</span>
+        </h2>
+      </motion.div>
+
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={TECHNICAL_ARSENAL_GRID_VARIANTS}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-8"
+      >
+        {TECH_STACK_GROUPS.map((group) => (
+          <motion.div
+            key={group.title}
+            variants={TECHNICAL_ARSENAL_CARD_VARIANTS}
+            className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-xl p-5 shadow-xl"
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground">{group.title}</h3>
+              <div className="flex-1 h-px bg-border/30" />
+            </div>
+            <motion.div variants={TECHNICAL_ARSENAL_PILL_GRID_VARIANTS} className="flex flex-wrap gap-2.5">
+              {group.skills.map((skill) => (
+                <motion.div key={skill.name} variants={TECHNICAL_ARSENAL_PILL_VARIANTS} className="group">
+                  <SkillChip name={skill.name} color={skill.color} Icon={skill.icon} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={TECHNICAL_ARSENAL_CARD_VARIANTS}
+        className="mt-14"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground">Soft Skills</h3>
+          <div className="flex-1 h-px bg-border/30" />
+        </div>
+        <motion.div variants={SOFT_SKILLS_GRID_VARIANTS} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {PROFESSIONAL_SKILLS.map((skill) => (
+            <motion.div
+              key={skill.name}
+              variants={SOFT_SKILL_CARD_VARIANTS}
+              className="group"
+            >
+              <SoftSkillCard
+                name={skill.name}
+                description={skill.description}
+                color={skill.color}
+                Icon={skill.icon}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
+    </>
+  );
+});
 
 const CONTACT_EMAIL = "fklein.lavina09@gmail.com";
 const CONTACT_PHONE = "+639380734878";
@@ -379,6 +694,7 @@ function getOrCreateContactFingerprint(): string {
 export default function Home() {
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [visitorLoading, setVisitorLoading] = useState(true);
+  const [visitorCountUnavailable, setVisitorCountUnavailable] = useState(false);
   const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const [activeCertificateImage, setActiveCertificateImage] =
     useState<(typeof CERTIFICATION_IMAGES)[number] | null>(null);
@@ -391,8 +707,7 @@ export default function Home() {
   const mag2 = useMagnetic(0.3);
   const contactEntryControls = useAnimationControls();
 
-  // Function to toggle project description expansion
-  const toggleProjectExpansion = (projectId: number) => {
+  const toggleProjectExpansion = useCallback((projectId: number) => {
     setExpandedProjects(prev => {
       const newSet = new Set(prev);
       if (newSet.has(projectId)) {
@@ -402,25 +717,33 @@ export default function Home() {
       }
       return newSet;
     });
-  };
+  }, []);
 
-  // Function to check if description should be truncated (more than 120 characters)
-  const shouldTruncateDescription = (description: string) => {
-    return description.length > 120;
-  };
+  const handleViewAllProjects = useCallback(() => {
+    setLocation("/projects");
+  }, [setLocation]);
 
-  // Function to get truncated description
-  const getTruncatedDescription = (description: string) => {
-    if (description.length <= 120) return description;
-    // Find the last space before the 120 character limit to avoid cutting words
-    const truncateAt = description.lastIndexOf(' ', 120);
-    const cutPoint = truncateAt > 80 ? truncateAt : 120;
-    return description.substring(0, cutPoint) + "...";
-  };
+  const handleHeroAnchorClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>, targetId: string) => {
+      event.preventDefault();
+      const target = document.getElementById(targetId);
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      smoothScrollToTarget(target, {
+        durationMs: 720,
+        offset: 88,
+      });
+      window.history.replaceState(null, "", `#${targetId}`);
+    },
+    [],
+  );
 
   useEffect(() => {
     const trackVisitor = async () => {
       try {
+        setVisitorCountUnavailable(false);
         const visitorId = getOrCreateVisitorId();
         const response = await fetch("/api/visitors/track", {
           method: "POST",
@@ -428,14 +751,19 @@ export default function Home() {
           body: JSON.stringify({ visitorId }),
         });
 
-        if (!response.ok) return;
+        if (!response.ok) {
+          setVisitorCountUnavailable(true);
+          return;
+        }
 
         const data = (await response.json()) as { count?: number };
         if (typeof data.count === "number") {
           setVisitorCount(data.count);
+        } else {
+          setVisitorCountUnavailable(true);
         }
       } catch {
-        // Keep graceful fallback UI when visitor tracking fails.
+        setVisitorCountUnavailable(true);
       } finally {
         setVisitorLoading(false);
       }
@@ -466,10 +794,9 @@ export default function Home() {
     window.requestAnimationFrame(() => {
       window.setTimeout(() => {
         const target = document.getElementById(targetId);
-        target?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+        if (target instanceof HTMLElement) {
+          smoothScrollToTarget(target, { durationMs: 760 });
+        }
       }, 120);
     });
   }, []);
@@ -601,7 +928,11 @@ export default function Home() {
                       size="lg"
                       className="group h-12 rounded-xl border border-primary/35 bg-primary/10 px-7 text-[11px] font-mono uppercase tracking-[0.26em] text-foreground shadow-[0_18px_40px_-24px_hsl(var(--primary)/0.45)] transition-all duration-300 hover:-translate-y-1 hover:border-primary/55 hover:bg-primary/16"
                     >
-                      <a href="#projects" className="flex items-center gap-3">
+                      <a
+                        href="#projects"
+                        onClick={(event) => handleHeroAnchorClick(event, "projects")}
+                        className="flex items-center gap-3"
+                      >
                         <span>View My Work</span>
                         <ChevronRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
                       </a>
@@ -618,7 +949,11 @@ export default function Home() {
                       variant="outline"
                       className="h-12 rounded-xl border border-border/70 bg-transparent px-7 text-[11px] font-mono uppercase tracking-[0.26em] text-muted-foreground transition-all duration-300 hover:-translate-y-1 hover:border-secondary/45 hover:bg-card/35 hover:text-foreground"
                     >
-                      <a href="#contact" className="flex items-center gap-3">
+                      <a
+                        href="#contact"
+                        onClick={(event) => handleHeroAnchorClick(event, "contact")}
+                        className="flex items-center gap-3"
+                      >
                         <Mail size={15} />
                         <span>Get In Touch</span>
                       </a>
@@ -688,88 +1023,7 @@ export default function Home() {
 
         {/* ─── ABOUT ───────────────────────────────────────────────────── */}
         <Section id="skills">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
-            <SectionLabel num="01" label="Technical Arsenal" />
-            <h2 className="text-4xl sm:text-5xl font-black text-foreground leading-tight">
-              Tools I build<br />
-              <span className="text-gradient">great things with.</span>
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-8">
-            {TECH_STACK_GROUPS.map((group, catIndex) => (
-              <motion.div
-                key={group.title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.5, delay: catIndex * 0.07 }}
-                className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-xl p-5 shadow-xl"
-              >
-                <div className="flex items-center gap-3 mb-5">
-                  <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground">{group.title}</h3>
-                  <div className="flex-1 h-px bg-border/30" />
-                </div>
-                <div className="flex flex-wrap gap-2.5">
-                  {group.skills.map((skill, index) => (
-                    <motion.div
-                      key={skill.name}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: index * 0.04 }}
-                      className="group"
-                    >
-                      <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg glass-card border-white/5 hover:border-primary/30 hover:-translate-y-0.5 transition-all duration-300 cursor-default">
-                        <skill.icon size={13} strokeWidth={1.5} className={skill.color} />
-                        <span className="text-xs font-semibold text-foreground/80 group-hover:text-foreground transition-colors whitespace-nowrap">{skill.name}</span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Professional Skills */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-14"
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <h3 className="text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground">Soft Skills</h3>
-              <div className="flex-1 h-px bg-border/30" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {PROFESSIONAL_SKILLS.map((skill, index) => (
-                <motion.div
-                  key={skill.name}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.07 }}
-                  className="group flex items-center gap-4 p-4 rounded-xl glass-card border-white/5 hover:border-primary/25 hover:-translate-y-0.5 transition-all duration-300 cursor-default"
-                >
-                  <div className={`p-2.5 rounded-lg bg-background/60 border border-border/40 flex-shrink-0 ${skill.color} group-hover:scale-110 transition-transform`}>
-                    <skill.icon size={18} strokeWidth={1.5} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm text-foreground">{skill.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{skill.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+          <TechnicalArsenalSection />
 
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -956,64 +1210,85 @@ export default function Home() {
                 className="space-y-8 lg:pr-8"
               >
                 <div className="space-y-6">
-                  <div className="text-sm font-mono font-bold uppercase tracking-[0.28em] text-primary">
-                    // education
-                  </div>
+                  <CredentialSectionTitle label="Education" />
 
-                  <div className="glass-card relative overflow-hidden rounded-[2rem] border border-border/60 p-6 sm:p-7">
-                    <div className="absolute left-6 top-7 h-[calc(100%-3.4rem)] w-px bg-gradient-to-b from-primary/60 via-border/70 to-transparent" />
-                    <div className="relative pl-8">
-                      <span className="absolute left-[-0.45rem] top-1.5 h-3.5 w-3.5 rounded-full border border-primary/60 bg-background shadow-[0_0_0_4px_hsl(var(--background))]" />
-                      <div className="flex flex-wrap items-center gap-3">
-                        <img
-                          src="https://www.sjc.edu.ph/wp-content/uploads/2024/09/SJC-LOGO-NEWER.png"
-                          alt="Saint Joseph College logo"
-                          className="h-20 w-20 object-contain"
-                          loading="lazy"
-                        />
-                        <h3 className="text-[1.9rem] font-black text-foreground sm:text-[2rem]">Saint Joseph College</h3>
-                        <span className="inline-flex items-center rounded-full border border-accent/35 bg-accent/10 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-accent">
-                          Expected 2026
-                        </span>
-                      </div>
-                      <p className="mt-3 text-base font-semibold text-foreground/90 sm:text-[1.18rem]">
-                        Bachelor of Science in Information Technology
-                      </p>
-                      <p className="mt-2 text-sm font-mono uppercase tracking-[0.2em] text-muted-foreground">
-                        2022 - 2026
+                  <LogWindowCard
+                    windowLabel="education.log"
+                    eyebrow="Academic Foundation"
+                    title="Saint Joseph College"
+                    subtitle="Bachelor of Science in Information Technology"
+                    logoSrc="https://www.sjc.edu.ph/wp-content/uploads/2024/09/SJC-LOGO-NEWER.png"
+                    logoAlt="Saint Joseph College logo"
+                    logoContentClassName="scale-[1.72]"
+                    sideBadge={(
+                      <span className="inline-flex items-center rounded-full border border-accent/35 bg-accent/10 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-accent">
+                        Expected 2026
+                      </span>
+                    )}
+                  >
+                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <MapPin size={14} className="mt-0.5 shrink-0 text-primary/75" />
+                      <p className="leading-relaxed">
+                        Tomas Oppus Street, Maasin, Southern Leyte, Philippines.
                       </p>
                     </div>
-                  </div>
+
+                    <div className="flex flex-wrap items-start gap-3">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="text-sm font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                          2022 - 2026
+                        </p>
+                        <span className="inline-flex items-center rounded-full border border-primary/35 bg-primary/10 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-primary shadow-[0_12px_28px_-20px_hsl(var(--primary)/0.9)]">
+                          Undergraduate Program
+                        </span>
+                      </div>
+
+                      <span className="inline-flex items-center rounded-full border border-border/70 bg-background/45 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                        Catholic College
+                      </span>
+                    </div>
+                  </LogWindowCard>
                 </div>
 
                 <div className="space-y-6">
-                  <div className="text-sm font-mono font-bold uppercase tracking-[0.28em] text-primary">
-                    // certifications
-                  </div>
+                  <CredentialSectionTitle label="Certifications" />
 
                   <div className="glass-card space-y-6 rounded-[2rem] border border-border/60 p-6 sm:p-7">
                     <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div className="space-y-3">
-                        <a
-                          href="https://philnits.org/passers-ip/"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="group inline-flex flex-col gap-1.5"
-                        >
-                          <h3 className="text-[1.9rem] font-black text-foreground transition-colors duration-200 group-hover:text-primary sm:text-[2rem]">
-                            IT Passport (IP) Certification
-                          </h3>
-                          <div className="space-y-1 text-sm text-muted-foreground">
-                            <p className="font-semibold text-foreground/90 transition-colors duration-200 group-hover:text-foreground">
-                              PhilNITS Foundation, Inc.
-                            </p>
-                            <p>Phil. National IT Standards Foundation</p>
+                      <div className="flex min-w-0 items-start gap-4">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-white p-2 shadow-[0_14px_30px_-24px_hsl(var(--background)/0.85)]">
+                          <img
+                            src="/Philippine-National-IT-Standards-PhilNITS-Foundation-e1741711359917.png"
+                            alt="PhilNITS Foundation logo"
+                            className="h-full w-full scale-[1.18] object-contain"
+                            loading="lazy"
+                          />
+                        </div>
+
+                        <div className="min-w-0 space-y-3">
+                          <div className="inline-flex flex-col gap-1.5">
+                            <h3 className="text-[1.9rem] font-black text-foreground sm:text-[2rem]">
+                              IT Passport (IP) Certification
+                            </h3>
+                            <div className="space-y-1 text-sm text-muted-foreground">
+                              <p className="font-semibold text-foreground/90">
+                                PhilNITS Foundation, Inc.
+                              </p>
+                              <p>Phil. National IT Standards Foundation</p>
+                            </div>
                           </div>
-                          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.22em] text-primary/75">
+                          <a
+                            href="https://philnits.org/passers-ip/"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.22em] text-primary/75 transition-colors duration-200 hover:text-primary"
+                          >
                             <ArrowUpRight size={12} />
-                            official passers list
-                          </span>
-                        </a>
+                            <span className="underline decoration-primary/45 underline-offset-4 transition-colors duration-200 group-hover:decoration-primary">
+                              official passers list
+                            </span>
+                          </a>
+                        </div>
                       </div>
 
                       <span className="inline-flex items-center gap-2 rounded-full border border-accent/35 bg-accent/10 px-3 py-1.5 text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-accent">
@@ -1064,61 +1339,72 @@ export default function Home() {
                 className="space-y-8 lg:pl-8"
               >
                 <div className="space-y-6">
-                  <div className="text-sm font-mono font-bold uppercase tracking-[0.28em] text-primary">
-                    // experience
-                  </div>
+                  <CredentialSectionTitle label="Experience" />
 
-                  <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-card/55 shadow-2xl backdrop-blur-xl">
-                    <div className="flex items-center gap-2 border-b border-border/60 bg-background/55 px-5 py-3">
-                      <span className="h-2.5 w-2.5 rounded-full bg-primary/85" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-secondary/85" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-accent/85" />
-                      <span className="ml-3 text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">
-                        experience.log
+                  <LogWindowCard
+                    windowLabel="experience.log"
+                    eyebrow="On-the-Job Trainee (OJT)"
+                    title="Department of Environment and Natural Resources - PENRO"
+                    logoSrc="/denr-emb-logo.gif"
+                    logoAlt="DENR PENRO logo"
+                    logoContentClassName="scale-[1.22]"
+                    sideBadge={(
+                      <span className="inline-flex items-center rounded-full border border-border/70 bg-background/45 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                        Government Agency
+                      </span>
+                    )}
+                  >
+                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <MapPin size={14} className="mt-0.5 shrink-0 text-primary/75" />
+                      <p className="leading-relaxed">
+                        Capitol Site, Barangay Asuncion, Maasin City, 6600 Southern Leyte, Philippines.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="text-sm font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                        Provincial Environment and Natural Resources Office
+                      </p>
+                      <span className="inline-flex items-center rounded-full border border-primary/35 bg-primary/10 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-primary shadow-[0_12px_28px_-20px_hsl(var(--primary)/0.9)]">
+                        4 Months
                       </span>
                     </div>
-
-                    <div className="space-y-6 p-6 sm:p-7">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-mono uppercase tracking-[0.18em] text-primary/85">
-                            On-the-Job Trainee (OJT)
-                          </p>
-                          <h3 className="mt-2 text-[1.9rem] font-black leading-tight text-foreground sm:text-[2rem]">
-                            Department of Environment and Natural Resources - PENRO
-                          </h3>
-                        </div>
-
-                        <span className="inline-flex items-center rounded-full border border-border/70 bg-background/45 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
-                          Government Agency
-                        </span>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-3">
-                        <p className="text-sm font-mono uppercase tracking-[0.18em] text-muted-foreground">
-                          Provincial Environment and Natural Resources Office
-                        </p>
-                        <span className="inline-flex items-center rounded-full border border-primary/35 bg-primary/10 px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-primary shadow-[0_12px_28px_-20px_hsl(var(--primary)/0.9)]">
-                          4 Months
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                  </LogWindowCard>
                 </div>
 
                 <div className="space-y-5">
                   <div className="text-[11px] font-mono uppercase tracking-[0.28em] text-primary/80">
-                    // personal_projects
+                    // personal / hobby
                   </div>
 
-                  <div className="glass-card rounded-[2rem] border border-border/60 p-5 sm:p-6">
-                    <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
-                      Beyond deadlines and requirements, I build things out of pure
-                      curiosity. Side projects, late-night experiments, tools I wish
-                      existed - shipped for fun, deployed for real.
-                    </p>
-
-                    <div className="mt-6 flex flex-wrap gap-3">
+                  <LogWindowCard
+                    windowLabel="personal-hobby.log"
+                    eyebrow="Personal / Hobby"
+                    title="Built outside the brief."
+                    subtitle="Beyond deadlines and requirements, I build things out of pure curiosity. Side projects, late-night experiments, tools I wish existed - shipped for fun, deployed for real."
+                    logoNode={(
+                      <>
+                        <FontAwesomeIcon
+                          icon={faLightbulb}
+                          className="absolute left-[10%] top-[8%] text-[1rem] text-slate-800"
+                        />
+                        <FontAwesomeIcon
+                          icon={faBookOpen}
+                          className="absolute right-[8%] top-[18%] text-[0.95rem] text-slate-700"
+                        />
+                        <FontAwesomeIcon
+                          icon={faShip}
+                          className="absolute bottom-[8%] left-1/2 -translate-x-1/2 text-[1rem] text-slate-900"
+                        />
+                      </>
+                    )}
+                    sideBadge={(
+                      <span className="inline-flex items-center rounded-full border border-border/70 bg-background/45 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
+                        Always Building
+                      </span>
+                    )}
+                  >
+                    <div className="flex flex-wrap gap-3">
                       {PERSONAL_PROJECT_PILLS.map((pill, index) => (
                         <motion.span
                           key={pill}
@@ -1133,7 +1419,7 @@ export default function Home() {
                         </motion.span>
                       ))}
                     </div>
-                  </div>
+                  </LogWindowCard>
                 </div>
               </motion.div>
             </div>
@@ -1161,197 +1447,11 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {(() => {
-            const visibleProjects = ALL_PROJECTS.slice(0, 3);
-            const accentColors = [
-              "from-primary via-secondary to-accent",
-              "from-accent via-primary to-secondary",
-              "from-secondary via-accent to-primary",
-              "from-primary via-accent to-secondary",
-              "from-accent via-secondary to-primary",
-              "from-secondary via-primary to-accent",
-            ];
-            return (
-              <>
-                <div className="space-y-8">
-                  {visibleProjects.map((project, i) => (
-                    <motion.div
-                      key={project.id}
-                      initial={{ opacity: 0, y: 40 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.55, ease: "easeOut", delay: i < 3 ? i * 0.05 : (i - 3) * 0.08 }}
-                      className="group relative"
-                    >
-                      <div className="relative rounded-2xl border border-border/25 bg-card/50 backdrop-blur-xl overflow-hidden shadow-2xl">
-
-                        {/* Left accent stripe */}
-                        <div className={`absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b ${accentColors[i % accentColors.length]}`} />
-
-                        {/* Oversized project number watermark */}
-                        <div
-                          className="absolute select-none pointer-events-none font-black leading-none text-[11rem] md:text-[14rem]"
-                          style={{
-                            right: i % 2 === 0 ? '-0.5rem' : 'auto',
-                            left: i % 2 !== 0 ? '-0.5rem' : 'auto',
-                            top: '-1rem',
-                            color: 'transparent',
-                            WebkitTextStroke: '1px hsl(var(--foreground) / 0.04)',
-                          }}
-                        >
-                          {String(i + 1).padStart(2, "0")}
-                        </div>
-
-                        <div className={`flex flex-col ${i % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}>
-
-                          {/* Image panel */}
-                          <div className="relative md:w-[42%] h-60 md:h-auto overflow-hidden flex-shrink-0">
-                            <img
-                              src={project.thumbnail}
-                              alt={project.title}
-                              className="absolute inset-0 w-full h-full object-cover"
-                            />
-                            {/* Enhanced glassmorphism backdrop that fades out on hover */}
-                            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] backdrop-saturate-150 backdrop-brightness-90 opacity-100 group-hover:opacity-0 transition-all duration-700 ease-in-out" />
-                          </div>
-
-                          {/* Content panel */}
-                          <div className="flex-1 p-7 md:p-10 flex flex-col justify-between relative z-10">
-                            <div>
-                              <div className="flex items-center gap-2 mb-4">
-                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
-                                <span className="text-[10px] font-mono font-bold tracking-[0.25em] uppercase text-primary/80">
-                                  Project {String(i + 1).padStart(2, "0")}
-                                </span>
-                              </div>
-
-                              <h3 className="text-2xl md:text-3xl font-black text-foreground leading-tight mb-4 transition-colors duration-300">
-                                {project.title}
-                              </h3>
-
-                              {/* Description with expand/collapse functionality */}
-                              <div className="mb-5">
-                                <AnimatePresence mode="wait">
-                                  <motion.div
-                                    key={expandedProjects.has(project.id) ? 'expanded' : 'collapsed'}
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                  >
-                                    <p className="text-sm text-muted-foreground leading-relaxed">
-                                      {expandedProjects.has(project.id) 
-                                        ? project.description 
-                                        : shouldTruncateDescription(project.description)
-                                          ? getTruncatedDescription(project.description)
-                                          : project.description
-                                      }
-                                    </p>
-                                  </motion.div>
-                                </AnimatePresence>
-                                {shouldTruncateDescription(project.description) && (
-                                  <motion.button
-                                    onClick={() => toggleProjectExpansion(project.id)}
-                                    className="mt-3 text-xs font-semibold text-primary hover:text-primary/80 transition-colors duration-200 flex items-center gap-1.5 group/btn bg-primary/5 hover:bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                  >
-                                    {expandedProjects.has(project.id) ? (
-                                      <>
-                                        <span>See Less</span>
-                                        <motion.div
-                                          animate={{ rotate: -90 }}
-                                          transition={{ duration: 0.2 }}
-                                        >
-                                          <ChevronRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform duration-200" />
-                                        </motion.div>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <span>See More</span>
-                                        <motion.div
-                                          animate={{ rotate: 0 }}
-                                          transition={{ duration: 0.2 }}
-                                        >
-                                          <ChevronRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform duration-200" />
-                                        </motion.div>
-                                      </>
-                                    )}
-                                  </motion.button>
-                                )}
-                              </div>
-
-                              {/* Tech pills with actual tech logos */}
-                              <div className="flex flex-wrap gap-2">
-                                {project.techStack.map(tech => {
-                                  const IconComponent = resolveProjectTechIcon(tech);
-                                  return (
-                                    <span
-                                      key={tech}
-                                      className="flex items-center gap-1.5 font-mono text-[11px] px-3 py-1 rounded-full border border-primary/20 text-primary/80 bg-primary/5 hover:bg-primary/10 transition-colors"
-                                    >
-                                      <IconComponent className="text-[10px]" />
-                                      {tech}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            </div>
-
-                            {/* Links */}
-                            <div className="flex flex-wrap gap-3 mt-8 pt-5 border-t border-border/15">
-                              {project.liveUrl && (
-                                <a
-                                  href={project.liveUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/25 text-primary text-sm font-semibold hover:bg-primary/20 transition-all duration-200 hover:-translate-y-0.5"
-                                >
-                                  <Globe size={13} /> Live Demo
-                                </a>
-                              )}
-                              {project.githubUrl && (
-                                <a
-                                  href={project.githubUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/40 border border-border/25 text-muted-foreground text-sm font-semibold hover:text-foreground hover:bg-muted/60 transition-all duration-200 hover:-translate-y-0.5"
-                                >
-                                  <Github size={13} /> GitHub
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-
-                <motion.div
-                  className="flex justify-center mt-12"
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                >
-                  <button
-                    onClick={() => setLocation("/projects")}
-                    className="group flex items-center gap-2.5 px-7 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
-                  >
-                    <motion.span
-                      whileHover={{ x: 2 }}
-                      transition={{ duration: 0.2 }}
-                      className="inline-block"
-                    >
-                      <ChevronRight size={15} />
-                    </motion.span>
-                    {`Show ${ALL_PROJECTS.length - 3} More Projects`}
-                  </button>
-                </motion.div>
-              </>
-            );
-          })()}
+          <FeaturedProjectsSection
+            expandedProjects={expandedProjects}
+            onToggleExpand={toggleProjectExpansion}
+            onViewAll={handleViewAllProjects}
+          />
         </Section>
 
       </div>
@@ -1362,13 +1462,13 @@ export default function Home() {
       {/* ─── CONTACT ─────────────────────────────────────────────────── */}
       <Section id="contact" className="!min-h-fit !py-0 relative overflow-hidden !shadow-none" style={{ boxShadow: 'none' }}>
         {/* Wave separator */}
-        <div className="relative h-32 bg-background">
+        <div className="relative h-24 bg-background sm:h-28">
           <div className="absolute inset-0 overflow-hidden opacity-[0.06] z-0">
-            <div className="text-8xl font-black text-foreground whitespace-nowrap animate-marquee flex items-end h-full pb-8">
+            <div className="flex h-full items-end whitespace-nowrap pb-5 text-6xl font-black text-foreground animate-marquee sm:pb-7 sm:text-7xl">
               Collaborate with me · Collaborate with me · Collaborate with me · Collaborate with me ·
             </div>
           </div>
-          <svg className="absolute bottom-0 left-0 w-full h-32 z-10" viewBox="0 0 1440 128" preserveAspectRatio="none" style={{ display: 'block' }}>
+          <svg className="absolute bottom-0 left-0 z-10 h-24 w-full sm:h-28" viewBox="0 0 1440 128" preserveAspectRatio="none" style={{ display: 'block' }}>
             <path d="M0,96 C360,32 720,32 1440,96 L1440,128 L0,128 Z" className="fill-primary" style={{ shapeRendering: 'geometricPrecision' }} />
           </svg>
         </div>
@@ -1379,8 +1479,8 @@ export default function Home() {
           animate={contactEntryControls}
           className="relative bg-primary overflow-hidden -mt-1"
         >
-          <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-12 pt-20 pb-20">
-            <div className="grid grid-cols-1 gap-12 items-start lg:grid-cols-2 lg:gap-16">
+          <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 pt-14 pb-14 sm:pt-16 sm:pb-16">
+            <div className="grid grid-cols-1 gap-10 items-start lg:grid-cols-2 lg:gap-12">
 
               {/* Left: Copy */}
               <motion.div
@@ -1388,22 +1488,22 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.6 }}
-                className="space-y-6"
+                className="space-y-5"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-mono text-white/60 tracking-[0.2em] uppercase">05 — Contact</span>
                 </div>
-                <h2 className="text-4xl sm:text-5xl font-black text-white leading-tight">
+                <h2 className="text-3xl sm:text-[2.8rem] font-black text-white leading-tight">
                   Got a project<br />in mind?
                 </h2>
-                <p className="text-lg text-white/80 leading-relaxed max-w-md">
+                <p className="max-w-md text-base leading-relaxed text-white/80 sm:text-[1.05rem]">
                   Whether it's a full product, a quick question, or just wanting to connect —
                   my inbox is always open.
                 </p>
 
-                <div className="flex items-center gap-3 pt-2">
-                  <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                    <Mail size={18} className="text-white" />
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="rounded-xl bg-white/10 p-2.5 backdrop-blur-sm">
+                    <Mail size={16} className="text-white" />
                   </div>
                   <div>
                     <p className="text-xs text-white/50 font-mono uppercase tracking-wider">Email</p>
@@ -1412,7 +1512,7 @@ export default function Home() {
                 </div>
 
                 {/* Social icons */}
-                <div className="flex gap-3 pt-4 flex-wrap">
+                <div className="flex flex-wrap gap-2.5 pt-2">
                   {[
                     { href: CONTACT_GITHUB_URL, icon: Github, label: "GitHub" },
                     {
@@ -1426,7 +1526,7 @@ export default function Home() {
                       href={href}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl text-white text-sm font-semibold transition-all hover:-translate-y-0.5"
+                      className="flex items-center gap-2 rounded-xl bg-white/10 px-3.5 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-white/20"
                     >
                       <Icon />
                       {label}
@@ -1434,33 +1534,33 @@ export default function Home() {
                   ))}
                 </div>
 
-                <div className="pt-4">
-                  <div className="w-full max-w-xs rounded-[1.75rem] border border-white/20 bg-white/95 p-4 shadow-[0_26px_60px_-32px_rgba(0,0,0,0.45)] sm:p-5">
+                <div className="pt-2">
+                  <div className="w-full max-w-[17rem] rounded-[1.5rem] border border-white/20 bg-white/95 p-4 shadow-[0_26px_60px_-32px_rgba(0,0,0,0.45)]">
                     <div className="space-y-1 text-center">
-                      <h3 className="text-lg font-bold text-emerald-950">Scan to Connect</h3>
-                      <p className="text-sm text-emerald-900/60">Get my contact info instantly</p>
+                      <h3 className="text-base font-bold text-emerald-950">Scan to Connect</h3>
+                      <p className="text-xs text-emerald-900/60">Get my contact info instantly</p>
                     </div>
 
-                    <div className="mt-4 flex justify-center">
-                      <div className="relative flex h-32 w-32 items-center justify-center bg-white sm:h-36 sm:w-36">
+                    <div className="mt-3 flex justify-center">
+                      <div className="relative flex h-28 w-28 items-center justify-center bg-white sm:h-32 sm:w-32">
                         <img
                           src={CONTACT_QR_SRC}
                           alt="Contact QR Code"
                           className="h-full w-full"
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white shadow-lg sm:h-10 sm:w-10">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-lg sm:h-9 sm:w-9">
                             <img
                               src="/Gemini_Generated_Image_enc1uoenc1uoenc1-removebg-preview.png"
                               alt="Klein Logo"
-                              className="h-7 w-7 object-contain sm:h-8 sm:w-8"
+                              className="h-6 w-6 object-contain sm:h-7 sm:w-7"
                             />
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-3">
                       <ContactIncludes tone="dark" />
                     </div>
                   </div>
@@ -1475,18 +1575,18 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 0.15 }}
                 className="w-full"
               >
-                <div className="mx-auto w-full max-w-xl rounded-[2rem] border border-black/10 bg-white p-6 shadow-md backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900 sm:p-8 lg:min-h-[31rem]">
-                  <div className="space-y-2">
-                    <p className="text-xs font-mono uppercase tracking-[0.24em] text-emerald-600/60 dark:text-emerald-400/60">Direct Message</p>
-                    <h3 className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 sm:text-[2rem]">Let&apos;s talk about your next build</h3>
-                    <p className="max-w-lg text-sm leading-7 text-emerald-800/70 dark:text-emerald-300/70">
+                <div className="mx-auto w-full max-w-xl rounded-[1.75rem] border border-black/10 bg-white p-5 shadow-md backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900 sm:p-6 lg:min-h-[26rem]">
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-mono uppercase tracking-[0.24em] text-[#3CC35B]/70">Direct Message</p>
+                    <h3 className="text-xl font-bold text-[#3CC35B] sm:text-[1.75rem]">Let&apos;s talk about your next build</h3>
+                    <p className="max-w-lg text-sm leading-6 text-[#3CC35B]/80">
                       Share the project, the goal, or the reason you&apos;re reaching out. I&apos;ll package it into an email draft so you can send it instantly.
                     </p>
                   </div>
 
-                  <form onSubmit={handleContactSubmit} className="mt-8 space-y-5">
-                    <div className="space-y-2">
-                      <label htmlFor="contact-full-name" className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                  <form onSubmit={handleContactSubmit} className="mt-6 space-y-4">
+                    <div className="space-y-1.5">
+                      <label htmlFor="contact-full-name" className="text-sm font-semibold text-[#3CC35B]">
                         Full Name
                       </label>
                       <input
@@ -1494,13 +1594,13 @@ export default function Home() {
                         name="fullName"
                         type="text"
                         placeholder="Your full name"
-                        className="h-[3.25rem] w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-primary outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-primary dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        className="h-12 w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-foreground outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-foreground dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
                         required
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <label htmlFor="contact-email-address" className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                    <div className="space-y-1.5">
+                      <label htmlFor="contact-email-address" className="text-sm font-semibold text-[#3CC35B]">
                         Email Address
                       </label>
                       <input
@@ -1508,21 +1608,21 @@ export default function Home() {
                         name="email"
                         type="email"
                         placeholder="your@email.com"
-                        className="h-[3.25rem] w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-primary outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-primary dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        className="h-12 w-full rounded-2xl border border-neutral-300 bg-neutral-100 px-4 text-sm font-medium text-foreground outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-foreground dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
                         required
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <label htmlFor="contact-message" className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+                    <div className="space-y-1.5">
+                      <label htmlFor="contact-message" className="text-sm font-semibold text-[#3CC35B]">
                         Message / Purpose
                       </label>
                       <textarea
                         id="contact-message"
                         name="message"
                         placeholder="Tell me about your project or reason for reaching out..."
-                        rows={5}
-                        className="w-full resize-none rounded-[1.5rem] border border-neutral-300 bg-neutral-100 px-4 py-3.5 text-sm font-medium leading-7 text-primary outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-primary dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
+                        rows={4}
+                        className="w-full resize-none rounded-[1.5rem] border border-neutral-300 bg-neutral-100 px-4 py-3 text-sm font-medium leading-6 text-foreground outline-none transition-colors placeholder:text-neutral-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-foreground dark:placeholder:text-neutral-500 dark:focus:border-emerald-500 dark:focus:ring-emerald-500/40"
                         required
                       />
                     </div>
@@ -1530,7 +1630,7 @@ export default function Home() {
                     <button
                       type="submit"
                       disabled={isSubmittingContact || contactRateLimited}
-                      className="flex h-[3.25rem] w-full items-center justify-center rounded-2xl bg-emerald-900 px-5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-700/35 focus:ring-offset-2 focus:ring-offset-white dark:bg-emerald-800 dark:hover:bg-emerald-700 dark:focus:ring-offset-black"
+                      className="flex h-12 w-full items-center justify-center rounded-2xl bg-[#3CC35B] px-5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#34ad50] focus:outline-none focus:ring-2 focus:ring-[#3CC35B]/35 focus:ring-offset-2 focus:ring-offset-white dark:bg-[#3CC35B] dark:hover:bg-[#34ad50] dark:focus:ring-offset-black"
                     >
                       {isSubmittingContact ? "Sending..." : "Send Message"}
                     </button>
@@ -1552,19 +1652,21 @@ export default function Home() {
             </div>
 
             {/* Footer */}
-            <div className="mt-10 pt-6 border-t border-white/15 flex flex-col justify-center items-center gap-2">
+            <div className="mt-8 flex flex-col items-center justify-center gap-2 border-t border-white/15 pt-5">
               <p className="text-sm text-white/50 font-mono">
                 © {currentYear} Klein F. Lavina. All rights reserved.
               </p>
               <p className="text-sm text-white/50 font-mono flex items-center gap-2">
                 {visitorLoading
                   ? "Loading visitor count..."
-                  : (
+                  : visitorCountUnavailable
+                    ? "Visitor count unavailable"
+                    : (
                     <>
                       <FontAwesomeIcon icon={faEye} />
                       <span>{visitorCount ?? 0} unique visitors all time</span>
                     </>
-                  )}
+                    )}
               </p>
             </div>
           </div>

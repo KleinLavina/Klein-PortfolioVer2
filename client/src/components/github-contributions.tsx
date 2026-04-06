@@ -51,7 +51,7 @@ export function GithubContributions() {
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span className="text-white">Less</span>
                     <div className="flex gap-1">
-                      <div className="h-3 w-3 rounded-sm bg-[#ebedf0] dark:bg-[#161b22]" />
+                      <div className="h-3 w-3 rounded-sm border border-border/40 bg-white dark:border-white/15 dark:bg-white" />
                       <div className="h-3 w-3 rounded-sm bg-[#d6e685]" />
                       <div className="h-3 w-3 rounded-sm bg-[#8cc665]" />
                       <div className="h-3 w-3 rounded-sm bg-[#44a340]" />

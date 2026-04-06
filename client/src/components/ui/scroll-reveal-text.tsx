@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { memo, useEffect, useRef } from "react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -8,7 +8,16 @@ interface Props {
   className?: string;
 }
 
-function FloatingDot({ x, y, delay, size = 4 }: { x: string; y: string; delay: number; size?: number }) {
+const FLOATING_DOTS = [
+  { x: "8%", y: "20%", delay: 0, size: 5 },
+  { x: "90%", y: "15%", delay: 0.8, size: 3 },
+  { x: "15%", y: "75%", delay: 1.4, size: 4 },
+  { x: "85%", y: "70%", delay: 0.3, size: 6 },
+  { x: "50%", y: "10%", delay: 1.1, size: 3 },
+  { x: "72%", y: "85%", delay: 0.6, size: 4 },
+] as const;
+
+const FloatingDot = memo(function FloatingDot({ x, y, delay, size = 4 }: { x: string; y: string; delay: number; size?: number }) {
   return (
     <motion.div
       className="absolute rounded-full bg-primary/30 pointer-events-none"
@@ -17,9 +26,11 @@ function FloatingDot({ x, y, delay, size = 4 }: { x: string; y: string; delay: n
       transition={{ duration: 3.5 + delay, repeat: Infinity, ease: "easeInOut", delay }}
     />
   );
-}
+});
 
-export function ScrollRevealTextSection({ headline, highlightColor, className }: Props) {
+FloatingDot.displayName = "FloatingDot";
+
+export const ScrollRevealTextSection = memo(function ScrollRevealTextSection({ headline, highlightColor, className }: Props) {
   const containerRef  = useRef<HTMLDivElement>(null);
   const progressMV    = useMotionValue(0);
 
@@ -72,12 +83,9 @@ export function ScrollRevealTextSection({ headline, highlightColor, className }:
 
         {/* Floating dots */}
         <motion.div className="absolute inset-0 pointer-events-none" style={{ opacity: dotsOpacity }}>
-          <FloatingDot x="8%"  y="20%" delay={0}   size={5} />
-          <FloatingDot x="90%" y="15%" delay={0.8} size={3} />
-          <FloatingDot x="15%" y="75%" delay={1.4} size={4} />
-          <FloatingDot x="85%" y="70%" delay={0.3} size={6} />
-          <FloatingDot x="50%" y="10%" delay={1.1} size={3} />
-          <FloatingDot x="72%" y="85%" delay={0.6} size={4} />
+          {FLOATING_DOTS.map((dot) => (
+            <FloatingDot key={`${dot.x}-${dot.y}-${dot.delay}`} {...dot} />
+          ))}
         </motion.div>
 
         {/* Accent lines */}
@@ -130,4 +138,6 @@ export function ScrollRevealTextSection({ headline, highlightColor, className }:
       </div>
     </div>
   );
-}
+});
+
+ScrollRevealTextSection.displayName = "ScrollRevealTextSection";

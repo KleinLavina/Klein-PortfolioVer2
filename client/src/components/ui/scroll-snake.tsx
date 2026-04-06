@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
-export function ScrollSnake() {
+export const ScrollSnake = memo(function ScrollSnake() {
   const path1Ref = useRef<SVGPathElement>(null);
   const path2Ref = useRef<SVGPathElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -8,56 +8,82 @@ export function ScrollSnake() {
   const scrollRef = useRef(0);
 
   useEffect(() => {
-    const scrollContainer = document.querySelector("main.flex-1");
+    const scrollContainer = document.querySelector("main.flex-1") as HTMLElement | null;
     if (!scrollContainer) return;
 
-    const onScroll = () => { scrollRef.current = (scrollContainer as HTMLElement).scrollTop; };
-    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
+    let rafActive = false;
+    let lastWidth = 0;
+    let lastHeight = 0;
 
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-    const tick = () => {
-      const W = window.innerWidth;
-      const H = window.innerHeight;
-      const el = scrollContainer as HTMLElement;
-      const maxScroll = Math.max(1, el.scrollHeight - H);
-      const pct = scrollRef.current / maxScroll;
+    const scheduleFrame = () => {
+      if (rafActive) return;
+      rafActive = true;
+      rafRef.current = window.requestAnimationFrame(tick);
+    };
 
-      const targetX = 0.5 + Math.sin(pct * Math.PI * 6) * 0.38;
+    const tick = () => {
+      rafActive = false;
+
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const maxScroll = Math.max(1, scrollContainer.scrollHeight - height);
+      const percent = scrollRef.current / maxScroll;
+      const resized = width !== lastWidth || height !== lastHeight;
+      lastWidth = width;
+      lastHeight = height;
+
+      const targetX = 0.5 + Math.sin(percent * Math.PI * 6) * 0.38;
       currentX.current = lerp(currentX.current, targetX, 0.05);
 
-      const cx = W * currentX.current;
-      const oppCx = W * (1 - currentX.current);
+      const currentCenter = width * currentX.current;
+      const oppositeCenter = width * (1 - currentX.current);
 
-      const d1 = `M ${W * 0.08} 0 C ${cx} ${H * 0.35}, ${oppCx} ${H * 0.65}, ${W * 0.92} ${H}`;
-      const d2 = `M ${W * 0.08} 0 C ${cx + 24} ${H * 0.3}, ${oppCx - 24} ${H * 0.7}, ${W * 0.92} ${H}`;
-
-      const op1 = 0.13;
-      const op2 = 0.06;
+      const d1 = `M ${width * 0.08} 0 C ${currentCenter} ${height * 0.35}, ${oppositeCenter} ${height * 0.65}, ${width * 0.92} ${height}`;
+      const d2 = `M ${width * 0.08} 0 C ${currentCenter + 24} ${height * 0.3}, ${oppositeCenter - 24} ${height * 0.7}, ${width * 0.92} ${height}`;
 
       if (path1Ref.current) {
         path1Ref.current.setAttribute("d", d1);
-        path1Ref.current.setAttribute("stroke-opacity", String(op1));
+        path1Ref.current.setAttribute("stroke-opacity", "0.13");
       }
+
       if (path2Ref.current) {
         path2Ref.current.setAttribute("d", d2);
-        path2Ref.current.setAttribute("stroke-opacity", String(op2));
+        path2Ref.current.setAttribute("stroke-opacity", "0.06");
       }
 
-      rafRef.current = requestAnimationFrame(tick);
+      if (Math.abs(targetX - currentX.current) > 0.001 || resized) {
+        scheduleFrame();
+      }
     };
 
-    rafRef.current = requestAnimationFrame(tick);
+    const onScroll = () => {
+      scrollRef.current = scrollContainer.scrollTop;
+      scheduleFrame();
+    };
+
+    const onResize = () => {
+      scheduleFrame();
+    };
+
+    scrollRef.current = scrollContainer.scrollTop;
+    scrollContainer.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    scheduleFrame();
 
     return () => {
       scrollContainer.removeEventListener("scroll", onScroll);
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      window.removeEventListener("resize", onResize);
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
     };
   }, []);
 
   return (
     <svg
-      className="fixed inset-0 w-full h-full pointer-events-none"
+      className="fixed inset-0 h-full w-full pointer-events-none"
       style={{ zIndex: 4, opacity: "var(--ambient-bg-opacity, 1)", transition: "opacity 500ms ease-out" }}
       aria-hidden="true"
     >
@@ -88,4 +114,6 @@ export function ScrollSnake() {
       />
     </svg>
   );
-}
+});
+
+ScrollSnake.displayName = "ScrollSnake";

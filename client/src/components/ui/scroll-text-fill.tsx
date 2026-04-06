@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { useMotionValue, useTransform, motion } from "framer-motion";
 
-// Shared text styles — MUST be identical on both layers to prevent drift
+// Shared text styles - MUST be identical on both layers to prevent drift
 const TEXT_CLASS =
   "font-black leading-[1.1] text-[clamp(2rem,5.5vw,5rem)] tracking-tight whitespace-pre-wrap break-words";
 
@@ -12,12 +12,12 @@ const LINES: { text: string; fill: boolean }[] = [
   { text: "to solve real problems.", fill: false },
 ];
 
-export function ScrollTextFill() {
+export const ScrollTextFill = memo(function ScrollTextFill() {
   const containerRef = useRef<HTMLDivElement>(null);
   // 0 = scroll hasn't started, 1 = fully revealed
   const progress = useMotionValue(0);
 
-  // The fill phrase: clip reveals left → right
+  // The fill phrase: clip reveals left -> right
   const clipRight = useTransform(progress, [0.04, 0.93], [100, 0]);
   const clipPath = useTransform(clipRight, (v) => `inset(0 ${v}% 0 0)`);
 
@@ -72,9 +72,9 @@ export function ScrollTextFill() {
 
           {LINES.map((line, i) =>
             line.fill ? (
-              // ── FILL PHRASE: starts faint, fills left→right with gradient ──
+              // Fill phrase: starts faint, fills left->right with gradient
               <div key={i} className="relative">
-                {/* Layer 1: grey placeholder — same exact CSS as layer 2, no divergence */}
+                {/* Layer 1: grey placeholder - same exact CSS as layer 2, no divergence */}
                 <motion.div
                   aria-hidden="true"
                   style={{ opacity: fillGreyOpacity, color: "#666" }}
@@ -102,7 +102,7 @@ export function ScrollTextFill() {
                 <span className="sr-only">{line.text}</span>
               </div>
             ) : (
-              // ── NORMAL PHRASE: always strong, full foreground ──
+              // Normal phrase: always strong, full foreground
               <div key={i} className={`${TEXT_CLASS} text-foreground`}>
                 {line.text}
               </div>
@@ -120,4 +120,6 @@ export function ScrollTextFill() {
       </div>
     </div>
   );
-}
+});
+
+ScrollTextFill.displayName = "ScrollTextFill";

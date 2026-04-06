@@ -94,6 +94,15 @@ export const PROJECTS: Project[] = [
   },
 ];
 
+export const PROJECT_SHOWCASE_ACCENT_COLORS = [
+  "from-primary via-secondary to-accent",
+  "from-accent via-primary to-secondary",
+  "from-secondary via-accent to-primary",
+  "from-primary via-accent to-secondary",
+  "from-accent via-secondary to-primary",
+  "from-secondary via-primary to-accent",
+] as const;
+
 export function getTechIcon(tech: string) {
   const iconMap: Record<string, any> = {
     JavaScript: SiJavascript,
@@ -120,4 +129,27 @@ export function getTechIcon(tech: string) {
   };
 
   return iconMap[tech] || FaCode;
+}
+
+export type ProjectShowcaseItem = Project & {
+  accentClass: (typeof PROJECT_SHOWCASE_ACCENT_COLORS)[number];
+  displayIndex: string;
+  reverseLayout: boolean;
+  techBadges: Array<{
+    label: string;
+    Icon: ReturnType<typeof getTechIcon>;
+  }>;
+};
+
+export function buildProjectShowcaseItems(projects: Project[]): ProjectShowcaseItem[] {
+  return projects.map((project, index) => ({
+    ...project,
+    accentClass: PROJECT_SHOWCASE_ACCENT_COLORS[index % PROJECT_SHOWCASE_ACCENT_COLORS.length],
+    displayIndex: String(index + 1).padStart(2, "0"),
+    reverseLayout: index % 2 !== 0,
+    techBadges: project.techStack.map((tech) => ({
+      label: tech,
+      Icon: getTechIcon(tech),
+    })),
+  }));
 }

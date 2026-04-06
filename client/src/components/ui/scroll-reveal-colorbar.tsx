@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { memo, useEffect, useRef, type ReactNode } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +8,21 @@ interface Props {
   className?: string;
 }
 
-export function ScrollRevealColorBarSection({ headline, highlightPhrases = [], className }: Props) {
+const HIGHLIGHT_STYLE_BLOCK = `
+  .highlight-base {
+    color: hsl(var(--primary));
+    font-weight: 700;
+  }
+  .highlight-colored {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+  }
+`;
+
+export const ScrollRevealColorBarSection = memo(function ScrollRevealColorBarSection({ headline, highlightPhrases = [], className }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const progressMV   = useMotionValue(0);
 
@@ -76,19 +90,7 @@ export function ScrollRevealColorBarSection({ headline, highlightPhrases = [], c
       className={cn("relative w-full", className)}
       style={{ height: "220vh" }}
     >
-      <style>{`
-        .highlight-base {
-          color: hsl(var(--primary));
-          font-weight: 700;
-        }
-        .highlight-colored {
-          background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)));
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          font-weight: 700;
-        }
-      `}</style>
+      <style>{HIGHLIGHT_STYLE_BLOCK}</style>
       
       <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden">
         <div className="relative max-w-4xl mx-auto px-8 text-center select-none">
@@ -119,4 +121,6 @@ export function ScrollRevealColorBarSection({ headline, highlightPhrases = [], c
       </div>
     </div>
   );
-}
+});
+
+ScrollRevealColorBarSection.displayName = "ScrollRevealColorBarSection";

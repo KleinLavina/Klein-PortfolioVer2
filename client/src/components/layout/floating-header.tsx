@@ -10,6 +10,7 @@ import { useLocation } from "wouter";
 import type { MouseEvent } from "react";
 
 import { useTheme } from "@/components/theme-provider";
+import { smoothScrollToTarget } from "@/lib/smooth-scroll";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -114,30 +115,28 @@ export function FloatingHeader({
     event: MouseEvent<HTMLAnchorElement>,
     item: (typeof navItems)[number],
   ) => {
-    if (location !== "/" || item.section !== "contact") {
+    if (location !== "/") {
       return;
     }
 
     event.preventDefault();
 
-    const target = document.getElementById("contact");
-    const scrollRoot = document.querySelector("main");
-    if (!(target instanceof HTMLElement) || !(scrollRoot instanceof HTMLElement)) {
+    const target = document.getElementById(item.section === "about" ? "home" : item.section);
+    if (!(target instanceof HTMLElement)) {
       return;
     }
 
     const headerOffset = 88;
-    const top = Math.max(0, target.offsetTop - headerOffset);
-
-    const previousScrollBehavior = scrollRoot.style.scrollBehavior;
-    scrollRoot.style.scrollBehavior = "auto";
-    scrollRoot.scrollTop = top;
-    window.requestAnimationFrame(() => {
-      scrollRoot.style.scrollBehavior = previousScrollBehavior;
+    smoothScrollToTarget(target, {
+      durationMs: 720,
+      offset: headerOffset,
     });
 
-    window.history.replaceState(null, "", "#contact");
-    window.dispatchEvent(new CustomEvent("portfolio:navigate-contact"));
+    window.history.replaceState(null, "", item.href);
+
+    if (item.section === "contact") {
+      window.dispatchEvent(new CustomEvent("portfolio:navigate-contact"));
+    }
   };
 
   return (
