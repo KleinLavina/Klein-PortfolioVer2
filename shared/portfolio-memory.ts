@@ -75,14 +75,14 @@ export const portfolioProjects: PortfolioProject[] = [
   },
   {
     id: 4,
-    title: "Tag-os Elementary School Website",
+    title: "School Announcements",
     description:
-      "A modern school website with an admin CMS for announcements, events, staff directory, and school information.",
+      "A free web proposal for Tag-os Elementary School, built as a school announcements platform with an admin CMS for posts, events, staff, and school info.",
     techStack: ["React", "JavaScript", "CSS", "Vite", "HTML", "Netlify"],
     liveUrl: "https://tagoselementary.netlify.app/",
     githubUrl: "https://github.com/KleinLavina/TES",
     thumbnail: "/tes.png",
-    context: "Shows Klein's ability to build content-managed interfaces instead of static brochure pages.",
+    context: "A proposal build for Tag-os Elementary School that shows Klein's ability to turn a school use case into a content-managed interface.",
   },
   {
     id: 5,

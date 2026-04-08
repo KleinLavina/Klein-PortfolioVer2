@@ -1,6 +1,6 @@
 import { memo, type CSSProperties, type ElementType } from "react";
 import { motion } from "framer-motion";
-import { ChevronRight, Github, Globe } from "lucide-react";
+import { Github, Globe } from "lucide-react";
 
 import type { ProjectShowcaseItem } from "@/lib/projects";
 
@@ -25,14 +25,6 @@ const FEATURED_PROJECT_PANEL_BORDER_CLASS =
 const FEATURED_PROJECT_IMAGE_SHELL_CLASS =
   "relative z-10 isolate aspect-square w-full overflow-hidden rounded-[2rem] border border-border/45 bg-card/35 shadow-[0_34px_90px_-46px_hsl(var(--foreground)/0.5)] backdrop-blur-sm md:w-[38%] md:flex-shrink-0";
 
-function shouldTruncateDescription(description: string) {
-  return description.length > 120;
-}
-
-function getTruncatedDescription(description: string) {
-  return `${description.slice(0, 120).trimEnd()}...`;
-}
-
 const ProjectTechBadge = memo(function ProjectTechBadge({
   label,
   Icon,
@@ -50,20 +42,12 @@ const ProjectTechBadge = memo(function ProjectTechBadge({
 
 const ProjectDescription = memo(function ProjectDescription({
   description,
-  expanded,
 }: {
   description: string;
-  expanded: boolean;
 }) {
-  const content = expanded
-    ? description
-    : shouldTruncateDescription(description)
-      ? getTruncatedDescription(description)
-      : description;
-
   return (
     <p className="text-sm text-muted-foreground leading-relaxed">
-      {content}
+      {description}
     </p>
   );
 });
@@ -71,13 +55,9 @@ const ProjectDescription = memo(function ProjectDescription({
 export const ProjectShowcaseCard = memo(function ProjectShowcaseCard({
   project,
   index,
-  expanded,
-  onToggleExpand,
 }: {
   project: ProjectShowcaseItem;
   index: number;
-  expanded: boolean;
-  onToggleExpand: (projectId: number) => void;
 }) {
   const watermarkStyle: CSSProperties = project.reverseLayout
     ? {
@@ -145,23 +125,7 @@ export const ProjectShowcaseCard = memo(function ProjectShowcaseCard({
               </h3>
 
               <div className="mb-5">
-                <ProjectDescription description={project.description} expanded={expanded} />
-                {shouldTruncateDescription(project.description) && (
-                  <motion.button
-                    onClick={() => onToggleExpand(project.id)}
-                    className="mt-3 flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary transition-colors duration-200 hover:bg-primary/10 hover:text-primary/80 group/btn"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span>{expanded ? "See Less" : "See More"}</span>
-                    <motion.div
-                      animate={{ rotate: expanded ? -90 : 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <ChevronRight size={12} className="transition-transform duration-200 group-hover/btn:translate-x-0.5" />
-                    </motion.div>
-                  </motion.button>
-                )}
+                <ProjectDescription description={project.description} />
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -177,7 +141,10 @@ export const ProjectShowcaseCard = memo(function ProjectShowcaseCard({
                   href={project.liveUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/20"
+                  className={[
+                    "flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary/20",
+                    project.liveDemoDisabled ? "hover:cursor-not-allowed" : "",
+                  ].join(" ")}
                 >
                   <Globe size={13} /> Live Demo
                 </a>

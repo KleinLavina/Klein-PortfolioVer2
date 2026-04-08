@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from "react";
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { ArrowLeft, ChevronRight } from "lucide-react";
@@ -9,13 +9,7 @@ import { PROJECTS, buildProjectShowcaseItems } from "@/lib/projects";
 
 const PROJECT_SHOWCASE_ITEMS = buildProjectShowcaseItems(PROJECTS);
 
-const ProjectsArchiveList = memo(function ProjectsArchiveList({
-  expandedProjects,
-  onToggleExpand,
-}: {
-  expandedProjects: Set<number>;
-  onToggleExpand: (projectId: number) => void;
-}) {
+const ProjectsArchiveList = memo(function ProjectsArchiveList() {
   return (
     <div className="space-y-8">
       {PROJECT_SHOWCASE_ITEMS.map((project, index) => (
@@ -23,8 +17,6 @@ const ProjectsArchiveList = memo(function ProjectsArchiveList({
           key={project.id}
           project={project}
           index={index}
-          expanded={expandedProjects.has(project.id)}
-          onToggleExpand={onToggleExpand}
         />
       ))}
     </div>
@@ -33,24 +25,11 @@ const ProjectsArchiveList = memo(function ProjectsArchiveList({
 
 export default function ProjectsPage() {
   const [, setLocation] = useLocation();
-  const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
 
   const handleReturnHome = () => {
     window.sessionStorage.setItem("portfolio-scroll-target", "projects");
     setLocation("/");
   };
-
-  const toggleProjectExpansion = useCallback((projectId: number) => {
-    setExpandedProjects((prev) => {
-      const next = new Set(prev);
-      if (next.has(projectId)) {
-        next.delete(projectId);
-      } else {
-        next.add(projectId);
-      }
-      return next;
-    });
-  }, []);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-background">
@@ -101,10 +80,7 @@ export default function ProjectsPage() {
           </p>
         </motion.div>
 
-        <ProjectsArchiveList
-          expandedProjects={expandedProjects}
-          onToggleExpand={toggleProjectExpansion}
-        />
+        <ProjectsArchiveList />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

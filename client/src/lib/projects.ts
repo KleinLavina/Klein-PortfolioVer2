@@ -29,6 +29,7 @@ export type Project = {
   description: string;
   techStack: string[];
   liveUrl?: string;
+  liveDemoDisabled?: boolean;
   githubUrl?: string;
   thumbnail: string;
 };
@@ -50,6 +51,7 @@ export const PROJECTS: Project[] = [
       "A document tracking system built around the actual workflow of PENRO offices - handling document submission, routing between departments, status monitoring, and deadline tracking. Designed to match how PENRO staff submit and process documents day-to-day, with role-based access for different office levels.",
     techStack: ["Django", "PostgreSQL", "HTML", "CSS", "JavaScript", "Cloudinary", "OnRender", "Brevo SMTP"],
     liveUrl: "https://r8penrowise.onrender.com",
+    liveDemoDisabled: true,
     thumbnail: "/wise-penro.png",
   },
   {
@@ -64,9 +66,9 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 4,
-    title: "Tag-os Elementary School Website",
+    title: "School Announcements",
     description:
-      "A modern elementary school website featuring an admin CMS for managing announcements, events, staff directory, and school information with responsive design and interactive components.",
+      "A free web proposal for Tag-os Elementary School, built as a school announcements platform with an admin CMS for posts, events, staff, and school info.",
     techStack: ["React", "JavaScript", "CSS", "Vite", "HTML", "Netlify"],
     liveUrl: "https://tagoselementary.netlify.app/",
     githubUrl: "https://github.com/KleinLavina/TES",

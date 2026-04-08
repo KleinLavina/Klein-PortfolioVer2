@@ -28,6 +28,7 @@ import {
   SiFigma,
   SiVite,
   SiNetlify,
+  SiVercel,
   SiThreedotjs,
   SiOpenai
 } from "react-icons/si";
@@ -103,6 +104,8 @@ const TECH_STACK_GROUPS = [
     skills: [
       { name: "Cloudinary", icon: FaCloud, color: "text-blue-600" },
       { name: "Render", icon: FaServer, color: "text-purple-600" },
+      { name: "Vercel", icon: SiVercel, color: "text-foreground" },
+      { name: "Netlify", icon: SiNetlify, color: "text-emerald-500" },
     ],
   },
   {
@@ -161,6 +164,22 @@ const CORE_CAPABILITIES = [
     icon: Sparkles,
     featured: false,
   },
+  {
+    service: "Redesign and Optimization",
+    description:
+      "Transform existing websites into faster, smarter, and more effective tools. Redesign with strategy in mind, improving usability, boosting performance, and optimizing for conversions and search visibility.",
+    stack: ["UX Strategy", "Performance", "SEO"],
+    icon: Zap,
+    featured: false,
+  },
+  {
+    service: "Web & App Design",
+    description:
+      "Beautiful, purposeful design that goes beyond aesthetics, with intuitive user experiences and interfaces crafted to engage users, elevate brand identity, and drive meaningful interaction.",
+    stack: ["Figma", "Design Systems", "UI/UX"],
+    icon: Layers,
+    featured: false,
+  },
 ] as const;
 
 const CAPABILITY_STACK_META: Record<
@@ -184,6 +203,12 @@ const CAPABILITY_STACK_META: Record<
   OpenAI: { icon: SiOpenai, color: "text-foreground" },
   "RESTful APIs": { icon: Server, color: "text-secondary" },
   "Gemini API": { icon: Sparkles, color: "text-primary" },
+  "UX Strategy": { icon: Layers, color: "text-secondary" },
+  Performance: { icon: Zap, color: "text-lime-400" },
+  SEO: { icon: Globe, color: "text-blue-500" },
+  Figma: { icon: SiFigma, color: "text-pink-500" },
+  "Design Systems": { icon: Layers, color: "text-secondary" },
+  "UI/UX": { icon: MonitorSmartphone, color: "text-cyan-500" },
 };
 
 const PROJECTS = [
@@ -214,8 +239,8 @@ const PROJECTS = [
   },
   {
     id: 4,
-    title: "Tag-os Elementary School Website",
-    description: "A modern elementary school website featuring an admin CMS for managing announcements, events, staff directory, and school information with responsive design and interactive components.",
+    title: "School Announcements",
+    description: "A free web proposal for Tag-os Elementary School, built as a school announcements platform with an admin CMS for posts, events, staff, and school info.",
     techStack: ["React", "JavaScript", "CSS", "Vite", "HTML", "Netlify"],
     liveUrl: "https://tagoselementary.netlify.app/",
     githubUrl: "https://github.com/KleinLavina/TES",
@@ -482,12 +507,8 @@ const SoftSkillCard = memo(function SoftSkillCard({
 });
 
 const FeaturedProjectsSection = memo(function FeaturedProjectsSection({
-  expandedProjects,
-  onToggleExpand,
   onViewAll,
 }: {
-  expandedProjects: Set<number>;
-  onToggleExpand: (projectId: number) => void;
   onViewAll: () => void;
 }) {
   return (
@@ -498,32 +519,72 @@ const FeaturedProjectsSection = memo(function FeaturedProjectsSection({
             key={project.id}
             project={project}
             index={index}
-            expanded={expandedProjects.has(project.id)}
-            onToggleExpand={onToggleExpand}
           />
         ))}
       </div>
 
       <motion.div
-        className="flex justify-center mt-12"
+        className="mt-12"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4, delay: 0.2 }}
       >
-        <button
+        <motion.button
+          type="button"
           onClick={onViewAll}
-          className="group flex items-center gap-2.5 px-7 py-3 rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.995 }}
+          className="group relative block w-full overflow-hidden rounded-[1.8rem] border border-transparent bg-transparent text-left transition-all duration-300 hover:border-primary/30 hover:bg-card/16"
         >
-          <motion.span
-            whileHover={{ x: 2 }}
-            transition={{ duration: 0.2 }}
-            className="inline-block"
-          >
-            <ChevronRight size={15} />
-          </motion.span>
-          {`Show ${ALL_PROJECTS.length - 3} More Projects`}
-        </button>
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-px bg-border/35 transition-all duration-300 group-hover:h-[2px] group-hover:bg-primary/55"
+          />
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 h-px bg-transparent transition-all duration-300 group-hover:bg-primary/20"
+          />
+
+          <div className="grid grid-cols-1 gap-5 px-4 py-6 sm:px-5 sm:py-7 lg:grid-cols-[240px_minmax(0,1fr)_auto] lg:items-center lg:gap-6">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border/45 bg-background/55 text-foreground transition-colors duration-300 group-hover:border-primary/35 group-hover:text-primary">
+                <FolderGit2 size={18} strokeWidth={1.8} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-muted-foreground/60">
+                  Destination
+                </div>
+                <h3 className="mt-2 text-xl font-black uppercase leading-[0.92] tracking-[-0.04em] text-foreground sm:text-[1.85rem]">
+                  Projects
+                  <br />
+                  Archive
+                </h3>
+              </div>
+            </div>
+
+            <div className="min-w-0">
+              <div className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-muted-foreground/60">
+                Next Page
+              </div>
+              <p className="mt-2 text-lg font-semibold leading-relaxed text-foreground">
+                {`Show ${ALL_PROJECTS.length - 3} More Projects`}
+              </p>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                Open the full archive page to browse the remaining builds, experiments, and shipped work.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 lg:justify-end">
+              <span className="inline-flex items-center rounded-full border border-border/40 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground transition-all duration-300 group-hover:border-primary/25 group-hover:text-foreground">
+                /projects
+              </span>
+              <span className="inline-flex h-11 w-11 items-center justify-center border border-border/45 bg-background/45 text-muted-foreground transition-all duration-300 group-hover:border-primary/35 group-hover:bg-primary/10 group-hover:text-primary">
+                <ArrowUpRight size={17} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+            </div>
+          </div>
+        </motion.button>
       </motion.div>
     </>
   );
@@ -695,7 +756,6 @@ export default function Home() {
   const [visitorCount, setVisitorCount] = useState<number | null>(null);
   const [visitorLoading, setVisitorLoading] = useState(true);
   const [visitorCountUnavailable, setVisitorCountUnavailable] = useState(false);
-  const [expandedProjects, setExpandedProjects] = useState<Set<number>>(new Set());
   const [activeCertificateImage, setActiveCertificateImage] =
     useState<(typeof CERTIFICATION_IMAGES)[number] | null>(null);
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
@@ -706,18 +766,6 @@ export default function Home() {
   const mag1 = useMagnetic(0.3);
   const mag2 = useMagnetic(0.3);
   const contactEntryControls = useAnimationControls();
-
-  const toggleProjectExpansion = useCallback((projectId: number) => {
-    setExpandedProjects(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(projectId)) {
-        newSet.delete(projectId);
-      } else {
-        newSet.add(projectId);
-      }
-      return newSet;
-    });
-  }, []);
 
   const handleViewAllProjects = useCallback(() => {
     setLocation("/projects");
@@ -1448,8 +1496,6 @@ export default function Home() {
           </motion.div>
 
           <FeaturedProjectsSection
-            expandedProjects={expandedProjects}
-            onToggleExpand={toggleProjectExpansion}
             onViewAll={handleViewAllProjects}
           />
         </Section>
